@@ -1,4 +1,5 @@
 #include "move.h"
+#include <cstring>
 
 Move::Move(const char* _start, const char* _end){
 	memcpy(start, _start, 2 * sizeof(char));

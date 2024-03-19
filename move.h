@@ -1,9 +1,12 @@
+#pragma once
+#include "piece.h"
+
 class Move{
 public:
 	char start[2];
 	char end[2];
 	
-	Piece movingPiece;
+	//Piece movingPiece;
 	
 	bool isCapture;
 	bool isPromotion;

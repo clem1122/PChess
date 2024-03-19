@@ -3,11 +3,11 @@
 
 // Board Constructor
 Board::Board() {
-    // Implement default constructor logic here
+   
 }
 
 // Board Constructor with FEN parameter
-Board::Board(char[] FEN) {
+Board::Board(const char* _FEN) {
     // Implement constructor with FEN logic here
 }
 
@@ -18,30 +18,34 @@ Board::~Board() {
 
 // Utility function to convert index to coordinate
 char Board::indexToCoord(const int &index) {
-    // Implement indexToCoord logic here
+    return ' ';
 }
 
 // Utility function to convert coordinate to index
 int Board::coordToIndex(const char* &coord) {
-    // Implement coordToIndex logic here
+    return 0;
 }
 
 // Utility function to play a move
 Board Board::playMove(const Move move) {
-    // Implement createMove logic here
+    return Board();
 }
 
 // Utility function to convert FEN string to pieces
-Piece[] Board::FENtoPieces(const char* FEN) {
-    // Implement FENtoPieces logic here
+Piece* Board::FENtoPieces(const char* _FEN) {
+    return nullptr;
 }
 
 // Utility function to convert pieces to FEN string
-char[] Board::PiecestoFEN(const Piece* pieces) {
-    // Implement PiecestoFEN logic here
+char* Board::PiecestoFEN(const Piece* _pieces) {
+    return nullptr;
 }
 
 // Game logic function to check if a move is legal
 bool Board::isLegal(const Move move) {
-    // Implement isLegal logic here
+    return true;
 }
+
+
+
+

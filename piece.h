@@ -1,3 +1,4 @@
+#pragma once
 class Piece{
 public:
 	char type;

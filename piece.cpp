@@ -1,4 +1,5 @@
 #include "piece.h"
+#include <cstring>
 
 Piece::Piece(const char _type, const char(&_coord)[4], bool _isWhite) {
 	type = _type;
