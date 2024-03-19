@@ -20,13 +20,32 @@ Board::~Board() {
 }
 
 // Utility function to convert index to coordinate
-char Board::indexToCoord(const int &index) {
-    return ' ';
+char* Board::indextoCoord(const int &index) {
+    char* coord = new char[2];
+    const char* ref = "abcdefgh";
+    int row = 8 - (index / 8);
+    char column = ref[index % 8];
+    
+    coord[0] = column;
+    coord[1] = '0' + row;// conversion in char
+    return coord;
 }
 
 // Utility function to convert coordinate to index
-int Board::coordToIndex(const char* &coord) {
-    return 0;
+int Board::coordtoIndex(const char* &coord) {
+    char column = coord[0]; //"a4" -> "a"
+    int row = coord[1] - '0'; //"a4" -> 4
+    int columnNb = 0;
+    const char* ref = "abcdefgh";
+    for(int i = 0; i < 8; i++){
+    	if (column == ref[i]){
+    		columnNb = i; // a = 0, h = 7
+    		break; 
+    	}
+    }
+    int index = (8-row) * 8 + columnNb;
+    std::cout << index << std::endl;
+    return index; // tkt ça marche
 }
 
 // Utility function to play a move
