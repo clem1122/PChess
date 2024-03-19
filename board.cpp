@@ -1,14 +1,17 @@
 #include "board.h"
-
+#include <iostream>
+#include <cstring>
 
 // Board Constructor
 Board::Board() {
-   
+	const char *startFEN = "rnbqkbnrpppppppp................................PPPPPPPPRNBQKBNR";
+	memcpy(&FEN, startFEN, 64 * sizeof(char)); 
 }
 
 // Board Constructor with FEN parameter
 Board::Board(const char* _FEN) {
-    // Implement constructor with FEN logic here
+	memcpy(&FEN, _FEN, 64 * sizeof(char)); 
+	
 }
 
 // Board Destructor
@@ -45,6 +48,16 @@ char* Board::PiecestoFEN(const Piece* _pieces) {
 bool Board::isLegal(const Move move) {
     return true;
 }
+
+void Board::print(){
+	for (int i = 0; i<64;i++){
+		std::cout << FEN[i] << ' ';
+		if ((i+1) % 8 == 0 && i != 0) {
+			std::cout << std::endl;
+		}
+	}
+}
+
 
 
 

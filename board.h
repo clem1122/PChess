@@ -20,6 +20,8 @@ public:
 	char* PiecestoFEN(const Piece* _pieces);
 	
 	bool isLegal(const Move move);
+	
+	void print();
 }; 
 	
 	
