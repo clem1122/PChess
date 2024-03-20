@@ -6,7 +6,7 @@ public:
 	char start[2];
 	char end[2];
 	
-	//Piece movingPiece;
+	Piece movingPiece; // = new Piece("Q", "d1", true);
 	
 	bool isCapture;
 	bool isPromotion;

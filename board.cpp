@@ -1,6 +1,7 @@
 #include "board.h"
 #include <iostream>
 #include <cstring>
+#include <cctype>
 
 // Board Constructor
 Board::Board() {
@@ -32,7 +33,7 @@ char* Board::indextoCoord(const int &index) {
 }
 
 // Utility function to convert coordinate to index
-int Board::coordtoIndex(const char* &coord) {
+int Board::coordtoIndex(const char* coord) {
     char column = coord[0]; //"a4" -> "a"
     int row = coord[1] - '0'; //"a4" -> 4
     int columnNb = 0;
@@ -44,22 +45,42 @@ int Board::coordtoIndex(const char* &coord) {
     	}
     }
     int index = (8-row) * 8 + columnNb;
-    std::cout << index << std::endl;
     return index; // tkt ça marche
 }
 
 // Utility function to play a move
 Board Board::playMove(const Move move) {
-    return Board();
+	int startIndex = Board::coordtoIndex(move.start);
+	int endIndex = Board::coordtoIndex(move.end);
+	
+	char newFEN[64];
+	memcpy(&newFEN, &FEN, 64 * sizeof(char));
+	newFEN[startIndex] = '.';
+	newFEN[endIndex] = move.movingPiece.type; 
+
+	Board *newBoard = new Board(newFEN);
+	
+    return *newBoard;
 }
 
 // Utility function to convert FEN string to pieces
 Piece* Board::FENtoPieces(const char* _FEN) {
-    return nullptr;
+	Piece *p = new Piece[32];
+	int pieceNb = 0; 
+	for(int i = 0; i < 64; i++) {
+		if(_FEN[i] != '.') {
+			p[pieceNb] = Piece(_FEN[i], Board::indextoCoord(i), (bool)std::isupper(_FEN[i]));
+			std::cout << p[pieceNb].type << std::endl;
+			pieceNb++;
+
+		}
+	}
+    return p;
 }
 
 // Utility function to convert pieces to FEN string
 char* Board::PiecestoFEN(const Piece* _pieces) {
+	//char newFEN[64]; 
     return nullptr;
 }
 

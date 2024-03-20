@@ -13,7 +13,7 @@ public:
 	~Board();
 	
 	char* indextoCoord(const int &index);
-	int coordtoIndex(const char* &coord);
+	int coordtoIndex(const char* coord);
 	Board playMove(const Move move);
 	
 	Piece* FENtoPieces(const char* _FEN);
