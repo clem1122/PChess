@@ -28,7 +28,7 @@ char* Board::indextoCoord(const int &index) {
     char column = ref[index % 8];
     
     coord[0] = column;
-    coord[1] = '0' + row;// conversion in char
+    coord[1] = '0' + row; // conversion in char
     return coord;
 }
 
@@ -80,8 +80,12 @@ Piece* Board::FENtoPieces(const char* _FEN) {
 
 // Utility function to convert pieces to FEN string
 char* Board::PiecestoFEN(const Piece* _pieces) {
-	//char newFEN[64]; 
-    return nullptr;
+	char *newFEN = new char[64];
+	for(int i = 0; i < 32; i++){
+		int index = Board::coordtoIndex(_pieces[i].coord);
+		newFEN[index] = _pieces[i].type;
+	}
+    return newFEN;
 }
 
 // Game logic function to check if a move is legal

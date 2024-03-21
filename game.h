@@ -3,7 +3,13 @@
 
 class Game{
 public:
-	char* IPinfo;
+	int socketJ1;
+	int socketJ2;
+	char* nameJ1;
+	char* nameJ2;
 	Board board;
 	Game();
+	~Game();
 };
+
+//172.23.230.84
