@@ -65,14 +65,13 @@ Board Board::playMove(const Move move) {
 
 // Utility function to convert FEN string to pieces
 Piece* Board::FENtoPieces(const char* _FEN) {
-	Piece *p = new Piece[32];
+	Piece *p = new Piece[64];
 	int pieceNb = 0; 
 	for(int i = 0; i < 64; i++) {
 		if(_FEN[i] != '.') {
 			p[pieceNb] = Piece(_FEN[i], Board::indextoCoord(i), (bool)std::isupper(_FEN[i]));
 			std::cout << p[pieceNb].type << std::endl;
 			pieceNb++;
-
 		}
 	}
     return p;
@@ -81,9 +80,8 @@ Piece* Board::FENtoPieces(const char* _FEN) {
 // Utility function to convert pieces to FEN string
 char* Board::PiecestoFEN(const Piece* _pieces) {
 	char *newFEN = new char[64];
-	for(int i = 0; i < 32; i++){
-		int index = Board::coordtoIndex(_pieces[i].coord);
-		newFEN[index] = _pieces[i].type;
+	for(int i = 0; i < 64; i++) {
+			newFEN[index] = _pieces[i].type;
 	}
     return newFEN;
 }
