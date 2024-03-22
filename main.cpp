@@ -7,6 +7,7 @@ int main() {
 	Board* b = new Board();
 	b->print();
 	b->FENtoPieces(b->FEN);
+
 	return 0;
 }
 
