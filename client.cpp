@@ -14,7 +14,7 @@ void send(int s, char msg[]) {
 	size = write(s, msg, 1 + strlen(msg));
 }
 
-char * receive(int s) {
+char* receive(int s) {
 	size_t len;
 	ssize_t size;
 	size = read(s, &len, sizeof(len));
@@ -31,7 +31,8 @@ int main (int argc, char * argv[])
     struct hostent * server;
     int s, ret;
 	char * buf;
-	char *name;
+	char * name;
+	char input[5];
 
 	if (argc == 1) {
 		std::cerr << "usage: " << argv[0] 
@@ -63,12 +64,26 @@ int main (int argc, char * argv[])
                 close(s);
                 return 0;
         }
-
-	buf = receive(s);
-	std::cout << buf << std::endl;
+        
+       
 	name = argv[2];
 	send(s, name);
+	buf = receive(s); //Signal start
 	
+	while (true) {
+		if (strcmp(buf, "start") == 0) {
+		    std::cout << "Move to play : ";
+		    std::cin.getline(input, sizeof(input)); // Read input from user
+		    send(s, input); // Send input to server
+        } else {
+			buf = receive(s); // Receive response from server
+		    std::cout << "Response from server: " << buf << std::endl;
+		}
+        
+        
+        
+    }
+	delete [] buf; // Free memory allocated for response
 	
 
 	close(s);

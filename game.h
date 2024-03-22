@@ -7,6 +7,8 @@ public:
 	int socketJ2;
 	char* nameJ1;
 	char* nameJ2;
+	bool isOver;
+	
 	Board board;
 	Game();
 	~Game();

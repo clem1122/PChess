@@ -39,28 +39,54 @@ void * hconnect (void * t)
 	char client_ip[INET_ADDRSTRLEN];
     sockaddr_in addr;
     socklen_t addr_len = sizeof(addr);
+    
 	
 	getpeername(client_fd, (sockaddr *)&addr, &addr_len);
     inet_ntop(AF_INET, &addr.sin_addr, client_ip, INET_ADDRSTRLEN);
 	int f = *((int *)d->fd);
 
-	send(f, client_ip);
 	char* name = receive(f);
 	if (game.socketJ1 == 0) {
 		std::cout << "first connexion : " << name  << " socket : " << f << std::endl;
 		game.socketJ1 = f;	
 		game.nameJ1 = name;
+		
 	} else {
 		game.socketJ2 = f;
 		game.nameJ2 = name;
 		std::cout << "second connexion : " << name << " socket : " << f << std::endl;
 		if(game.socketJ2 == game.socketJ1) {std::cout << "ohoh" << std::endl;}
 	}
-	close(f);
-
+	
 	free(d);
 	pthread_detach(pthread_self());
 	return NULL;	
+}
+
+void* GameRoutine(void* _) {
+	char* buf;
+	const char* start = "start";
+	bool isJ1Turn = true;
+	while(true) {
+		if(game.socketJ1 == 0 || game.socketJ2 == 0) { std::cout << game.socketJ1 << game.socketJ2 << std::endl;
+		} else { 
+			
+			if(isJ1Turn) {
+				send(game.socketJ1, (char*)start);
+				buf = receive(game.socketJ1);
+				std::cout <<"Message recu : " << buf << std::endl;
+				send(game.socketJ2, buf);
+			} else {
+				send(game.socketJ2, (char*)start);
+				buf = receive(game.socketJ2);
+				std::cout <<"Message recu : " << buf << std::endl;
+				send(game.socketJ2, buf);
+			}
+		}
+		 
+	}
+	return nullptr;
+    
 }
 
 int main (int argc, char ** argv)
@@ -103,7 +129,8 @@ int main (int argc, char ** argv)
 		fprintf(stderr, "listen() failed\n");
 		return 0;
 	}
-
+	
+	pthread_create(&tid, NULL, GameRoutine, nullptr);
     while (1) {
         f = accept(s, NULL, 0);
         if (f == -1) {
@@ -116,7 +143,9 @@ int main (int argc, char ** argv)
 		*fd = f;
 		d->fd = fd;
 		
+		
 		pthread_create(&tid, NULL, hconnect, (void *)d);
+		
     }
 
     return 0;
