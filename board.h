@@ -20,6 +20,10 @@ public:
 	char* PiecestoFEN(const Piece* _pieces);
 	
 	bool isLegal(const Move move);
+	bool is_piece_on_square(int index_arrival);
+	bool is_white_on_square(int index_arrival);
+	bool is_piece_correctly_moving(const Move move);
+
 	
 	void print();
 }; 
