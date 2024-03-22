@@ -2,8 +2,13 @@
 #include <cstring>
 #include <iostream>
 
-Move::Move(const char* _start, const char* _end){
+Move::Move(const char* _start, const char* _end, Piece _movingPiece, bool _isCapture, bool _isPromotion, bool _isCastling, bool _isEnPassant){
 	
+	movingPiece = _movingPiece;
+	isCapture = _isCapture;
+	isPromotion = _isPromotion;
+	isCastling = _isCastling;
+	isEnPassant = _isEnPassant;
 	char departure_column=_start[0];
 	char arrival_column=_end[0];
 	int departure_row=_start[1] - '0';
@@ -25,3 +30,5 @@ Move::Move(const char* _start, const char* _end){
 	else{}
 	//Raise error and send message if not good
 }
+
+

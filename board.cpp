@@ -81,7 +81,7 @@ Piece* Board::FENtoPieces(const char* _FEN) {
 char* Board::PiecestoFEN(const Piece* _pieces) {
 	char *newFEN = new char[64];
 	for(int i = 0; i < 64; i++) {
-			newFEN[index] = _pieces[i].type;
+			newFEN[i] = _pieces[i].type;
 	}
     return newFEN;
 }
@@ -107,6 +107,18 @@ bool Board::is_white_on_square(int index_arrival){
 	return false;
 }
 
+// Utility function to create move
+
+Move Board::create_move(const char* start, const char* end){
+
+	int startIndex = coordtoIndex(start);
+	Piece piece = pieces[startIndex];
+	
+	Move playing_move(start, end, piece, false, false, false, false);
+	
+	return playing_move;
+
+}
 // Game logic function to check if a move is legal
 
 
