@@ -3,7 +3,7 @@
 
 
 Piece::Piece() {
-
+	type = '.';
 }
 
 Piece::Piece(const char _type, const char* _coord, bool _isWhite) {

@@ -68,10 +68,11 @@ int main (int argc, char * argv[])
        
 	name = argv[2];
 	send(s, name);
-	buf = receive(s); //Signal start
+	std::cout << "Listening..." << std::endl;
 	
 	while (true) {
-		if (strcmp(buf, "start") == 0) {
+		buf = receive(s); 
+		if (strcmp(buf, "s") == 0) {
 		    std::cout << "Move to play : ";
 		    std::cin.getline(input, sizeof(input)); // Read input from user
 		    send(s, input); // Send input to server
