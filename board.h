@@ -23,7 +23,8 @@ public:
 	bool is_piece_on_square(int index_arrival);
 	bool is_white_on_square(int index_arrival);
 	bool is_piece_correctly_moving(const Move move);
-
+	
+	bool isCheck(const char* _FEN);
 	
 	void print();
 }; 

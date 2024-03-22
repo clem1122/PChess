@@ -216,6 +216,70 @@ bool Board::isLegal(const Move move) {
     return false;
 }
 
+// Game logic to check if there is check on the king POV ('k' or 'K' for now)
+bool Board::isCheck(const char* _FEN) {
+	bool check = false;
+	int king_index = 100;
+	char POV = 'k';
+	for(int i = 0; i < 64; i++) {
+		if(_FEN[i] == POV) {
+		king_index = i;
+		}
+	}
+	
+	if (king_index ==100){
+		throw "King not found";
+	}
+	// check line for rook or queen
+	int p = king_index + 1;
+	while(p%8 != 1){
+		if(_FEN[p] != '.'){
+			if ((_FEN[p] == 'R') | (_FEN[p] == 'Q')){
+				return true;
+			}
+			break;  
+		}
+		p += 1;
+	}
+	
+	p = king_index - 1;
+	while(p%8 != 0){
+		if(_FEN[p] != '.'){
+			if ((_FEN[p] == 'R') | (_FEN[p] == 'Q')){
+				return true;
+			}
+			break;  
+		}
+		p -= 1;
+	}
+
+	p = king_index + 8;
+	while(p < 64){
+		if(_FEN[p] != '.'){
+			if ((_FEN[p] == 'R') | (_FEN[p] == 'Q')){
+				return true;
+			}
+			break;  
+		}
+		p = p + 8; 
+	}
+	
+	p = king_index - 8;
+	while(p >= 0){
+		if(_FEN[p] != '.'){
+			if ((_FEN[p] == 'R') | (_FEN[p] == 'Q')){
+				return true;
+			}
+			break;  
+		}
+		p = p - 8; 
+	}
+	
+	// check diagonals for bishop or queen //
+	// check some indexes for knight and king and pawn
+	
+	return check;
+}
 void Board::print(){
 	for (int i = 0; i<64;i++){
 		std::cout << FEN[i] << ' ';
