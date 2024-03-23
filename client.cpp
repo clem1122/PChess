@@ -33,6 +33,7 @@ int main (int argc, char * argv[])
 	char * buf;
 	char * name;
 	char input[5];
+	bool isMyTurn;
 
 	if (argc == 1) {
 		std::cerr << "usage: " << argv[0] 
@@ -70,19 +71,26 @@ int main (int argc, char * argv[])
 	send(s, name);
 	std::cout << "Listening..." << std::endl;
 	
-	while (true) {
-		buf = receive(s); 
-		if (strcmp(buf, "s") == 0) {
+	buf = receive(s);
+	if (strcmp(buf, "1") == 0) {
+		isMyTurn = true;
+	} else if (strcmp(buf, "2")) {
+		isMyTurn = false;
+	} else {
+		std::cout << "Error on data received" << std::endl;	
+		isMyTurn = false;
+	}
+	
+	while (true) { 
+		if (isMyTurn) {
 		    std::cout << "Move to play : ";
 		    std::cin.getline(input, sizeof(input)); // Read input from user
 		    send(s, input); // Send input to server
         } else {
 			buf = receive(s); // Receive response from server
-		    std::cout << "Response from server: " << buf << std::endl;
-		}
-        
-        
-        
+		    std::cout << "Move received : " << buf << std::endl;
+		}   
+		isMyTurn = !isMyTurn;
     }
 	delete [] buf; // Free memory allocated for response
 	

@@ -31,6 +31,13 @@ char * receive(int s) {
 
 }
 
+char* stringToChar(std::string s) {
+	char* charArray = new char[s.length() + 1];
+	strcpy(charArray, s.c_str());
+	return charArray;
+
+}
+
 void * hconnect (void * t)
 {
 	
@@ -51,10 +58,13 @@ void * hconnect (void * t)
 		game.socketJ1 = f;	
 		game.nameJ1 = name;
 		
+		
 	} else {
 		game.socketJ2 = f;
 		game.nameJ2 = name;
 		std::cout << "second connexion : " << name << " socket : " << f << std::endl;
+		send(game.socketJ1, stringToChar("1"));
+		send(game.socketJ2, stringToChar("4"));
 		if(game.socketJ2 == game.socketJ1) {std::cout << "ohoh" << std::endl;}
 	}
 	
@@ -64,29 +74,26 @@ void * hconnect (void * t)
 }
 
 void* GameRoutine(void* _) {
-	char *move = new char;
-	*move = 's';
-
+	char* move;
 	bool isJ1Turn = true;
+	
 	std::cout << "c'est parti..." << std::endl;
+	
 	while(true) {
 		sleep(1);
-		//std::cout << game.socketJ1 << " " << game.socketJ2 << std::endl;
-		//std::cout << "Waiting for 2 players" << std::endl;
 		if(game.socketJ1 != 0 && game.socketJ2 != 0) {
 			if(isJ1Turn) {
-				send(game.socketJ1, (char*)move);
 				move = receive(game.socketJ1);
-				std::cout <<"Message recu : " << move << std::endl;
+				std::cout <<"J1 plays : " << move << std::endl;
 				send(game.socketJ2, move);
-				isJ1Turn = !isJ1Turn;
+
 			} else {
-				send(game.socketJ2, (char*)move);
 				move = receive(game.socketJ2);
-				std::cout <<"Message recu : " << move << std::endl;
-				send(game.socketJ2, move);
-				isJ1Turn = !isJ1Turn;
+				std::cout <<"J2 plays : " << move << std::endl;
+				send(game.socketJ1, move);
 			}
+			
+			isJ1Turn = !isJ1Turn;
 		}
 		 
 	}

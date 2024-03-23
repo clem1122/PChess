@@ -1,4 +1,5 @@
 #include "board.h"
+#include "move.h"
 #include <iostream>
 #include <cstring>
 #include <cctype>

@@ -30,7 +30,7 @@ main : $(OBJS)
 	c++ -o main $(OBJS) $(FLAGS)
 	
 server: $(SERVER) game.cpp game.h board.cpp board.h piece.h piece.cpp
-	c++ -o server $(SERVER) game.o board.o piece.o -lpthread
+	c++ -o server $(SERVER) game.o board.o move.o piece.o -lpthread
 	
 client: $(CLIENT)
 	c++ -o client $(CLIENT)
