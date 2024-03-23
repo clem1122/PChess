@@ -19,7 +19,9 @@ public:
 	Piece* FENtoPieces(const char* _FEN);
 	char* PiecestoFEN(const Piece* _pieces);
 	
-	Move create_move(const char* start, const char* end);
+	Move create_move(const char* msg);
+	
+	bool isValidCoord(const char* _start, const char* _end);
 	bool isLegal(const Move move);
 	bool is_piece_on_square(int index_arrival);
 	bool is_white_on_square(int index_arrival);

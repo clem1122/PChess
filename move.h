@@ -13,6 +13,8 @@ public:
 	bool isCastling;
 	bool isEnPassant;
 	
+	Move();
 	Move(const char* _start, const char* _end, Piece _movingPiece, bool _isCapture, bool _isPromotion, bool _isCastling, bool _isEnPassant);
+	
 	
 };

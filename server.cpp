@@ -1,9 +1,11 @@
 #include <string.h>
+#include <cstring>
 #include <unistd.h>
 #include <arpa/inet.h>
 #include <iostream>
 #include "base.h"
 #include "game.h"
+#include "move.h"
 
 struct client {
 	int * fd;
@@ -20,12 +22,12 @@ void send(int s, char msg[]) {
 	size = write(s, msg, 1 + strlen(msg));
 }
 
-char * receive(int s) {
+char* receive(int s) {
 	size_t len;
 	ssize_t size;
 	size = read(s, &len, sizeof(len));
 	if (size != sizeof(len));
-	char * buf = new char [len + 1];
+	char *buf = new char [len + 1];
 	size = read(s, buf, 1 + len);
 	return buf;
 
@@ -41,7 +43,7 @@ char* stringToChar(std::string s) {
 void * hconnect (void * t)
 {
 	
-	client *d =  (client*)t;
+	client* d =  (client*)t;
 	int client_fd = *(d->fd);
 	char client_ip[INET_ADDRSTRLEN];
     sockaddr_in addr;
@@ -73,9 +75,14 @@ void * hconnect (void * t)
 	return NULL;	
 }
 
-void* GameRoutine(void* _) {
-	char* move;
+void* CommunicationRoutine(void* _) {
+	char* msg;
 	bool isJ1Turn = true;
+	bool isMoveValid;
+	Move move;
+	int playerSocket;
+	int waiterSocket;
+
 	
 	std::cout << "c'est parti..." << std::endl;
 	
@@ -83,15 +90,22 @@ void* GameRoutine(void* _) {
 		sleep(1);
 		if(game.socketJ1 != 0 && game.socketJ2 != 0) {
 			if(isJ1Turn) {
-				move = receive(game.socketJ1);
-				std::cout <<"J1 plays : " << move << std::endl;
-				send(game.socketJ2, move);
-
+				playerSocket = game.socketJ1;
+				waiterSocket = game.socketJ2;
 			} else {
-				move = receive(game.socketJ2);
-				std::cout <<"J2 plays : " << move << std::endl;
-				send(game.socketJ1, move);
+				playerSocket = game.socketJ2;
+				waiterSocket = game.socketJ1;
+
 			}
+			
+			do {
+				msg = receive(playerSocket);
+				move = game.board.create_move(msg);					
+				isMoveValid = true;
+			} while(!isMoveValid);
+			std::cout <<"Move : " << msg << std::endl;
+			send(waiterSocket, msg);
+
 			
 			isJ1Turn = !isJ1Turn;
 		}
@@ -142,7 +156,7 @@ int main (int argc, char ** argv)
 		return 0;
 	}
 	
-	pthread_create(&tid, NULL, GameRoutine, nullptr);
+	pthread_create(&tid, NULL, CommunicationRoutine, nullptr);
     while (1) {
         f = accept(s, NULL, 0);
         if (f == -1) {

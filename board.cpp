@@ -7,13 +7,14 @@
 // Board Constructor
 Board::Board() {
 	const char *startFEN = "rnbqkbnrpppppppp................................PPPPPPPPRNBQKBNR";
-	memcpy(&FEN, startFEN, 64 * sizeof(char)); 
+	memcpy(&FEN, startFEN, 64 * sizeof(char));
+	pieces = FENtoPieces(FEN);
 }
 
 // Board Constructor with FEN parameter
 Board::Board(const char* _FEN) {
 	memcpy(&FEN, _FEN, 64 * sizeof(char)); 
-	
+	pieces = FENtoPieces(FEN);
 }
 
 // Board Destructor
@@ -71,7 +72,7 @@ Piece* Board::FENtoPieces(const char* _FEN) {
 	for(int i = 0; i < 64; i++) {
 		if(_FEN[i] != '.') {
 			p[pieceNb] = Piece(_FEN[i], Board::indextoCoord(i), (bool)std::isupper(_FEN[i]));
-			std::cout << p[pieceNb].type << std::endl;
+			//std::cout << p[pieceNb].type << std::endl;
 			pieceNb++;
 		}
 	}
@@ -110,19 +111,30 @@ bool Board::is_white_on_square(int index_arrival){
 
 // Utility function to create move
 
-Move Board::create_move(const char* start, const char* end){
+Move Board::create_move(const char* msg){
+	char start[3];
+	char end[3];	
+	start[0] = 'r';
+	end[0] = 'r';	
+	if(start[0] == end[0]) {};
+	
+	memcpy(start, msg, 2);
+	memcpy(end, msg+2, 2);
 
-	int startIndex = coordtoIndex(start);
-	Piece piece = pieces[startIndex];
+
+	if (isValidCoord(start, end)) {
 	
-	Move playing_move(start, end, piece, false, false, false, false);
-	
-	return playing_move;
+		int startIndex = coordtoIndex(start);
+		Piece piece = pieces[startIndex];
+		return Move(start, end, piece, false, false, false, false);
+		
+	} else {
+		std::cout << "Illegal Move : bad coord" << std::endl;
+		return Move();
+	}
+
 
 }
-// Game logic function to check if a move is legal
-
-
 
 bool Board::is_piece_correctly_moving(const Move move){
 
@@ -218,6 +230,21 @@ bool Board::is_piece_correctly_moving(const Move move){
 	return false;
 }
 
+bool Board::isValidCoord(const char* _start, const char* _end) {
+	char departure_column=_start[0];
+	char arrival_column=_end[0];
+	int departure_row=_start[1] - '0';
+	int arrival_row=_end[1] - '0';
+
+	//Check if the coordinates do have sense
+	return 	'a' <= departure_column && departure_column <= 'h'
+		&&  'a' <= arrival_column   && arrival_column   <= 'h'
+		&&   1  <= departure_row    && departure_row    <=  8
+		&&   1  <= arrival_row      && arrival_row      <=  8
+		&&        (departure_column != arrival_column 
+		||         departure_row    != arrival_row);
+		
+}
 
 bool Board::isLegal(const Move move) {
 
