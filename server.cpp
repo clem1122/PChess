@@ -101,9 +101,15 @@ void* CommunicationRoutine(void* _) {
 			do {
 				msg = receive(playerSocket);
 				move = game.board.create_move(msg);					
-				isMoveValid = true;
+				isMoveValid = game.board.is_piece_correctly_moving(move);
+				if(not isMoveValid) {
+					std::cout << "Unvalid piece movement : " << msg << std::endl;
+				}
+				
 			} while(!isMoveValid);
 			std::cout <<"Move : " << msg << std::endl;
+			game.board.playMove(move);
+			game.board.print();
 			send(waiterSocket, msg);
 
 			

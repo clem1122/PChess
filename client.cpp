@@ -81,6 +81,7 @@ int main (int argc, char * argv[])
 		isMyTurn = false;
 	}
 	
+
 	while (true) { 
 		if (isMyTurn) {
 		    std::cout << "Move to play : ";
@@ -96,6 +97,5 @@ int main (int argc, char * argv[])
 	
 
 	close(s);
-	delete [] buf;
 	return 0;
 }

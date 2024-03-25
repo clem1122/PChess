@@ -51,14 +51,14 @@ int Board::coordtoIndex(const char* coord) {
 }
 
 // Utility function to play a move
-Board Board::playMove(const Move move) {
+Board Board::withMove(const Move move) {
 	int startIndex = Board::coordtoIndex(move.start);
 	int endIndex = Board::coordtoIndex(move.end);
 	
 	char newFEN[64];
 	memcpy(&newFEN, &FEN, 64 * sizeof(char));
 	newFEN[startIndex] = '.';
-	newFEN[endIndex] = move.movingPiece.type; 
+	newFEN[endIndex] = FEN[startIndex]; 
 
 	Board *newBoard = new Board(newFEN);
 	
@@ -67,13 +67,10 @@ Board Board::playMove(const Move move) {
 
 // Utility function to convert FEN string to pieces
 Piece* Board::FENtoPieces(const char* _FEN) {
-	Piece *p = new Piece[64];
-	int pieceNb = 0; 
+	Piece *p = new Piece[64]; 
 	for(int i = 0; i < 64; i++) {
 		if(_FEN[i] != '.') {
-			p[pieceNb] = Piece(_FEN[i], Board::indextoCoord(i), (bool)std::isupper(_FEN[i]));
-			//std::cout << p[pieceNb].type << std::endl;
-			pieceNb++;
+			p[i] = Piece(_FEN[i], Board::indextoCoord(i), (bool)std::isupper(_FEN[i]));
 		}
 	}
     return p;
@@ -114,9 +111,6 @@ bool Board::is_white_on_square(int index_arrival){
 Move Board::create_move(const char* msg){
 	char start[3];
 	char end[3];	
-	start[0] = 'r';
-	end[0] = 'r';	
-	if(start[0] == end[0]) {};
 	
 	memcpy(start, msg, 2);
 	memcpy(end, msg+2, 2);
@@ -125,7 +119,9 @@ Move Board::create_move(const char* msg){
 	if (isValidCoord(start, end)) {
 	
 		int startIndex = coordtoIndex(start);
+		
 		Piece piece = pieces[startIndex];
+//		std::cout << "piecetype : " << piece.type << std::endl;
 		return Move(start, end, piece, false, false, false, false);
 		
 	} else {
@@ -136,35 +132,41 @@ Move Board::create_move(const char* msg){
 
 }
 
+void Board::playMove(Move move) {
+	Board newBoard = withMove(move);
+	memcpy(&FEN, &(newBoard.FEN), 64 * sizeof(char));
+	pieces = newBoard.pieces;
+}
+
 bool Board::is_piece_correctly_moving(const Move move){
 
 	// Get infos from move
-	
 	char departure_column=move.start[0];
 	char arrival_column=move.end[0];
 	int departure_row=move.start[1] - '0';
 	int arrival_row=move.end[1] - '0';
 
 	
-	if (move.movingPiece.type=='r' || move.movingPiece.type=='R' || move.movingPiece.type=='q' || move.movingPiece.type=='Q'){
-		//Rook/Queen must have a move along a column or a row
-		
-		int similarities=0;
-		
-		if (departure_column==arrival_column){similarities+=1;}
-		if (departure_row==arrival_row){similarities+=1;}
-		
-		if (similarities==1){
+	if (move.movingPiece.type=='r' 
+	 || move.movingPiece.type=='R' 
+	 || move.movingPiece.type=='q' 
+	 || move.movingPiece.type=='Q')
+	{
+		//Rook/Queen must have a move along a column or a row	
+		if (departure_column == arrival_column || departure_row == arrival_row){
 			return true;
 		}
 	}
 		
-	if (move.movingPiece.type=='b' || move.movingPiece.type=='B' || move.movingPiece.type=='q' || move.movingPiece.type=='Q'){
+	if (move.movingPiece.type=='b' 
+	 || move.movingPiece.type=='B' 
+	 || move.movingPiece.type=='q' 
+	 || move.movingPiece.type=='Q')
+	{
 		//Bishop/Queen must increase row and column the same way
-		
-		int gap=arrival_row-departure_row;
-		
-		if ((arrival_column - gap)==departure_column){
+		int gap = std::abs(arrival_row-departure_row);
+
+		if (std::abs(arrival_column - departure_column) == gap){
 			return true;
 		}
 	}
@@ -187,30 +189,25 @@ bool Board::is_piece_correctly_moving(const Move move){
 		int row_gap=departure_row-arrival_row;
 		int column_gap=departure_column-arrival_column;
 		
-		if (move.movingPiece.isWhite && row_gap==1){return true;}
-		if (not move.movingPiece.isWhite && row_gap==-1){return true;}
-
-		//Check if pawn moves toward good direction
-		if (move.movingPiece.isWhite && row_gap<0){return false;}
-		if (not move.movingPiece.isWhite && row_gap>0){return false;}
 		
-		//If it moves more than 2 squares, not good
-		if (std::abs(row_gap)>2){return false;}
-		
-		//If it moves 2 squares, check color and if still on the starting row
-		if (std::abs(row_gap)==2){
-		
-			if (move.movingPiece.isWhite && departure_row!=2){return false;}
-			if (not move.movingPiece.isWhite && departure_row!=7){return false;}
-		}
-		
-		//If it moves horizontally, not good unless capturing
-		if (std::abs(column_gap)>1){return false;}
-		
-		if (std::abs(column_gap)==1 && not move.isCapture){return false;}
-		
-		return true;
-
+		if (column_gap == 0) {
+			//Normal movement
+			if (move.movingPiece.isWhite && row_gap==-1){return true;}
+			if (not move.movingPiece.isWhite && row_gap==1){return true;}
+			
+			//Start movement
+			if (std::abs(row_gap) == 2){
+				if (move.movingPiece.isWhite && departure_row == 2){return true;}
+				if ((not move.movingPiece.isWhite) && departure_row == 7){return true;}
+			}
+			
+		} else if (std::abs(column_gap) == 1 && move.isCapture) {
+			//Capture
+			if (move.movingPiece.isWhite && row_gap == -1){return true;}
+			if (not move.movingPiece.isWhite && row_gap == 1){return true;}
+		} 
+	
+		return false;
 	}
 	
 	if (move.movingPiece.type=='n' || move.movingPiece.type=='N'){
