@@ -2,8 +2,11 @@ let rows = 8;
 let cols = 8;
 let squareSize;
 let colors = ["#f3dbb4", "#b38c62"];
+let selectedColor = "#98c47e";
 let FEN = "rnbqkbnrpppppppp................................PPPPPPPPRNBQKBNR";
 let pieceImages = {};
+let selectedSquare = null;
+let selectedPiece = null;
 
 function preload() {
   pieceImages['Q'] = loadImage("Images/Q.png");
@@ -23,16 +26,16 @@ function preload() {
 
 function setup() {
 
-    createCanvas(400, 400);
+    createCanvas(900, 900);
     squareSize = width / rows;
-    
     for (let key in pieceImages) {
     	pieceImages[key].resize(squareSize, 0);
     }
     
     noStroke();
-    drawChessboard();
-    drawPieces();
+    drawBoard();
+    
+
     
     
 }
@@ -41,15 +44,24 @@ function draw() {
 
 }
 
-function drawChessboard() {
+function drawBoard() {
     for (let i = 0; i < rows; i++) {
         for (let j = 0; j < cols; j++) {
             let x = j * squareSize;
             let y = i * squareSize;
             fill(colors[(i + j) % 2]);
+            if (selectedSquare != null) {
+		        let {row, col} = selectedSquare;
+		        if(row == i && col == j) {
+			        
+		        	fill(selectedColor)
+		        }
+            }
             rect(x, y, squareSize, squareSize);
+            
         }
     }
+    drawPieces();
 }
 
 function drawPieces(){
@@ -64,4 +76,42 @@ function drawPieces(){
 		    }
 		}
 }
+
+function mousePressed() {
+
+	let col = floor(mouseX / squareSize);
+	let row = floor(mouseY / squareSize);
+
+	if (col >= 0 && col < 8 && row >= 0 && row < 8) {
+	
+		let FENindex = row * 8 + col;
+		if(selectedPiece == null) {
+			if (FEN[FENindex] != '.') {
+				selectedPiece = FEN[FENindex];
+				console.log(selectedPiece);
+			}
+		} else {
+		
+			FENArray = FEN.split('');
+			FENArray[FENindex] = selectedPiece;
+			let {row, col} = selectedSquare;
+
+			let startIndex = row * 8 + col;
+			FENArray[startIndex] = '.';
+			
+			FEN = FENArray.join('');
+			selectedPiece = null;
+		}
+		
+		selectedSquare = { row: row, col: col };
+		
+		
+    	drawBoard();
+	}
+}
+
+
+
+
+
 
