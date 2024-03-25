@@ -34,15 +34,32 @@ function setup() {
     
     noStroke();
     drawBoard();
-    
+	let socket = new WebSocket('ws://localhost:25000'); 
+	socket.onopen = function(event) {
+		console.log('Connected to server');
+	};
 
-    
-    
+	socket.onmessage = function(event) {
+		console.log('Message from server:', event.data);
+	};
+
+	socket.onclose = function(event) {
+		console.log('Connection closed');
+	};
+
+	socket.onerror = function(error) {
+		console.error('WebSocket error:', error);
+	};
+
+	
+ 
 }
 
 function draw() {
 
 }
+
+
 
 function drawBoard() {
     for (let i = 0; i < rows; i++) {

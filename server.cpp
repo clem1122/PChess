@@ -43,6 +43,7 @@ char* stringToChar(std::string s) {
 void * hconnect (void * t)
 {
 	
+	
 	client* d =  (client*)t;
 	int client_fd = *(d->fd);
 	char client_ip[INET_ADDRSTRLEN];
@@ -53,18 +54,17 @@ void * hconnect (void * t)
 	getpeername(client_fd, (sockaddr *)&addr, &addr_len);
     inet_ntop(AF_INET, &addr.sin_addr, client_ip, INET_ADDRSTRLEN);
 	int f = *((int *)d->fd);
-
-	char* name = receive(f);
+	std::cout << "connect" << std::endl;
 	if (game.socketJ1 == 0) {
-		std::cout << "first connexion : " << name  << " socket : " << f << std::endl;
+		std::cout << "first connexion " << "socket : " << f << std::endl;
 		game.socketJ1 = f;	
-		game.nameJ1 = name;
+		//game.nameJ1 = name;
 		
 		
 	} else {
 		game.socketJ2 = f;
-		game.nameJ2 = name;
-		std::cout << "second connexion : " << name << " socket : " << f << std::endl;
+		//game.nameJ2 = name;
+		std::cout << "second connexion " <<  " socket : " << f << std::endl;
 		send(game.socketJ1, stringToChar("1"));
 		send(game.socketJ2, stringToChar("4"));
 		if(game.socketJ2 == game.socketJ1) {std::cout << "ohoh" << std::endl;}
@@ -95,15 +95,16 @@ void* CommunicationRoutine(void* _) {
 			} else {
 				playerSocket = game.socketJ2;
 				waiterSocket = game.socketJ1;
-
 			}
 			
 			do {
 				msg = receive(playerSocket);
 				move = game.board.create_move(msg);					
-				isMoveValid = game.board.is_piece_correctly_moving(move);
+				isMoveValid = game.board.is_piece_correctly_moving(move) && 
+				(move.movingPiece.isWhite != (playerSocket == game.socketJ2)); // soit isWhite et J1 soit !isWhite et J2 
 				if(not isMoveValid) {
 					std::cout << "Unvalid piece movement : " << msg << std::endl;
+					send(playerSocket, stringToChar("err0"));
 				}
 				
 			} while(!isMoveValid);
@@ -165,6 +166,7 @@ int main (int argc, char ** argv)
 	pthread_create(&tid, NULL, CommunicationRoutine, nullptr);
     while (1) {
         f = accept(s, NULL, 0);
+        
         if (f == -1) {
 			fprintf(stderr, "accept() failed\n");
 			return 0;

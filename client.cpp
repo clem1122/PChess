@@ -31,7 +31,6 @@ int main (int argc, char * argv[])
     struct hostent * server;
     int s, ret;
 	char * buf;
-	char * name;
 	char input[5];
 	bool isMyTurn;
 
@@ -67,8 +66,6 @@ int main (int argc, char * argv[])
         }
         
        
-	name = argv[2];
-	send(s, name);
 	std::cout << "Listening..." << std::endl;
 	
 	buf = receive(s);
@@ -88,8 +85,14 @@ int main (int argc, char * argv[])
 		    std::cin.getline(input, sizeof(input)); // Read input from user
 		    send(s, input); // Send input to server
         } else {
+        	//std::cout <<"Listen" << std::endl;
 			buf = receive(s); // Receive response from server
-		    std::cout << "Move received : " << buf << std::endl;
+			std::cout << "<" << buf << ">" << std::endl;
+			if(strcmp(buf, "err0") == 0) {
+				std::cout << "Illegal move" << std::endl;
+			} else {
+			    std::cout << "Move received : " << buf << std::endl;
+			}
 		}   
 		isMyTurn = !isMyTurn;
     }
