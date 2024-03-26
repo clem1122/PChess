@@ -3,14 +3,11 @@
 #include <unistd.h>
 #include <arpa/inet.h>
 #include <iostream>
-#include <boost/asio.hpp>
 #include "base.h"
 #include "game.h"
 #include "move.h"
 
-using namespace boost::asio;
-using ip::tcp;
-using std::string;
+
 
 struct client {
 	int * fd;
@@ -45,15 +42,6 @@ char* stringToChar(std::string s) {
 
 }
 
-string createRequest(std::string msg) {
-    return "HTTP/1.1 200 OK\r\n"
-           "Content-Type: text/plain\r\n"
-           "Access-Control-Allow-Origin: *\r\n" // Allow requests from any origin
-           "Access-Control-Allow-Methods: GET, POST, OPTIONS\r\n" // Allow specified methods
-           "Access-Control-Allow-Headers: Content-Type\r\n" // Allow specified headers
-           "\r\n" + msg;
-}
-
 void * hconnect (void * t)
 {
 	
@@ -68,7 +56,6 @@ void * hconnect (void * t)
 	getpeername(client_fd, (sockaddr *)&addr, &addr_len);
     inet_ntop(AF_INET, &addr.sin_addr, client_ip, INET_ADDRSTRLEN);
 	int f = *((int *)d->fd);
-	std::cout << "connect" << std::endl;
 	if (game.socketJ1 == 0) {
 		std::cout << "first connexion " << "socket : " << f << std::endl;
 		game.socketJ1 = f;	
@@ -125,7 +112,7 @@ void* CommunicationRoutine(void* _) {
 			std::cout <<"Move : " << msg << std::endl;
 			game.board.playMove(move);
 			game.board.print();
-			send(waiterSocket, msg);
+			send(waiterSocket, game.board.FEN);
 
 			
 			isJ1Turn = !isJ1Turn;
@@ -136,36 +123,7 @@ void* CommunicationRoutine(void* _) {
 	   
 }
 
-void* HTMLManager(void* _) {
-	io_service io;
 
-    // Create a TCP acceptor
-    tcp::acceptor acceptor(io, tcp::endpoint(tcp::v4(), 8080));
-
-    while (true) {
-        // Accept incoming connections
-        tcp::socket socket(io);
-        acceptor.accept(socket);
-
-        // Read the request
-        boost::system::error_code error;
-        boost::asio::streambuf request;
-        boost::asio::read_until(socket, request, "\r\n\r\n", error);
-		std::istream request_stream(&request);
-    	std::stringstream request_data;
-    	request_data << request_stream.rdbuf();
-
-   		// Print the request data
-    	//std::cout << "Request data:\n" << request_data.str() << std::endl;
-		
-        // Send the response
-        std::string response = createRequest(game.board.FEN);
-        boost::asio::write(socket, boost::asio::buffer(response));
-        
-    }
-
-
-}
 int main (int argc, char ** argv)
 
 {
@@ -206,9 +164,8 @@ int main (int argc, char ** argv)
 		fprintf(stderr, "listen() failed\n");
 		return 0;
 	}
-	
 	pthread_create(&tid, NULL, CommunicationRoutine, nullptr);
-	pthread_create(&tid, NULL, HTMLManager, nullptr);
+	
     while (1) {
         f = accept(s, NULL, 0);
         
@@ -224,7 +181,7 @@ int main (int argc, char ** argv)
 		
 		
 		pthread_create(&tid, NULL, hconnect, (void *)d);
-		
+
     }
 
     return 0;

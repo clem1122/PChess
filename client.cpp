@@ -2,9 +2,16 @@
 #include <string.h>
 #include <arpa/inet.h>
 #include <netdb.h>
+#include <boost/asio.hpp>
 #include <iostream>
 #include "base.h"
 #include <cstring>
+
+using namespace boost::asio;
+using ip::tcp;
+using std::string;
+
+char *FEN;
 
 void send(int s, char msg[]) {
 	ssize_t size;
@@ -25,15 +32,74 @@ char* receive(int s) {
 
 }
 
+string createRequest(std::string msg) {
+    return "HTTP/1.1 200 OK\r\n"
+           "Content-Type: text/plain\r\n"
+           "Access-Control-Allow-Origin: *\r\n" // Allow requests from any origin
+           "Access-Control-Allow-Methods: GET, POST, OPTIONS\r\n" // Allow specified methods
+           "Access-Control-Allow-Headers: Content-Type\r\n" // Allow specified headers
+           "\r\n" + msg;
+}
+
+void* HTMLManager(void* _) {
+	io_service io;
+
+    // Create a TCP acceptor
+    
+    tcp::acceptor acceptor(io);
+	int port = 8080;
+	//tcp::acceptor acceptor(io, tcp::endpoint(tcp::v4(), port));
+	
+	
+	
+	while (true) {
+    	try {
+		    acceptor.open(tcp::v4());
+		    acceptor.bind(tcp::endpoint(tcp::v4(), port));
+		    acceptor.listen();
+       		break; // Successful bind, exit loop
+        
+		} catch (boost::system::system_error& e) {
+		        ++port;
+   		}
+	}
+	
+    while (true) {
+        // Accept incoming connections
+        tcp::socket socket(io);
+        acceptor.accept(socket);
+
+        // Read the request
+        boost::system::error_code error;
+        boost::asio::streambuf request;
+        boost::asio::read_until(socket, request, "\r\n\r\n", error);
+		std::istream request_stream(&request);
+    	std::stringstream request_data;
+    	request_data << request_stream.rdbuf();
+
+   		// Print the request data
+    	//std::cout << "Request data:\n" << request_data.str() << std::endl;
+		
+        // Send the response
+        std::string response = createRequest(FEN);
+        boost::asio::write(socket, boost::asio::buffer(response));
+        
+    }
+
+
+}
+
 int main (int argc, char * argv[])
 {
     struct sockaddr_in saddr;
     struct hostent * server;
+    char *buf;
     int s, ret;
-	char * buf;
 	char input[5];
 	bool isMyTurn;
+	pthread_t tid;
 
+	pthread_create(&tid, NULL, HTMLManager, nullptr);
 	if (argc == 1) {
 		std::cerr << "usage: " << argv[0] 
 			  << " [ adresse IP/nom du serveur ]" << std::endl;
@@ -65,7 +131,7 @@ int main (int argc, char * argv[])
                 return 0;
         }
         
-       
+    
 	std::cout << "Listening..." << std::endl;
 	
 	buf = receive(s);
@@ -87,11 +153,11 @@ int main (int argc, char * argv[])
         } else {
         	//std::cout <<"Listen" << std::endl;
 			buf = receive(s); // Receive response from server
-			std::cout << "<" << buf << ">" << std::endl;
 			if(strcmp(buf, "err0") == 0) {
 				std::cout << "Illegal move" << std::endl;
 			} else {
 			    std::cout << "Move received : " << buf << std::endl;
+			    //memcpy(FEN, buf, 64 * sizeof(char));
 			}
 		}   
 		isMyTurn = !isMyTurn;

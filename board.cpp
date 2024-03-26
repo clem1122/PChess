@@ -89,12 +89,7 @@ char* Board::PiecestoFEN(const Piece* _pieces) {
 
 
 bool Board::is_piece_on_square(int index_arrival){
-
-	if (FEN[index_arrival] != '.'){
-		return true;
-	}
-	
-	return false;
+	return (FEN[index_arrival] != '.');
 }
 
 bool Board::is_white_on_square(int index_arrival){
@@ -177,7 +172,7 @@ bool Board::is_piece_correctly_moving(const Move move){
 		int row_gap=std::abs(departure_row-arrival_row);
 		char column_gap=std::abs(departure_column-arrival_column);
 		
-		if (row_gap>1){return false;}
+		if (row_gap>1){return false;} //TODO : castling
 		if (column_gap>1){return false;}
 		
 		return true;
@@ -328,7 +323,7 @@ bool Board::is_there_obstacle_on_way(const Move move){
 	 
 	 }
 	 
-	 // King case does not need to be done becasue it only moves one square at a time
+	 // King case does not need to be done because it only moves one square at a time
 	 // Knight case does not need to be done because knight precisely do not bother with piece on their way
 	
 	return false;
@@ -383,7 +378,7 @@ bool Board::isLegal(const Move move) {
 			if(not Board::is_there_obstacle_on_arrival(move))
 			{
 
-					return true;
+					return true; //TODO  : check at next move
 			}
 		}
 	}

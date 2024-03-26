@@ -33,7 +33,7 @@ server: $(SERVER) game.o board.o piece.o
 	c++ -o server $(SERVER) game.o board.o move.o piece.o -lpthread
 	
 client: $(CLIENT)
-	c++ -o client $(CLIENT)
+	c++ -o client $(CLIENT) -lpthread
 	
 
 	
