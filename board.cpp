@@ -184,30 +184,41 @@ bool Board::is_piece_correctly_moving(const Move move){
 	}
 	
 	if (move.movingPiece.type=='p' || move.movingPiece.type=='P'){
-		//Pawn can only move 1 row depending on its color or 2 if it is in its starting place
+	//Pawn can only move 1 row depending on its color or 2 if it is on its starting place
 	
 		int row_gap=departure_row-arrival_row;
 		int column_gap=departure_column-arrival_column;
+		bool isMovingUp = row_gap>0;
+		bool isOnStartingRow = false;
 		
+		//Check if pawn moves toward good direction
+		bool isMovingGoodDirection = move.movingPiece.isWhite && isMovingUp; 
 		
-		if (column_gap == 0) {
-			//Normal movement
-			if (move.movingPiece.isWhite && row_gap==-1){return true;}
-			if (not move.movingPiece.isWhite && row_gap==1){return true;}
-			
-			//Start movement
-			if (std::abs(row_gap) == 2){
-				if (move.movingPiece.isWhite && departure_row == 2){return true;}
-				if ((not move.movingPiece.isWhite) && departure_row == 7){return true;}
+		//Check if on starting row
+		if ( (move.movingPiece.isWhite && departure_row==2) 
+		 || (not move.movingPiece.isWhite && departure_row==7) ){
+		 
+		 	isOnStartingRow = true;
+		 } 
+
+
+		if (isMovingGoodDirection){
+			if (column_gap==0 && not move.isCapture){
+
+				if (std::abs(row_gap)==1){
+					return true;
+				}
+
+				if (std::abs(row_gap)==2 && isOnStartingRow){
+					return true;
+				}
+
+			if (std::abs(column_gap)==1 && std::abs(row_gap)==1 && move.isCapture){
+				return true;
+				
 			}
-			
-		} else if (std::abs(column_gap) == 1 && move.isCapture) {
-			//Capture
-			if (move.movingPiece.isWhite && row_gap == -1){return true;}
-			if (not move.movingPiece.isWhite && row_gap == 1){return true;}
-		} 
-	
-		return false;
+		}
+
 	}
 	
 	if (move.movingPiece.type=='n' || move.movingPiece.type=='N'){
@@ -223,10 +234,102 @@ bool Board::is_piece_correctly_moving(const Move move){
 		}
 	
 	}
+	}
 	
 	return false;
 }
 
+
+bool Board::is_there_obstacle(const Move move){
+	//Return true if there is a piece able to block the move of the piece on its way.
+	//This function does NOT check the case of a piece ON the arrival square, another function is in charge of this
+	
+	// Get infos from move
+	char start_col=move.start[0];
+	char end_col=move.end[0];
+	char start_row=move.start[1];
+	char end_row=move.end[1];
+	char coord_considered[2];
+
+	// Rook/Queen case
+	if (move.movingPiece.type=='r' 
+	 || move.movingPiece.type=='R' 
+	 || move.movingPiece.type=='q' 
+	 || move.movingPiece.type=='Q'){
+	 
+	 	if (end_row == start_row) //Move along a row
+	 	{	 	
+	 		coord_considered[1]=start_row;
+	 		int gap = std::abs(end_col-start_col);
+	 		int direction = (end_col-start_col)/gap; //Positive toward right, negative toward left
+	 		
+	 		for (int i=1 ; i<gap ; i++)
+	 		{
+	 			coord_considered[0]=start_col + i*direction; //Check squares on the left or right depending on direction
+	 			int index_considerd=coordtoIndex(coord_considered);
+	 			if (is_piece_on_square(index_considerd)){return true;}
+	 		
+	 		}
+	 	}
+	 	
+	 	if (end_col == start_col) //Move along a column
+	 	{
+	 		coord_considered[0]=start_col;
+	 		int gap = std::abs(end_row-start_row);
+	 		int direction = (end_row - start_row)/gap; //Positive toward up, negative toward down
+	 		
+	 		for (int i=1 ; i<gap ; i++)
+	 		{
+	 			coord_considered[1]=start_row + i*direction; //Check squares on the up or down depending on direction
+	 			int index_considered=coordtoIndex(coord_considered);
+	 			
+	 			if (is_piece_on_square(index_considered)){return true;}
+	 		}
+	 	}
+	 }
+	 
+	 // Bishop/Queen case
+	 if (move.movingPiece.type=='b' 
+	 || move.movingPiece.type=='B' 
+	 || move.movingPiece.type=='q' 
+	 || move.movingPiece.type=='Q'){
+	 
+	 	int gap = std::abs(end_row-start_row);
+	 	int direction_row = (end_row-start_row)/gap;
+	 	int direction_col = (end_col - start_col);
+	 	
+	 	for (int i=1 ; i<gap ; i++)
+	 	{
+	 		coord_considered[0] = start_col + i*direction_col;
+	 		coord_considered[1] = start_row + i*direction_row;
+	 		int index_considered=coordtoIndex(coord_considered);
+	 		
+	 		if (is_piece_on_square(index_considered)){return true;}
+	 	}
+	 }
+	 
+	 // Pawn case
+	 if (move.movingPiece.type=='p' || move.movingPiece.type=='P'){
+	 
+	 	int gap = std::abs(end_row - start_row);
+	 	int direction = end_row - start_row;
+	 	
+	 	if (gap==2)
+	 	{
+	 		coord_considered[0] = start_col;
+	 		coord_considered[1] = start_row + direction;
+	 		int index_considered=coordtoIndex(coord_considered);
+	 		
+	 		if (is_piece_on_square(index_considered)){return true;}
+	 	}
+	 
+	 }
+	 
+	 // King case does not need to be done becasue it only moves one square at a time
+	 // Knight case does not need to be done because knight precisely do not bother with piece on their way
+	
+	return false;
+}
 bool Board::isValidCoord(const char* _start, const char* _end) {
 	char departure_column=_start[0];
 	char arrival_column=_end[0];
