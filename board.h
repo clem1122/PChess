@@ -31,6 +31,7 @@ public:
 	bool is_piece_correctly_moving(const Move move);
 	bool is_there_obstacle_on_way(const Move move);
 	bool is_there_obstacle_on_arrival(const Move move);
+
 	
 	bool isCheck(const char* _FEN);
 	

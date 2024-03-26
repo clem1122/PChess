@@ -139,8 +139,6 @@ void Board::playMove(Move move) {
 }
 
 bool Board::is_piece_correctly_moving(const Move move){
-
-	std::cout<<"On souhaite bouger une pièce "<<move.movingPiece.type<<std::endl;
 	// Get infos from move
 	char departure_column=move.start[0];
 	char arrival_column=move.end[0];
@@ -231,7 +229,6 @@ bool Board::is_piece_correctly_moving(const Move move){
 		
 		int FEN_gap=std::abs(startIndex-endIndex);
 		
-		std::cout<<"FEN Gap "<<FEN_gap<<std::endl;
 		if (FEN_gap==6 || FEN_gap==10 || FEN_gap==15 || FEN_gap==17){
 			return true;
 		}
@@ -393,6 +390,9 @@ bool Board::isLegal(const Move move) {
 
 	return false;
 }
+
+// Game logic to do a castling, a  special movement non respecting rules of isLegal
+
 
 // Game logic to check if there is check on the king POV ('k' or 'K' for now)
 bool Board::isCheck(const char* _FEN) {
