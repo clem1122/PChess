@@ -240,7 +240,7 @@ bool Board::is_piece_correctly_moving(const Move move){
 }
 
 
-bool Board::is_there_obstacle(const Move move){
+bool Board::is_there_obstacle_on_way(const Move move){
 	//Return true if there is a piece able to block the move of the piece on its way.
 	//This function does NOT check the case of a piece ON the arrival square, another function is in charge of this
 	
@@ -330,6 +330,22 @@ bool Board::is_there_obstacle(const Move move){
 	
 	return false;
 }
+
+
+bool Board::is_there_obstacle_on_arrival(const Move move){
+	//Return true if a piece of the same color is on the arrival square
+	
+	bool isPieceOnArrivalWhite = pieces[Board::coordtoIndex(move.end)].isWhite;
+	
+	if (isPieceOnArrivalWhite == move.movingPiece.isWhite){
+		return true;
+	}
+	
+	return false;
+	
+}
+
+
 bool Board::isValidCoord(const char* _start, const char* _end) {
 	char departure_column=_start[0];
 	char arrival_column=_end[0];
@@ -351,9 +367,18 @@ bool Board::isLegal(const Move move) {
 	//int startIndex = Board::coordtoIndex(move.start);
 	//char played_piece=FEN[startIndex];
 	
-	if(Board::is_piece_correctly_moving(move)){return true;}
+	if(Board::is_piece_correctly_moving(move))
+	{
+		if(not Board::is_there_obstacle_on_way(move))
+		{
+			if(not Board::is_there_obstacle_on_arrival(move))
+			{
+					return true;
+			}
+		}
+	}
 	
-    return false;
+	return false;
 }
 
 // Game logic to check if there is check on the king POV ('k' or 'K' for now)
