@@ -3,9 +3,14 @@
 #include <unistd.h>
 #include <arpa/inet.h>
 #include <iostream>
+#include <boost/asio.hpp>
 #include "base.h"
 #include "game.h"
 #include "move.h"
+
+using namespace boost::asio;
+using ip::tcp;
+using std::string;
 
 struct client {
 	int * fd;
@@ -38,6 +43,15 @@ char* stringToChar(std::string s) {
 	strcpy(charArray, s.c_str());
 	return charArray;
 
+}
+
+string createRequest(std::string msg) {
+    return "HTTP/1.1 200 OK\r\n"
+           "Content-Type: text/plain\r\n"
+           "Access-Control-Allow-Origin: *\r\n" // Allow requests from any origin
+           "Access-Control-Allow-Methods: GET, POST, OPTIONS\r\n" // Allow specified methods
+           "Access-Control-Allow-Headers: Content-Type\r\n" // Allow specified headers
+           "\r\n" + msg;
 }
 
 void * hconnect (void * t)
@@ -122,6 +136,36 @@ void* CommunicationRoutine(void* _) {
 	   
 }
 
+void* HTMLManager(void* _) {
+	io_service io;
+
+    // Create a TCP acceptor
+    tcp::acceptor acceptor(io, tcp::endpoint(tcp::v4(), 8080));
+
+    while (true) {
+        // Accept incoming connections
+        tcp::socket socket(io);
+        acceptor.accept(socket);
+
+        // Read the request
+        boost::system::error_code error;
+        boost::asio::streambuf request;
+        boost::asio::read_until(socket, request, "\r\n\r\n", error);
+		std::istream request_stream(&request);
+    	std::stringstream request_data;
+    	request_data << request_stream.rdbuf();
+
+   		// Print the request data
+    	//std::cout << "Request data:\n" << request_data.str() << std::endl;
+		
+        // Send the response
+        std::string response = createRequest(game.board.FEN);
+        boost::asio::write(socket, boost::asio::buffer(response));
+        
+    }
+
+
+}
 int main (int argc, char ** argv)
 
 {
@@ -164,6 +208,7 @@ int main (int argc, char ** argv)
 	}
 	
 	pthread_create(&tid, NULL, CommunicationRoutine, nullptr);
+	pthread_create(&tid, NULL, HTMLManager, nullptr);
     while (1) {
         f = accept(s, NULL, 0);
         
@@ -184,3 +229,6 @@ int main (int argc, char ** argv)
 
     return 0;
 }
+
+
+

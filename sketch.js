@@ -7,6 +7,7 @@ let FEN = "rnbqkbnrpppppppp................................PPPPPPPPRNBQKBNR";
 let pieceImages = {};
 let selectedSquare = null;
 let selectedPiece = null;
+let url = 'http://localhost:8080';
 
 function preload() {
   pieceImages['Q'] = loadImage("Images/Q.png");
@@ -33,30 +34,15 @@ function setup() {
     }
     
     noStroke();
-    drawBoard();
-	let socket = new WebSocket('ws://localhost:25000'); 
-	socket.onopen = function(event) {
-		console.log('Connected to server');
-	};
+    frameRate(1);
 
-	socket.onmessage = function(event) {
-		console.log('Message from server:', event.data);
-	};
-
-	socket.onclose = function(event) {
-		console.log('Connection closed');
-	};
-
-	socket.onerror = function(error) {
-		console.error('WebSocket error:', error);
-	};
-
-	
+    
  
 }
 
 function draw() {
-
+    httpGet(url, 'text', gotData);
+    drawBoard();
 }
 
 
@@ -126,6 +112,28 @@ function mousePressed() {
     	drawBoard();
 	}
 }
+
+
+// Callback function to handle the response from the server
+function gotData(data) {
+  // Print the received data to the console
+  console.log('Received data:', data);
+  FEN = data;
+
+}
+
+function sendData() {
+
+  httpPost(url, 'text', "Hello, server !", function(response) {
+
+    console.log('Server response:', response);
+  }, function(error) {
+
+    console.error('Error sending data:', error);
+  });
+}
+
+
 
 
 
