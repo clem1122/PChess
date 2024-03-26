@@ -140,6 +140,7 @@ void Board::playMove(Move move) {
 
 bool Board::is_piece_correctly_moving(const Move move){
 
+	std::cout<<"On souhaite bouger une pièce "<<move.movingPiece.type<<std::endl;
 	// Get infos from move
 	char departure_column=move.start[0];
 	char arrival_column=move.end[0];
@@ -164,9 +165,10 @@ bool Board::is_piece_correctly_moving(const Move move){
 	 || move.movingPiece.type=='Q')
 	{
 		//Bishop/Queen must increase row and column the same way
-		int gap = std::abs(arrival_row-departure_row);
+		int gap_row = std::abs(arrival_row-departure_row);
+		int gap_column = std::abs(arrival_column - departure_column);
 
-		if (std::abs(arrival_column - departure_column) == gap){
+		if (gap_row == gap_column){
 			return true;
 		}
 	}
@@ -185,15 +187,14 @@ bool Board::is_piece_correctly_moving(const Move move){
 	
 	if (move.movingPiece.type=='p' || move.movingPiece.type=='P'){
 	//Pawn can only move 1 row depending on its color or 2 if it is on its starting place
-	
-		int row_gap=departure_row-arrival_row;
-		int column_gap=departure_column-arrival_column;
+		int row_gap=arrival_row-departure_row;
+		int column_gap=arrival_column-departure_column;
 		bool isMovingUp = row_gap>0;
 		bool isOnStartingRow = false;
 		
 		//Check if pawn moves toward good direction
-		bool isMovingGoodDirection = move.movingPiece.isWhite && isMovingUp; 
-		
+		bool isMovingGoodDirection = (move.movingPiece.isWhite == isMovingUp); 
+
 		//Check if on starting row
 		if ( (move.movingPiece.isWhite && departure_row==2) 
 		 || (not move.movingPiece.isWhite && departure_row==7) ){
@@ -219,6 +220,7 @@ bool Board::is_piece_correctly_moving(const Move move){
 			}
 		}
 
+		}
 	}
 	
 	if (move.movingPiece.type=='n' || move.movingPiece.type=='N'){
@@ -229,15 +231,17 @@ bool Board::is_piece_correctly_moving(const Move move){
 		
 		int FEN_gap=std::abs(startIndex-endIndex);
 		
+		std::cout<<"FEN Gap "<<FEN_gap<<std::endl;
 		if (FEN_gap==6 || FEN_gap==10 || FEN_gap==15 || FEN_gap==17){
 			return true;
 		}
 	
 	}
-	}
 	
 	return false;
 }
+
+
 
 
 bool Board::is_there_obstacle_on_way(const Move move){
@@ -296,12 +300,14 @@ bool Board::is_there_obstacle_on_way(const Move move){
 	 
 	 	int gap = std::abs(end_row-start_row);
 	 	int direction_row = (end_row-start_row)/gap;
-	 	int direction_col = (end_col - start_col);
+	 	int direction_col = (end_col - start_col)/gap;
 	 	
 	 	for (int i=1 ; i<gap ; i++)
 	 	{
+
 	 		coord_considered[0] = start_col + i*direction_col;
 	 		coord_considered[1] = start_row + i*direction_row;
+	 		std::cout<<"On regarde la case en "<<coord_considered[0]<<coord_considered[1]<<std::endl;
 	 		int index_considered=coordtoIndex(coord_considered);
 	 		
 	 		if (is_piece_on_square(index_considered)){return true;}
@@ -335,6 +341,10 @@ bool Board::is_there_obstacle_on_way(const Move move){
 bool Board::is_there_obstacle_on_arrival(const Move move){
 	//Return true if a piece of the same color is on the arrival square
 	
+	char PieceOnArrival = pieces[Board::coordtoIndex(move.end)].type;
+	
+	if (PieceOnArrival == '.'){return false;}
+	
 	bool isPieceOnArrivalWhite = pieces[Board::coordtoIndex(move.end)].isWhite;
 	
 	if (isPieceOnArrivalWhite == move.movingPiece.isWhite){
@@ -366,18 +376,21 @@ bool Board::isLegal(const Move move) {
 
 	//int startIndex = Board::coordtoIndex(move.start);
 	//char played_piece=FEN[startIndex];
-	
+
 	if(Board::is_piece_correctly_moving(move))
 	{
+
 		if(not Board::is_there_obstacle_on_way(move))
 		{
+
 			if(not Board::is_there_obstacle_on_arrival(move))
 			{
+
 					return true;
 			}
 		}
 	}
-	
+
 	return false;
 }
 
