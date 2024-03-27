@@ -7,7 +7,7 @@ let FEN = "rnbqkbnrpppppppp................................PPPPPPPPRNBQKBNR";
 let pieceImages = {};
 let selectedSquare = null;
 let selectedPiece = null;
-let url = 'http://localhost:8080';
+let url = "http://localhost:8081";
 
 function preload() {
   pieceImages['Q'] = loadImage("Images/Q.png");
@@ -117,14 +117,17 @@ function mousePressed() {
 // Callback function to handle the response from the server
 function gotData(data) {
   // Print the received data to the console
-  console.log('Received data:', data);
-  FEN = data;
+  
+  if (data.length == 64){
+  	console.log('Received data: <', data, '>');	
+  	FEN = data;
+  }
 
 }
 
-function sendData() {
+function sendData(data) {
 
-  httpPost(url, 'text', "Hello, server !", function(response) {
+   httpPost(url, 'text', data, function(response) {
 
     console.log('Server response:', response);
   }, function(error) {

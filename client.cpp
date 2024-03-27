@@ -11,7 +11,7 @@ using namespace boost::asio;
 using ip::tcp;
 using std::string;
 
-char *FEN;
+char FEN[64];
 
 void send(int s, char msg[]) {
 	ssize_t size;
@@ -49,18 +49,23 @@ void* HTMLManager(void* _) {
     tcp::acceptor acceptor(io);
 	int port = 8080;
 	//tcp::acceptor acceptor(io, tcp::endpoint(tcp::v4(), port));
-	
+	acceptor.open(tcp::v4());
 	
 	
 	while (true) {
     	try {
-		    acceptor.open(tcp::v4());
+    		std::cout << "Port : " << port << std::endl;
+		    
 		    acceptor.bind(tcp::endpoint(tcp::v4(), port));
 		    acceptor.listen();
+		    
        		break; // Successful bind, exit loop
         
 		} catch (boost::system::system_error& e) {
-		        ++port;
+				std::cout << e.what() << std::endl;
+		        port++;
+		        if(port > 10000) {port = 8080;}
+		        continue;
    		}
 	}
 	
@@ -68,7 +73,7 @@ void* HTMLManager(void* _) {
         // Accept incoming connections
         tcp::socket socket(io);
         acceptor.accept(socket);
-
+		
         // Read the request
         boost::system::error_code error;
         boost::asio::streambuf request;
@@ -77,12 +82,14 @@ void* HTMLManager(void* _) {
     	std::stringstream request_data;
     	request_data << request_stream.rdbuf();
 
-   		// Print the request data
+   		//Print the request data
     	//std::cout << "Request data:\n" << request_data.str() << std::endl;
 		
         // Send the response
-        std::string response = createRequest(FEN);
-        boost::asio::write(socket, boost::asio::buffer(response));
+
+    	std::string response = createRequest(FEN);
+    	boost::asio::write(socket, boost::asio::buffer(response));
+        
         
     }
 
@@ -148,19 +155,20 @@ int main (int argc, char * argv[])
 	while (true) { 
 		if (isMyTurn) {
 		    std::cout << "Move to play : ";
-		    std::cin.getline(input, sizeof(input)); // Read input from user
-		    send(s, input); // Send input to server
-        } else {
-        	//std::cout <<"Listen" << std::endl;
-			buf = receive(s); // Receive response from server
-			if(strcmp(buf, "err0") == 0) {
-				std::cout << "Illegal move" << std::endl;
-			} else {
-			    std::cout << "Move received : " << buf << std::endl;
-			    //memcpy(FEN, buf, 64 * sizeof(char));
-			}
-		}   
-		isMyTurn = !isMyTurn;
+		    std::cin.getline(input, sizeof(input)); 
+		    send(s, input); 
+        }
+        
+		buf = receive(s);
+		if(strcmp(buf, "err0") == 0) {
+			std::cout << "Illegal move" << std::endl;
+		} else {
+		    std::cout << "FEN received : " << buf << std::endl;
+		    memcpy(FEN, buf, 64 * sizeof(char));
+		    isMyTurn = !isMyTurn;
+		}
+		 
+		
     }
 	delete [] buf; // Free memory allocated for response
 	

@@ -113,6 +113,7 @@ void* CommunicationRoutine(void* _) {
 			game.board.playMove(move);
 			game.board.print();
 			send(waiterSocket, game.board.FEN);
+			send(playerSocket, game.board.FEN);
 
 			
 			isJ1Turn = !isJ1Turn;
