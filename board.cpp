@@ -8,7 +8,10 @@
 Board::Board() {
 	const char *startFEN = "rnbqkbnrpppppppp................................PPPPPPPPRNBQKBNR";
 	memcpy(&FEN, startFEN, 64 * sizeof(char));
+	memcpy(&specialRulesData, "wKQkq", 5 * sizeof(char));
+	en_passant_index=99;
 	pieces = FENtoPieces(FEN);
+	
 }
 
 // Board Constructor with FEN parameter
@@ -22,6 +25,65 @@ Board::~Board() {
     // Implement destructor logic here
 }
 
+// Utility function to modify easily the special rules array
+
+void Board::change_turn(){
+
+	if (specialRulesData[0]=='w'){
+	
+		specialRulesData[0]='b';
+	}
+	
+	else{
+		specialRulesData[0]='w';
+	}
+}
+
+void Board::change_en_passant_square(bool has_a_pawn_moved, const char* end_coord){
+	//Change the index in the special rule array 
+	// This new index correspond to the square behind the new position of the pawn, where a En Passant can be done
+	if (has_a_pawn_moved)
+	{
+		int end_index = Board::coordtoIndex(end_coord);
+		int en_passant_square = end_index - 8; //Select the index of the square behind the pawn
+		en_passant_index=en_passant_square;
+	}
+	
+	else
+	{
+		en_passant_index=99;
+	}
+}
+
+void Board::block_castling(const Move move, bool isQueenTower){
+
+	if (move.movingPiece.type == 'K')
+	{
+		specialRulesData[1]='-';
+		specialRulesData[2]='-';
+	}
+	
+	if (move.movingPiece.type == 'k')
+	{
+		specialRulesData[3]='-';
+		specialRulesData[4]='-';
+	}
+	
+
+	
+	if (move.movingPiece.type == 'R')
+	{
+		if (not isQueenTower){specialRulesData[1]='-';}
+		if (isQueenTower){specialRulesData[2]='-';}
+	}
+	
+	if (move.movingPiece.type == 'r')
+	{
+		if (not isQueenTower){specialRulesData[3]='-';}
+		if (isQueenTower){specialRulesData[4]='-';}
+	}
+
+}
 // Utility function to convert index to coordinate
 char* Board::indextoCoord(const int &index) {
     char* coord = new char[2];
@@ -101,9 +163,11 @@ bool Board::is_white_on_square(int index_arrival){
 	return false;
 }
 
-// Utility function to create move
+// Utility function around move
+
 
 Move Board::create_move(const char* msg){
+	//Create move
 	char start[3];
 	char end[3];	
 	
@@ -111,27 +175,190 @@ Move Board::create_move(const char* msg){
 	memcpy(end, msg+2, 2);
 
 
-	if (isValidCoord(start, end)) {
-	
+	if (isValidCoord(start, end)) 
+	{
 		int startIndex = coordtoIndex(start);
-		
 		Piece piece = pieces[startIndex];
-//		std::cout << "piecetype : " << piece.type << std::endl;
-		return Move(start, end, piece, false, false, false, false);
+
+		bool _is_capturing = Board::is_piece_capturing(start, end, piece);
+		bool _is_castling = Board::is_piece_castling(start, end, piece);
+		bool _is_en_passanting = Board::is_piece_taking_en_passant(end, piece);
 		
-	} else {
+		return Move(start, end, piece, _is_capturing, false, _is_castling, _is_en_passanting);
+	} 
+	
+	else
+	{
 		std::cout << "Illegal Move : bad coord" << std::endl;
 		return Move();
 	}
 
-
+		
 }
 
+
 void Board::playMove(Move move) {
+	// Play move
+	
+	Board::change_special_rules_after_move(move);
 	Board newBoard = withMove(move);
 	memcpy(&FEN, &(newBoard.FEN), 64 * sizeof(char));
 	pieces = newBoard.pieces;
 }
+
+
+void Board::change_special_rules_after_move(Move move){
+	//Change special rules after move
+	
+	//std::cout<<"Précédentes règles speciales : "<<specialRulesData<<en_passant_index<<std::endl;
+	//CHANGE TURN
+	Board::change_turn();
+	
+	//CASTLING if the piece is a king or a rook
+		if (move.movingPiece.type == 'K' || move.movingPiece.type == 'k'){
+			Board::block_castling(move,false);
+		}
+		
+		if (move.movingPiece.type == 'r' || move.movingPiece.type == 'R'){
+			if ( strcmp(move.start,"a1") || strcmp(move.start,"a8"))
+			{
+				Board::block_castling(move,true);
+			}
+			
+			if ( strcmp(move.start,"h1") || strcmp(move.start,"h8"))
+			{
+				Board::block_castling(move,false);
+			}
+
+		}
+	
+	//EN PASSANT if the piece is a pawn which has moved 2 rows
+	int departure_row=move.start[1] - '0';
+	int arrival_row=move.end[1] - '0';
+	int row_gap = std::abs(departure_row - arrival_row);
+	
+	if ( (move.movingPiece.type == 'p' || move.movingPiece.type == 'P') && (row_gap==2) )
+	{
+		Board::change_en_passant_square(true,move.end);
+	}
+	
+	else 
+	{
+		Board::change_en_passant_square(false,move.end);
+	}
+	
+	//std::cout<<"Nouvelles règles speciales : "<<specialRulesData<<en_passant_index<<std::endl;
+}
+
+
+// Utility functions to create the object Move
+bool Board::isValidCoord(const char* _start, const char* _end) {
+	char departure_column=_start[0];
+	char arrival_column=_end[0];
+	int departure_row=_start[1] - '0';
+	int arrival_row=_end[1] - '0';
+
+	//Check if the coordinates do have sense
+	return 	'a' <= departure_column && departure_column <= 'h'
+		&&  'a' <= arrival_column   && arrival_column   <= 'h'
+		&&   1  <= departure_row    && departure_row    <=  8
+		&&   1  <= arrival_row      && arrival_row      <=  8
+		&&        (departure_column != arrival_column 
+		||         departure_row    != arrival_row);
+		
+}
+
+bool Board::is_piece_capturing(const char* start, const char* end, Piece piece){
+	//Check if a move correspond to a capture
+	int arrival_index = Board::coordtoIndex(end);
+	
+	if (Board::is_piece_on_square(arrival_index)){
+	
+		bool isPieceOnArrivalWhite = pieces[Board::coordtoIndex(end)].isWhite;
+	
+		if (isPieceOnArrivalWhite != piece.isWhite){
+			return true;
+		}
+	}
+	return false;
+
+}
+
+bool Board::is_piece_castling(const char* start, const char* end, Piece piece){
+	//Check if a move correspond to a castlening
+	if (piece.type == 'K')
+	{
+		if ( (strcmp(start,"e1") == 0 && strcmp(end,"c1"))
+		  || (strcmp(start,"e1") == 0 && strcmp(end,"g1")) )
+		  
+		  {
+		  	return true;
+		  }
+	}
+	
+	
+	if (piece.type == 'k')
+	{
+		if ( (strcmp(start,"e8") == 0 && strcmp(end,"c8"))
+		  || (strcmp(start,"e8") == 0 && strcmp(end,"g8")) )
+		  
+		  {
+		  	return true;
+		  }
+	}
+	
+	return false;
+}
+
+bool Board::is_piece_taking_en_passant(const char* coord_end, Piece piece){
+	//Check if a move correspond to a En passant move
+	
+	if (piece.type == 'p' || piece.type == 'P')
+	{
+		int end_index = coordtoIndex(coord_end);
+		
+		if (end_index == en_passant_index)
+		{
+			return true;
+		}
+	
+	}
+	
+	return false;
+}
+
+//Functions to check if a move is legal
+bool Board::isLegal(const Move move) {
+
+	//int startIndex = Board::coordtoIndex(move.start);
+	//char played_piece=FEN[startIndex];
+	
+	if (move.isEnPassant){
+	
+		if (Board::is_en_passant_valid(move))
+		{
+			return true;
+		}
+	
+	}
+	
+	if(Board::is_piece_correctly_moving(move))
+	{
+
+		if(not Board::is_there_obstacle_on_way(move))
+		{
+
+			if(not Board::is_there_obstacle_on_arrival(move))
+			{
+
+					return true; //TODO  : check at next move
+			}
+		}
+	}
+
+	return false;
+}
+
 
 bool Board::is_piece_correctly_moving(const Move move){
 	// Get infos from move
@@ -206,6 +433,7 @@ bool Board::is_piece_correctly_moving(const Move move){
 				if (std::abs(row_gap)==2 && isOnStartingRow){
 					return true;
 				}
+			}
 
 			if (std::abs(column_gap)==1 && std::abs(row_gap)==1 && move.isCapture){
 				return true;
@@ -213,7 +441,7 @@ bool Board::is_piece_correctly_moving(const Move move){
 			}
 		}
 
-		}
+		
 	}
 	
 	if (move.movingPiece.type=='n' || move.movingPiece.type=='N'){
@@ -299,7 +527,6 @@ bool Board::is_there_obstacle_on_way(const Move move){
 
 	 		coord_considered[0] = start_col + i*direction_col;
 	 		coord_considered[1] = start_row + i*direction_row;
-	 		std::cout<<"On regarde la case en "<<coord_considered[0]<<coord_considered[1]<<std::endl;
 	 		int index_considered=coordtoIndex(coord_considered);
 	 		
 	 		if (is_piece_on_square(index_considered)){return true;}
@@ -346,48 +573,19 @@ bool Board::is_there_obstacle_on_arrival(const Move move){
 	return false;
 	
 }
-
-
-bool Board::isValidCoord(const char* _start, const char* _end) {
-	char departure_column=_start[0];
-	char arrival_column=_end[0];
-	int departure_row=_start[1] - '0';
-	int arrival_row=_end[1] - '0';
-
-	//Check if the coordinates do have sense
-	return 	'a' <= departure_column && departure_column <= 'h'
-		&&  'a' <= arrival_column   && arrival_column   <= 'h'
-		&&   1  <= departure_row    && departure_row    <=  8
-		&&   1  <= arrival_row      && arrival_row      <=  8
-		&&        (departure_column != arrival_column 
-		||         departure_row    != arrival_row);
-		
-}
-
-bool Board::isLegal(const Move move) {
-
-	//int startIndex = Board::coordtoIndex(move.start);
-	//char played_piece=FEN[startIndex];
-
-	if(Board::is_piece_correctly_moving(move))
-	{
-
-		if(not Board::is_there_obstacle_on_way(move))
-		{
-
-			if(not Board::is_there_obstacle_on_arrival(move))
-			{
-
-					return true; //TODO  : check at next move
-			}
-		}
-	}
-
-	return false;
-}
-
 // Game logic to do a castling, a  special movement non respecting rules of isLegal
+bool Board::is_castling_valid(const Move move){
+	
+	
+	return true; //TODO Check the legality of a castling
+}
 
+bool Board::is_en_passant_valid(const Move move){
+	//To check if the en passant is correct, we can use the function is_piece_correctly_moving with the given move but with a isCapture true.
+
+	Move en_passant_move(move.start, move.end, move.movingPiece, true, false, false,true);
+	return Board::is_piece_correctly_moving(en_passant_move);
+}
 
 // Game logic to check if there is check on the king POV ('k' or 'K' for now)
 bool Board::isCheck(const char* _FEN) {
