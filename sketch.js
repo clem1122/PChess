@@ -7,7 +7,14 @@ let FEN = "rnbqkbnrpppppppp................................PPPPPPPPRNBQKBNR";
 let pieceImages = {};
 let selectedSquare = null;
 let selectedPiece = null;
-let url = "http://localhost:8081";
+let port = "8080";
+let url = "http://localhost:" + port;
+
+function setPort(value) {
+	port = value;
+	url = "http://localhost:" + port;
+	console.log("Port : " + port);
+}
 
 function preload() {
   pieceImages['Q'] = loadImage("Images/Q.png");

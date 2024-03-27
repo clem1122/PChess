@@ -6,12 +6,18 @@
 #include <iostream>
 #include "base.h"
 #include <cstring>
+#include <mutex>
+#include <condition_variable>
+
 
 using namespace boost::asio;
 using ip::tcp;
 using std::string;
 
 char FEN[64];
+string move = "....";
+std::mutex moveMutex;
+std::condition_variable moveCV;
 
 void send(int s, char msg[]) {
 	ssize_t size;
@@ -29,6 +35,13 @@ char* receive(int s) {
 	char * buf = new char [len + 1];
 	size = read(s, buf, 1 + len);
 	return buf;
+
+}
+
+char* stringToChar(std::string s) {
+	char* charArray = new char[s.length() + 1];
+	strcpy(charArray, s.c_str());
+	return charArray;
 
 }
 
@@ -83,8 +96,16 @@ void* HTMLManager(void* _) {
     	request_data << request_stream.rdbuf();
 
    		//Print the request data
-    	//std::cout << "Request data:\n" << request_data.str() << std::endl;
+   		string requestStr = request_data.str();
+   		const char* requestType = requestStr.substr(0,4).c_str(); //c_str convertit string -> char*
+		//std::cout << "Request data:\n" << request_data.str().substr(0,4) << std::endl;
 		
+		if (strcmp(requestType, "POST") == 0) {
+			move = requestStr.substr(requestStr.length() - 4);
+			std::lock_guard<std::mutex> lock(moveMutex); //verrou d'écriture toussa toussa
+			std::cout << "POST : " << move << std::endl;
+			moveCV.notify_one();
+		} 
         // Send the response
 
     	std::string response = createRequest(FEN);
@@ -102,7 +123,7 @@ int main (int argc, char * argv[])
     struct hostent * server;
     char *buf;
     int s, ret;
-	char input[5];
+	//char input[5];
 	bool isMyTurn;
 	pthread_t tid;
 
@@ -154,9 +175,15 @@ int main (int argc, char * argv[])
 
 	while (true) { 
 		if (isMyTurn) {
-		    std::cout << "Move to play : ";
-		    std::cin.getline(input, sizeof(input)); 
-		    send(s, input); 
+		    
+		    
+		    //std::cin.getline(input, sizeof(input)); 
+		    std::cout << "Move to play : " << std::endl;
+		    std::unique_lock<std::mutex> lock(moveMutex);
+        	moveCV.wait(lock, []{ return move != "...."; });
+		    std::cout << move << std::endl;
+			send(s, stringToChar(move));;
+		    move = "....";
         }
         
 		buf = receive(s);
