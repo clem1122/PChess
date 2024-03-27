@@ -41,7 +41,7 @@ function setup() {
     }
     
     noStroke();
-    frameRate(1);
+    frameRate(10);
 
     
  
@@ -89,12 +89,12 @@ function drawPieces(){
 
 function mousePressed() {
 
-	let col = floor(mouseX / squareSize);
-	let row = floor(mouseY / squareSize);
+	let _col = floor(mouseX / squareSize);
+	let _row = floor(mouseY / squareSize);
 
-	if (col >= 0 && col < 8 && row >= 0 && row < 8) {
+	if (_col >= 0 && _col < 8 && _row >= 0 && _row < 8) {
 	
-		let FENindex = row * 8 + col;
+		let FENindex = _row * 8 + _col;
 		if(selectedPiece == null) {
 			if (FEN[FENindex] != '.') {
 				selectedPiece = FEN[FENindex];
@@ -104,16 +104,21 @@ function mousePressed() {
 		
 			FENArray = FEN.split('');
 			FENArray[FENindex] = selectedPiece;
-			let {row, col} = selectedSquare;
-
-			let startIndex = row * 8 + col;
-			FENArray[startIndex] = '.';
+			let endCoord = String.fromCharCode(97 + _col) + (8 -_row);
 			
+			let {row, col} = selectedSquare;
+			let startIndex = row * 8 + col;
+			let startCoord = String.fromCharCode(97 + col) + (8 - row);
+			let move = startCoord + endCoord;
+			console.log(move);
+			FENArray[startIndex] = '.';
 			FEN = FENArray.join('');
 			selectedPiece = null;
+			sendData(move);
+			
 		}
 		
-		selectedSquare = { row: row, col: col };
+		selectedSquare = { row: _row, col: _col };
 		
 		
     	drawBoard();
@@ -134,13 +139,7 @@ function gotData(data) {
 
 function sendData(data) {
 
-   httpPost(url, 'text', data, function(response) {
-
-    console.log('Server response:', response);
-  }, function(error) {
-
-    console.error('Error sending data:', error);
-  });
+   httpPost(url, 'text', data, function(response) {}, function(error) {console.error('Error sending data:', error);});
 }
 
 
