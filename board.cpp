@@ -127,6 +127,7 @@ Board Board::withMove(const Move move) {
 	newFEN[startIndex] = '.';
 	newFEN[endIndex] = FEN[startIndex];
 	
+	// We must erase the captured pawn
 	if (move.isEnPassant)
 	{
 		int captured_pawn_index = 0;
@@ -134,6 +135,14 @@ Board Board::withMove(const Move move) {
 		if (not move.movingPiece.isWhite){captured_pawn_index = en_passant_index - 8;}
 		
 		newFEN[captured_pawn_index]='.';
+	}
+	
+	// We must move also the tower
+	if (move.isCastling)
+	{
+		int past_tower_square_index = 99;
+		int new_tower_index = 99;
+	
 	}
 
 	Board *newBoard = new Board(newFEN);
@@ -302,8 +311,8 @@ bool Board::is_piece_castling(const char* start, const char* end, Piece piece){
 	//Check if a move correspond to a castlening
 	if (piece.type == 'K')
 	{
-		if ( (strcmp(start,"e1") == 0 && strcmp(end,"c1"))
-		  || (strcmp(start,"e1") == 0 && strcmp(end,"g1")) )
+		if ( (strcmp(start,"e1") == 0 && strcmp(end,"c1") == 0)
+		  || (strcmp(start,"e1") == 0 && strcmp(end,"g1") == 0) )
 		  
 		  {
 		  	return true;
@@ -313,8 +322,8 @@ bool Board::is_piece_castling(const char* start, const char* end, Piece piece){
 	
 	if (piece.type == 'k')
 	{
-		if ( (strcmp(start,"e8") == 0 && strcmp(end,"c8"))
-		  || (strcmp(start,"e8") == 0 && strcmp(end,"g8")) )
+		if ( (strcmp(start,"e8") == 0 && strcmp(end,"c8") == 0)
+		  || (strcmp(start,"e8") == 0 && strcmp(end,"g8") == 0) )
 		  
 		  {
 		  	return true;
@@ -344,9 +353,7 @@ bool Board::is_piece_taking_en_passant(const char* coord_end, Piece piece){
 //Functions to check if a move is legal
 bool Board::isLegal(const Move move) {
 
-	//int startIndex = Board::coordtoIndex(move.start);
-	//char played_piece=FEN[startIndex];
-	
+	// Special En Passant move
 	if (move.isEnPassant)
 	{
 	
@@ -357,6 +364,7 @@ bool Board::isLegal(const Move move) {
 	
 	}
 	
+	// Special Castling move
 	if (move.isCastling)
 	{
 		std::cout<<"Un roque est demandé"<<std::endl;
@@ -367,6 +375,7 @@ bool Board::isLegal(const Move move) {
 		}
 	}
 	
+	// Classic move
 	if(Board::is_piece_correctly_moving(move))
 	{
 
@@ -626,19 +635,21 @@ bool Board::is_castling_valid(const Move move){
 				// Check if the square is empty
 				if (is_piece_on_square(king_new_index))
 				{
+
 					return false;
 				}
 				
 				// Check if the square is controled by an opponent
+				std::cout<<"On regarde si il y a possibilité d'échec l'index "<<king_new_index<<std::endl;
 				char* king_new_coord = indextoCoord(king_new_index);
 				Move move_king_castling(move.start,king_new_coord,move.movingPiece,false,false,false,false);
 					
 				Board Board_during_castling = withMove(move_king_castling);
 				
-				/*if (isCheck(Board_during_castling, move.movingPiece.isWhite, king_new_coord))
+				if (isCheck(Board_during_castling, move.movingPiece.isWhite, king_new_coord))
 				{
-					return false
-				}*/
+					return false;
+				}
 					
 			}
 
