@@ -138,12 +138,12 @@ Board Board::withMove(const Move move) {
 	}
 	
 	// We must move also the tower
-	if (move.isCastling)
+	/*if (move.isCastling)
 	{
 		int past_tower_square_index = 99;
 		int new_tower_index = 99;
 	
-	}
+	}*/
 
 	Board *newBoard = new Board(newFEN);
 	
@@ -363,12 +363,8 @@ bool Board::isLegal(const Move move) {
 		}
 	
 	}
-<<<<<<< HEAD
 	
 	// Special Castling move
-=======
-	std::cout << "ICI" << std::endl;
->>>>>>> a8c0c60 (Comment the shit of SP)
 	if (move.isCastling)
 	{
 		std::cout<<"Un roque est demandé"<<std::endl;
@@ -644,7 +640,7 @@ bool Board::is_castling_valid(const Move move){
 				}
 				
 				// Check if the square is controled by an opponent
-				std::cout<<"On regarde si il y a possibilité d'échec l'index "<<king_new_index<<std::endl;
+				/*std::cout<<"On regarde si il y a possibilité d'échec l'index "<<king_new_index<<std::endl;
 				char* king_new_coord = indextoCoord(king_new_index);
 				Move move_king_castling(move.start,king_new_coord,move.movingPiece,false,false,false,false);
 					
@@ -653,7 +649,7 @@ bool Board::is_castling_valid(const Move move){
 				if (isCheck(Board_during_castling, move.movingPiece.isWhite, king_new_coord))
 				{
 					return false;
-				}
+				}*/
 					
 			}
 
@@ -673,8 +669,10 @@ bool Board::is_en_passant_valid(const Move move){
 // Game logic to check if there is check on the king POV ('k' or 'K' for now)
 
 bool Board::isCheck(const Board board, const bool isWhite, const char* square_to_verify) {
-	bool check = false;
-	/*
+	
+	return false;
+	/*bool check = false;
+	
 	for(Piece piece : board.pieces){
 		if(piece.isWhite!=isWhite){
 			Move attacking_square = board.create_move(piece.coord+square_to_verify)
@@ -683,8 +681,8 @@ bool Board::isCheck(const Board board, const bool isWhite, const char* square_to
 				break;
 			}		
 		}
-	}*/
-return check;
+	}
+	return check;*/
 }
 
 
