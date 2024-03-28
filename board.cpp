@@ -243,12 +243,12 @@ void Board::change_special_rules_after_move(Move move){
 		}
 		
 		if (move.movingPiece.type == 'r' || move.movingPiece.type == 'R'){
-			if ( strcmp(move.start,"a1") || strcmp(move.start,"a8"))
+			if ( strcmp(move.start,"a1") == 0 || strcmp(move.start,"a8") == 0)
 			{
 				Board::block_castling(move,true);
 			}
 			
-			if ( strcmp(move.start,"h1") || strcmp(move.start,"h8"))
+			if ( strcmp(move.start,"h1") == 0 || strcmp(move.start,"h8") == 0)
 			{
 				Board::block_castling(move,false);
 			}
@@ -611,10 +611,10 @@ bool Board::is_there_obstacle_on_arrival(const Move move){
 bool Board::is_castling_valid(const Move move){
 	
 	std::cout<<"Les règles spéciales sont "<<specialRulesData<<std::endl;
-	if ( (strcmp(move.end,"g1") && specialRulesData[1]=='K') 
-	  || (strcmp(move.end,"c1") && specialRulesData[2]=='Q')
-	  || (strcmp(move.end,"g8") && specialRulesData[3]=='k')
-	  || (strcmp(move.end,"c8") && specialRulesData[4]=='q') )
+	if ( (strcmp(move.end,"g1") == 0 && specialRulesData[1]=='K') 
+	  || (strcmp(move.end,"c1") == 0 && specialRulesData[2]=='Q')
+	  || (strcmp(move.end,"g8") == 0 && specialRulesData[3]=='k')
+	  || (strcmp(move.end,"c8") == 0 && specialRulesData[4]=='q') )
 	
 	
 		{
@@ -627,7 +627,7 @@ bool Board::is_castling_valid(const Move move){
 			int direction = (king_end_index - king_start_index)/gap;
 			
 			// For each square crossed by the king during the castling
-			for (int i = 1 ; i<gap ; i++)
+			for (int i = 1 ; i<=gap ; i++)
 			{
 				int king_new_index = king_start_index + i * direction;
 				std::cout<<"On regarde si il y a une pièce à l'index "<<king_new_index<<std::endl;
