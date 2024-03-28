@@ -46,7 +46,7 @@ public:
 	void change_en_passant_square(bool has_a_pawn_moved, bool is_pawn_white, const char* end_coord);
 	void block_castling(const Move move, bool isQueenTower);
 	
-	bool isCheck(const char* _FEN);
+	bool isCheck(const Board board, const bool isWhite, const char* square_to_verify);
 	void print();
 }; 
 	
