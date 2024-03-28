@@ -668,115 +668,27 @@ bool Board::is_en_passant_valid(const Move move){
 
 // Game logic to check if there is check on the king POV ('k' or 'K' for now)
 
-bool Board::isCheck(const Board board, const bool isWhite, const char* square_to_verify) {
-	
-	return false;
-	/*bool check = false;
-	
-	for(Piece piece : board.pieces){
-		if(piece.isWhite!=isWhite){
-			Move attacking_square = board.create_move(piece.coord+square_to_verify)
-			if(is_piece_correctly_moving(attacking_square) && is_obstacle_on_way(attacking_square){
-				check = true;
-				break;
-			}		
-		}
-	}
-	return check;*/
+
+bool Board::isCheck(Board board, const bool isWhite, const char* square_to_verify) {
+	Piece* current_piece = board.pieces;
+		while (current_piece != nullptr) {
+    			Piece piece = *current_piece;
+    			if (piece.isWhite != isWhite) {
+        			char fictive_msg[4];
+        			memcpy(fictive_msg, piece.coord, 2 * sizeof(char));
+        			memcpy(fictive_msg + 2, square_to_verify, 2 * sizeof(char));
+        			Move attacking_square = board.create_move(fictive_msg);
+        				if (is_piece_correctly_moving(attacking_square) && is_there_obstacle_on_way(attacking_square)) {
+            					return true;
+       						 }	
+    				}
+    			current_piece++;
+			}
+return false;
 }
 
 
 
-
-
-
-
-
-
-
-/*			
-bool Board::isCheck(const char* _FEN, const bool isWhite) {
-	bool check = false;
-	int king_index = 100;
-	char king;
-	
-	if(isWhite){
-		king = 'K';
-	}
-	else{
-		king = 'k';
-	}
-	
-	for(int i = 0; i < 64; i++) {
-		if(_FEN[i] == king) {
-		king_index = i;
-		}
-	}
-	
-	if (king_index ==100){
-		throw "King not found";
-	}
-	
-	// check line for rook or queen
-	int p = king_index;
-	while(p%8 != 1){
-		if(_FEN[p] != '.'){
-			if ((_FEN[p] == 'R') | (_FEN[p] == 'Q')){
-				return true;
-			}
-			break;  
-		}
-		p += 1;
-	}
-	
-	p = king_index;
-	while(p%8 != 0){
-		if(_FEN[p] != '.'){
-			if ((_FEN[p] == 'R') | (_FEN[p] == 'Q')){
-				return true;
-			}
-			break;  
-		}
-		p -= 1;
-	}
-
-	p = king_index ;
-	while(p < 64){
-		if(_FEN[p] != '.'){
-			if ((_FEN[p] == 'R') | (_FEN[p] == 'Q')){
-				return true;
-			}
-			break;  
-		}
-		p = p + 8; 
-	}
-	
-	p = king_index;
-	while(p >= 0){
-		if(_FEN[p] != '.'){
-			if ((_FEN[p] == 'R') | (_FEN[p] == 'Q')){
-				return true;
-			}
-			break;  
-		}
-		p = p - 8; 
-	}
-	
-	// check diagonals for bishop or queen //
-	p = king_index + 1;
-	while(p > 64){
-		if(_FEN[p] != '.'){
-			if ((_FEN[p] == 'B') | (_FEN[p] == 'Q')){
-				return true;
-			}
-			break;  
-		}
-		p = p + 9; 
-	}
-	// check some indexes for knight and king and pawn
-	
-	return check;
-}*/
 void Board::print(){
 	for (int i = 0; i<64;i++){
 		std::cout << FEN[i] << ' ';
