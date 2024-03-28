@@ -607,7 +607,36 @@ bool Board::is_castling_valid(const Move move){
 	
 	
 		{
-			//Move move_roi_test(move.start,move.end,move.movingPiece)
+			int king_start_index = coordtoIndex(move.start);
+			int king_end_index = coordtoIndex(move.end);
+			int gap = std::abs(king_start_index - king_end_index);
+			int direction = (king_end_index - king_start_index)/gap;
+			
+			// For each square crossed by the king during the castling
+			for (int i = 1 ; i<gap ; i++)
+			{
+
+				int king_new_index = king_start_index + i * direction;
+				
+				// Check if the square is empty
+				if (is_piece_on_square(king_new_index))
+				{
+					return false;
+				}
+				
+				// Check if the square is controled by an opponent
+				char* king_new_coord = indextoCoord(king_new_index);
+				Move move_king_castling(move.start,king_new_coord,move.movingPiece,false,false,false,false);
+					
+				Board Board_during_castling = withMove(move_king_castling);
+				
+				/*if (isCheck(Board_during_castling, move.movingPiece.isWhite, king_new_coord))
+				{
+					return false
+				}*/
+					
+			}
+
 			return true;
 		}
 	
