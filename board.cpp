@@ -359,6 +359,7 @@ bool Board::isLegal(const Move move) {
 	
 	if (move.isCastling)
 	{
+		std::cout<<"Un roque est demandé"<<std::endl;
 	
 		if (Board::is_castling_valid(move))
 		{
@@ -600,6 +601,7 @@ bool Board::is_there_obstacle_on_arrival(const Move move){
 // Game logic to do a castling, a  special movement non respecting rules of isLegal
 bool Board::is_castling_valid(const Move move){
 	
+	std::cout<<"Les règles spéciales sont "<<specialRulesData<<std::endl;
 	if ( (strcmp(move.end,"g1") && specialRulesData[1]=='K') 
 	  || (strcmp(move.end,"c1") && specialRulesData[2]=='Q')
 	  || (strcmp(move.end,"g8") && specialRulesData[3]=='k')
@@ -607,16 +609,19 @@ bool Board::is_castling_valid(const Move move){
 	
 	
 		{
+
 			int king_start_index = coordtoIndex(move.start);
 			int king_end_index = coordtoIndex(move.end);
+			
+			std::cout<<"Le roi est à l'index "<<king_start_index<<std::endl;
 			int gap = std::abs(king_start_index - king_end_index);
 			int direction = (king_end_index - king_start_index)/gap;
 			
 			// For each square crossed by the king during the castling
 			for (int i = 1 ; i<gap ; i++)
 			{
-
 				int king_new_index = king_start_index + i * direction;
+				std::cout<<"On regarde si il y a une pièce à l'index "<<king_new_index<<std::endl;
 				
 				// Check if the square is empty
 				if (is_piece_on_square(king_new_index))
