@@ -514,16 +514,16 @@ bool Board::is_there_obstacle_on_way(const Move move){
 	 		
 	 		for (int i=1 ; i<gap ; i++)
 	 		{
-	 			coord_considered[0]=start_col + i*direction; //Check squares on the left or right depending on direction
-	 			int index_considerd=coordtoIndex(coord_considered);
-	 			if (is_piece_on_square(index_considerd)){return true;}
+	 			coord_considered[0] = start_col + i * direction; //Check squares on the left or right depending on direction
+	 			int index_considered = coordtoIndex(coord_considered);
+	 			if (is_piece_on_square(index_considered)){return true;}
 	 		
 	 		}
 	 	}
 	 	
 	 	if (end_col == start_col) //Move along a column
 	 	{
-	 		coord_considered[0]=start_col;
+	 		coord_considered[0] = start_col;
 	 		int gap = std::abs(end_row-start_row);
 	 		int direction = (end_row - start_row)/gap; //Positive toward up, negative toward down
 	 		
@@ -538,20 +538,20 @@ bool Board::is_there_obstacle_on_way(const Move move){
 	 }
 	 
 	 // Bishop/Queen case
-	 if (move.movingPiece.type=='b' 
-	 || move.movingPiece.type=='B' 
-	 || move.movingPiece.type=='q' 
-	 || move.movingPiece.type=='Q'){
+	 if (move.movingPiece.type == 'b' 
+	  || move.movingPiece.type == 'B' 
+	  || move.movingPiece.type == 'q' 
+	  || move.movingPiece.type == 'Q'){
 	 
-	 	int gap = std::abs(end_row-start_row);
-	 	int direction_row = (end_row-start_row)/gap;
+	 	int gap = std::abs(end_row - start_row);
+	 	int direction_row = (end_row - start_row)/gap;
 	 	int direction_col = (end_col - start_col)/gap;
 	 	
 	 	for (int i=1 ; i<gap ; i++)
 	 	{
 
-	 		coord_considered[0] = start_col + i*direction_col;
-	 		coord_considered[1] = start_row + i*direction_row;
+	 		coord_considered[0] = start_col + i * direction_col;
+	 		coord_considered[1] = start_row + i * direction_row;
 	 		int index_considered=coordtoIndex(coord_considered);
 	 		
 	 		if (is_piece_on_square(index_considered)){return true;}

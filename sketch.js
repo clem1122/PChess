@@ -100,25 +100,24 @@ function mousePressed() {
 				selectedPiece = FEN[FENindex];
 				console.log(selectedPiece);
 			}
+			selectedSquare = { row: _row, col: _col };
 		} else {
 		
-			FENArray = FEN.split('');
-			FENArray[FENindex] = selectedPiece;
+			
 			let endCoord = String.fromCharCode(97 + _col) + (8 -_row);
 			
 			let {row, col} = selectedSquare;
-			let startIndex = row * 8 + col;
+			
 			let startCoord = String.fromCharCode(97 + col) + (8 - row);
 			let move = startCoord + endCoord;
-			console.log(move);
-			FENArray[startIndex] = '.';
-			FEN = FENArray.join('');
+			
 			selectedPiece = null;
+			selectedSquare = null;
 			sendData(move);
 			
 		}
 		
-		selectedSquare = { row: _row, col: _col };
+		
 		
 		
     	drawBoard();
