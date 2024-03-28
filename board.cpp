@@ -363,8 +363,12 @@ bool Board::isLegal(const Move move) {
 		}
 	
 	}
+<<<<<<< HEAD
 	
 	// Special Castling move
+=======
+	std::cout << "ICI" << std::endl;
+>>>>>>> a8c0c60 (Comment the shit of SP)
 	if (move.isCastling)
 	{
 		std::cout<<"Un roque est demandé"<<std::endl;
@@ -670,7 +674,7 @@ bool Board::is_en_passant_valid(const Move move){
 
 bool Board::isCheck(const Board board, const bool isWhite, const char* square_to_verify) {
 	bool check = false;
-
+	/*
 	for(Piece piece : board.pieces){
 		if(piece.isWhite!=isWhite){
 			Move attacking_square = board.create_move(piece.coord+square_to_verify)
@@ -679,7 +683,7 @@ bool Board::isCheck(const Board board, const bool isWhite, const char* square_to
 				break;
 			}		
 		}
-	}
+	}*/
 return check;
 }
 
