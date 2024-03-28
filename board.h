@@ -43,7 +43,7 @@ public:
 	void playMove(Move move);
 	void change_special_rules_after_move(Move move);
 	void change_turn();
-	void change_en_passant_square(bool has_a_pawn_moved, const char* end_coord);
+	void change_en_passant_square(bool has_a_pawn_moved, bool is_pawn_white, const char* end_coord);
 	void block_castling(const Move move, bool isQueenTower);
 	
 	bool isCheck(const char* _FEN);
