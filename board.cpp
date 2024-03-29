@@ -248,7 +248,6 @@ Move Board::create_move(const char* msg){
 
 void Board::playMove(Move move) {
 	// Play move
-	std::cout << "Comment est le is_castling dans le playmove ? " << move.isCastling<<std::endl;
 	Board newBoard = withMove(move);
 	Board::change_special_rules_after_move(move);
 	memcpy(&FEN, &(newBoard.FEN), 64 * sizeof(char));
@@ -383,17 +382,27 @@ bool Board::is_piece_taking_en_passant(const char* coord_end, Piece piece){
 bool Board::is_piece_promotioning(const char* coord_end, Piece piece){
 
 	int final_row = piece.isWhite ? 8 : 1;
+	return (piece.type == 'p' || piece.type == 'P') && (coord_end[1] - '0' == final_row);	
+
 	
-	if (piece.type == 'p' || piece.type == 'P')
-	{
-	
-		return coord_end[1] - '0' == final_row;
-		
-	}
 }
 //Functions to check if a move is legal
 bool Board::isLegal(const Move move) {
-	std::cout << "is move Legal" << std::endl;
+	//std::cout << "is move Legal" << std::endl;
+	
+	int kingIndex;
+	for(int i = 0; i < 64; i++) {
+		if ((pieces[i].type == 'K' && move.movingPiece.isWhite) || 
+		    (pieces[i].type == 'k' && not move.movingPiece.isWhite)) {
+			kingIndex = i;
+			break;
+		}
+		kingIndex = -1;
+	}
+	std::cout << "coord du roi : " << indextoCoord(kingIndex) << std::endl;
+	std::cout << "Prévision : " << std::endl;
+	withMove(move).print();
+	if(isCheck(withMove(move), move.movingPiece.isWhite, indextoCoord(kingIndex))) {return false;};
 	// Special En Passant move
 	if (move.isEnPassant)
 	{
@@ -438,7 +447,7 @@ bool Board::isLegal(const Move move) {
 
 bool Board::is_piece_correctly_moving(const Move move){
 	// Get infos from move
-	std::cout << "is piece correctly moving" << std::endl;
+	//std::cout << "is piece correctly moving" << std::endl;
 	char departure_column=move.start[0];
 	char arrival_column=move.end[0];
 	int departure_row=move.start[1] - '0';
@@ -544,7 +553,7 @@ bool Board::is_piece_correctly_moving(const Move move){
 bool Board::is_there_obstacle_on_way(const Move move){
 	//Return true if there is a piece able to block the move of the piece on its way.
 	//This function does NOT check the case of a piece ON the arrival square, another function is in charge of this
-	std::cout << "is there obstaclke on the way" << std::endl;
+//	std::cout << "is there obstacle on the way" << std::endl;
 	// Get infos from move
 	char start_col=move.start[0];
 	char end_col=move.end[0];
@@ -562,7 +571,6 @@ bool Board::is_there_obstacle_on_way(const Move move){
 	 	{	 	
 	 		coord_considered[1]=start_row;
 	 		int gap = std::abs(end_col-start_col);
-	 		std::cout << "gap : " <<gap<< std::endl;
 	 		int direction = (end_col-start_col)/gap; //Positive toward right, negative toward left
 	 		
 	 		for (int i=1 ; i<gap ; i++)
@@ -600,8 +608,6 @@ bool Board::is_there_obstacle_on_way(const Move move){
 	  || move.movingPiece.type == 'Q'){
 	 
 	 	int gap = std::abs(end_row - start_row);
-	 	std::cout << "Gap 2 : " << gap <<std::endl;
-	 	assert 
 	 	int direction_row = (end_row - start_row)/gap;
 	 	int direction_col = (end_col - start_col)/gap;
 	 	
@@ -639,7 +645,7 @@ bool Board::is_there_obstacle_on_way(const Move move){
 
 
 bool Board::is_there_obstacle_on_arrival(const Move move){
-	std::cout << "is there obstaclke on arrival" << std::endl;
+	//std::cout << "is there obstacle on arrival" << std::endl;
 	//Return true if a piece of the same color is on the arrival square
 	
 	char PieceOnArrival = pieces[Board::coordtoIndex(move.end)].type;
@@ -717,18 +723,18 @@ bool Board::is_en_passant_valid(const Move move){
 // Game logic to check if there is check on the king POV ('k' or 'K' for now)
 
 
-bool Board::isCheck(Board board, const bool isWhite, const char* square_to_verify) {
+bool Board::isCheck(Board board, const bool isKingWhite, const char* square_to_verify) {
 		for(int i=0; i<64; i++) {
     			Piece piece = board.pieces[i];
-    			if (piece.isWhite != isWhite && piece.type!='.') {
+    			if (piece.isWhite != isKingWhite && piece.type!='.') {
         			char fictive_msg[4];
-        			strncpy(fictive_msg, piece.coord, 2 * sizeof(char));
-        			strncpy(fictive_msg + 2, square_to_verify, 2 * sizeof(char));
-        			std::cout<<"fictive message " << fictive_msg<<std::endl;
+        			strncpy(fictive_msg, piece.coord, 2);
+        			strncpy(fictive_msg + 2, square_to_verify, 2);
+        			
         			Move attacking_move = board.create_move(fictive_msg);
         			attacking_move.isCapture = true;
         				if (is_piece_correctly_moving(attacking_move) && not is_there_obstacle_on_way(attacking_move)) {
-        				std::cout<<attacking_move.start<<std::endl;
+        					std::cout<<"Roi en echec : " << attacking_move.start<<std::endl;
             					return true;
        						 }	
     				}
@@ -739,12 +745,14 @@ return false;
 
 
 void Board::print(){
+	std::cout << "------------------" << std::endl;
 	for (int i = 0; i<64;i++){
 		std::cout << FEN[i] << ' ';
 		if ((i+1) % 8 == 0 && i != 0) {
 			std::cout << std::endl;
 		}
 	}
+	std::cout << "------------------" << std::endl;
 }
 
 
