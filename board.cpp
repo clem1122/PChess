@@ -165,10 +165,7 @@ Board Board::withMove(const Move move) {
 	// Promotion : we must replace the pawn
 	if (move.isPromotion)
 	{	
-		char new_piece_type = 'Q';
-		if (not move.movingPiece.isWhite) {new_piece_type = 'q';}
-		
-		newFEN[endIndex] = new_piece_type;
+		newFEN[endIndex] = move.movingPiece.isWhite ? 'Q' : 'q';
 	
 	}
 	Board *newBoard = new Board(newFEN);
@@ -354,7 +351,7 @@ bool Board::is_piece_castling(const char* start, const char* end, Piece piece){
 	
 	if (piece.type == 'k')
 	{
-		std::cout << "roi noir" << std::endl;
+		
 		if ( (strcmp(start,"e8") == 0 && strcmp(end,"c8") == 0)
 		  || (strcmp(start,"e8") == 0 && strcmp(end,"g8") == 0) )
 		  
@@ -385,21 +382,14 @@ bool Board::is_piece_taking_en_passant(const char* coord_end, Piece piece){
 
 bool Board::is_piece_promotioning(const char* coord_end, Piece piece){
 
-	int final_row = 8;
+	int final_row = piece.isWhite ? 8 : 1;
 	
 	if (piece.type == 'p' || piece.type == 'P')
 	{
 	
-		if (not piece.isWhite){final_row = 1;}
-	
-		if (coord_end[1] - '0' == final_row)
-		{
-			return true;
-		}
+		return coord_end[1] - '0' == final_row;
+		
 	}
-	
-	return false;
-
 }
 //Functions to check if a move is legal
 bool Board::isLegal(const Move move) {
@@ -448,6 +438,7 @@ bool Board::isLegal(const Move move) {
 
 bool Board::is_piece_correctly_moving(const Move move){
 	// Get infos from move
+	std::cout << "is piece correctly moving" << std::endl;
 	char departure_column=move.start[0];
 	char arrival_column=move.end[0];
 	int departure_row=move.start[1] - '0';
@@ -553,7 +544,7 @@ bool Board::is_piece_correctly_moving(const Move move){
 bool Board::is_there_obstacle_on_way(const Move move){
 	//Return true if there is a piece able to block the move of the piece on its way.
 	//This function does NOT check the case of a piece ON the arrival square, another function is in charge of this
-	
+	std::cout << "is there obstaclke on the way" << std::endl;
 	// Get infos from move
 	char start_col=move.start[0];
 	char end_col=move.end[0];
@@ -571,6 +562,7 @@ bool Board::is_there_obstacle_on_way(const Move move){
 	 	{	 	
 	 		coord_considered[1]=start_row;
 	 		int gap = std::abs(end_col-start_col);
+	 		std::cout << "gap : " <<gap<< std::endl;
 	 		int direction = (end_col-start_col)/gap; //Positive toward right, negative toward left
 	 		
 	 		for (int i=1 ; i<gap ; i++)
@@ -580,9 +572,10 @@ bool Board::is_there_obstacle_on_way(const Move move){
 	 			if (is_piece_on_square(index_considered)){return true;}
 	 		
 	 		}
+	 		return false;
 	 	}
 	 	
-	 	if (end_col == start_col) //Move along a column
+	 	else if (end_col == start_col) //Move along a column
 	 	{
 	 		coord_considered[0] = start_col;
 	 		int gap = std::abs(end_row-start_row);
@@ -595,7 +588,9 @@ bool Board::is_there_obstacle_on_way(const Move move){
 	 			
 	 			if (is_piece_on_square(index_considered)){return true;}
 	 		}
+	 		return false;
 	 	}
+	 	
 	 }
 	 
 	 // Bishop/Queen case
@@ -605,16 +600,16 @@ bool Board::is_there_obstacle_on_way(const Move move){
 	  || move.movingPiece.type == 'Q'){
 	 
 	 	int gap = std::abs(end_row - start_row);
+	 	std::cout << "Gap 2 : " << gap <<std::endl;
+	 	assert 
 	 	int direction_row = (end_row - start_row)/gap;
 	 	int direction_col = (end_col - start_col)/gap;
 	 	
 	 	for (int i=1 ; i<gap ; i++)
 	 	{
-
 	 		coord_considered[0] = start_col + i * direction_col;
 	 		coord_considered[1] = start_row + i * direction_row;
 	 		int index_considered=coordtoIndex(coord_considered);
-	 		
 	 		if (is_piece_on_square(index_considered)){return true;}
 	 	}
 	 }
@@ -644,6 +639,7 @@ bool Board::is_there_obstacle_on_way(const Move move){
 
 
 bool Board::is_there_obstacle_on_arrival(const Move move){
+	std::cout << "is there obstaclke on arrival" << std::endl;
 	//Return true if a piece of the same color is on the arrival square
 	
 	char PieceOnArrival = pieces[Board::coordtoIndex(move.end)].type;
