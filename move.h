@@ -3,8 +3,8 @@
 
 class Move{
 public:
-	char start[2]; // TODO : Gérer le stack overflow
-	char end[2];
+	char start[3]; // TODO : Gérer le stack overflow
+	char end[3];
 	
 	Piece movingPiece; // = new Piece("Q", "d1", true);
 	

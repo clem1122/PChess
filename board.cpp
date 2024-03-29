@@ -194,8 +194,10 @@ Move Board::create_move(const char* msg){
 	char start[3];
 	char end[3];	
 	
-	memcpy(start, msg, 2);
-	memcpy(end, msg+2, 2);
+	strncpy(start, msg, 2);
+	strncpy(end, msg+2, 2);
+	start[2] = '\0';
+	end[2] = '\0';
 
 
 	if (isValidCoord(start, end)) 
@@ -227,6 +229,7 @@ void Board::playMove(Move move) {
 	Board::change_special_rules_after_move(move);
 	memcpy(&FEN, &(newBoard.FEN), 64 * sizeof(char));
 	pieces = newBoard.pieces;
+	std::cout <<"New Special Rules : " << specialRulesData << std::endl;
 }
 
 
@@ -309,12 +312,16 @@ bool Board::is_piece_capturing(const char* start, const char* end, Piece piece){
 
 bool Board::is_piece_castling(const char* start, const char* end, Piece piece){
 	//Check if a move correspond to a castlening
+	std::cout <<"ispiececastling" <<std::endl;
 	if (piece.type == 'K')
 	{
+		std::cout << "start : " << start << "end : " << end << std::endl;
+		
 		if ( (strcmp(start,"e1") == 0 && strcmp(end,"c1") == 0)
 		  || (strcmp(start,"e1") == 0 && strcmp(end,"g1") == 0) )
 		  
 		  {
+		  	std::cout << "roque valide" << std::endl;
 		  	return true;
 		  }
 	}
@@ -322,6 +329,7 @@ bool Board::is_piece_castling(const char* start, const char* end, Piece piece){
 	
 	if (piece.type == 'k')
 	{
+		std::cout << "roi noir" << std::endl;
 		if ( (strcmp(start,"e8") == 0 && strcmp(end,"c8") == 0)
 		  || (strcmp(start,"e8") == 0 && strcmp(end,"g8") == 0) )
 		  
@@ -352,7 +360,7 @@ bool Board::is_piece_taking_en_passant(const char* coord_end, Piece piece){
 
 //Functions to check if a move is legal
 bool Board::isLegal(const Move move) {
-
+	std::cout << "is move Legal" << std::endl;
 	// Special En Passant move
 	if (move.isEnPassant)
 	{
