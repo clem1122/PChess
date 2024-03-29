@@ -14,7 +14,6 @@ function preload() {
 }
 
 function setup() {
-    //window.resizeTo(410,120);
     createCanvas(900, 900);
     squareSize = 100;
     for (let key in pieceImages) {
