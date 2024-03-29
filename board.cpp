@@ -216,7 +216,7 @@ Move Board::create_move(const char* msg){
 	//Create move
 	char start[3];
 	char end[3];	
-	std::cout <<msg<<std::endl;
+	//std::cout <<msg<<std::endl;
 	strncpy(start, msg, 2);
 	strncpy(end, msg+2, 2);
 	start[2] = '\0';
@@ -335,7 +335,7 @@ bool Board::is_piece_capturing(const char* start, const char* end, Piece piece){
 
 bool Board::is_piece_castling(const char* start, const char* end, Piece piece){
 	//Check if a move correspond to a castlening
-	std::cout <<"is piece castling ?" <<std::endl;
+	//std::cout <<"is piece castling ?" <<std::endl;
 	if (piece.type == 'K')
 	{
 		
@@ -718,19 +718,20 @@ bool Board::is_en_passant_valid(const Move move){
 
 
 bool Board::isCheck(Board board, const bool isWhite, const char* square_to_verify) {
-	Piece* current_piece = board.pieces;
-		while (current_piece != nullptr) {
-    			Piece piece = *current_piece;
-    			if (piece.isWhite != isWhite) {
-        			char fictive_msg[5];
-        			memcpy(fictive_msg, piece.coord, 2 * sizeof(char));
-        			memcpy(fictive_msg + 2, square_to_verify, 2 * sizeof(char));
-        			Move attacking_square = board.create_move(fictive_msg);
-        				if (is_piece_correctly_moving(attacking_square) && is_there_obstacle_on_way(attacking_square)) {
+		for(int i=0; i<64; i++) {
+    			Piece piece = board.pieces[i];
+    			if (piece.isWhite != isWhite && piece.type!='.') {
+        			char fictive_msg[4];
+        			strncpy(fictive_msg, piece.coord, 2 * sizeof(char));
+        			strncpy(fictive_msg + 2, square_to_verify, 2 * sizeof(char));
+        			std::cout<<"fictive message " << fictive_msg<<std::endl;
+        			Move attacking_move = board.create_move(fictive_msg);
+        			attacking_move.isCapture = true;
+        				if (is_piece_correctly_moving(attacking_move) && not is_there_obstacle_on_way(attacking_move)) {
+        				std::cout<<attacking_move.start<<std::endl;
             					return true;
        						 }	
     				}
-    			current_piece++;
 			}
 return false;
 }
