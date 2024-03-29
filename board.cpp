@@ -127,7 +127,7 @@ Board Board::withMove(const Move move) {
 	newFEN[startIndex] = '.';
 	newFEN[endIndex] = FEN[startIndex];
 	
-	// We must erase the captured pawn
+	// En passant : We must erase the captured pawn
 	if (move.isEnPassant)
 	{
 		int captured_pawn_index = 0;
@@ -137,11 +137,9 @@ Board Board::withMove(const Move move) {
 		newFEN[captured_pawn_index]='.';
 	}
 	
-	// We must move also the tower
-	std::cout << "Doit-on bouger une tour pour cause de roque ?" << move.isCastling <<std::endl;
+	// Castling : We must move also the tower
 	if (move.isCastling)
 	{	
-		std::cout <<"Oui"<<std::endl;
 		int past_tower_index = 99;
 		int new_tower_index = 99;
 		char tower_type = 'R';
@@ -150,25 +148,29 @@ Board Board::withMove(const Move move) {
 		std::cout << move.end[1] << std::endl;
 		if (move.end[0] == 'g')
 		{
-			std::cout <<"Tour coté roi" << std::endl;
 			past_tower_index = endIndex + 1;
 			new_tower_index = endIndex - 1;
 		}
 		
 		if (move.end[0] =='c')
 		{
-			std::cout << "Tour coté reine" << std::endl;
 			past_tower_index = endIndex - 2;
 			new_tower_index = endIndex+ 1;
 		}
 		
 		newFEN[past_tower_index] = '.';
 		newFEN[new_tower_index] = tower_type;
-		
-		
-	
 	}
 
+	// Promotion : we must replace the pawn
+	if (move.isPromotion)
+	{	
+		char new_piece_type = 'Q';
+		if (not move.movingPiece.isWhite) {new_piece_type = 'q';}
+		
+		newFEN[endIndex] = new_piece_type;
+	
+	}
 	Board *newBoard = new Board(newFEN);
 	
     return *newBoard;
@@ -232,8 +234,9 @@ Move Board::create_move(const char* msg){
 		bool _is_capturing = Board::is_piece_capturing(start, end, piece);
 		bool _is_castling = Board::is_piece_castling(start, end, piece);
 		bool _is_en_passant = Board::is_piece_taking_en_passant(end, piece);
-		std::cout << "_is_castling == " << _is_castling <<std::endl;
-		return Move(start, end, piece, _is_capturing, false, _is_castling, _is_en_passant);
+		bool _is_promotioning = Board::is_piece_promotioning(end, piece);
+
+		return Move(start, end, piece, _is_capturing, _is_promotioning, _is_castling, _is_en_passant);
 	} 
 	
 	else
@@ -380,6 +383,24 @@ bool Board::is_piece_taking_en_passant(const char* coord_end, Piece piece){
 	return false;
 }
 
+bool Board::is_piece_promotioning(const char* coord_end, Piece piece){
+
+	int final_row = 8;
+	
+	if (piece.type == 'p' || piece.type == 'P')
+	{
+	
+		if (not piece.isWhite){final_row = 1;}
+	
+		if (coord_end[1] - '0' == final_row)
+		{
+			return true;
+		}
+	}
+	
+	return false;
+
+}
 //Functions to check if a move is legal
 bool Board::isLegal(const Move move) {
 	std::cout << "is move Legal" << std::endl;
