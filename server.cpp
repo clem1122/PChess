@@ -110,6 +110,7 @@ void* CommunicationRoutine(void* _) {
 				
 			} while(!isMoveValid);
 			std::cout <<"Move : " << msg << std::endl;
+			//std::cout <<"Move.isCastling " << move.isCastling;
 			game.board.playMove(move);
 			game.board.print();
 			send(waiterSocket, game.board.FEN);

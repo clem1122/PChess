@@ -3,15 +3,18 @@
 #include "move.h"
 #include "piece.h"
 #include <iostream>
+#include <cstring>
 
 int main() {
 
-	const char* msg = "e2e4";
-	Piece p;
-	Board b;
-	Move move = b.create_move(msg);
-//	Move move = Move(start, end, p, false, false, false, false);
-	std::cout << "4: Start : " << move.start << " End : " << move.end << std::endl;
+	Board b("rnbqkbnrpppppppp................................PPPPPPPPRNBQKBNR");
+	const char* case_verif = "c6";
+	std::cout << case_verif << std::endl;
+	bool est_echec_blanc = b.isCheck(b,true,case_verif);
+	
+	std::cout << "Echec en " << case_verif << " ? " << est_echec_blanc <<std::endl;
+	
+	
 
 	return 0;
 }

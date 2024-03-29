@@ -138,12 +138,36 @@ Board Board::withMove(const Move move) {
 	}
 	
 	// We must move also the tower
-	/*if (move.isCastling)
-	{
-		int past_tower_square_index = 99;
+	std::cout << "Doit-on bouger une tour pour cause de roque ?" << move.isCastling <<std::endl;
+	if (move.isCastling)
+	{	
+		std::cout <<"Oui"<<std::endl;
+		int past_tower_index = 99;
 		int new_tower_index = 99;
+		char tower_type = 'R';
+		
+		if (not move.movingPiece.isWhite) {tower_type = 'r';}
+		std::cout << move.end[1] << std::endl;
+		if (move.end[0] == 'g')
+		{
+			std::cout <<"Tour coté roi" << std::endl;
+			past_tower_index = endIndex + 1;
+			new_tower_index = endIndex - 1;
+		}
+		
+		if (move.end[0] =='c')
+		{
+			std::cout << "Tour coté reine" << std::endl;
+			past_tower_index = endIndex - 2;
+			new_tower_index = endIndex+ 1;
+		}
+		
+		newFEN[past_tower_index] = '.';
+		newFEN[new_tower_index] = tower_type;
+		
+		
 	
-	}*/
+	}
 
 	Board *newBoard = new Board(newFEN);
 	
@@ -193,7 +217,7 @@ Move Board::create_move(const char* msg){
 	//Create move
 	char start[3];
 	char end[3];	
-	
+	std::cout <<msg<<std::endl;
 	strncpy(start, msg, 2);
 	strncpy(end, msg+2, 2);
 	start[2] = '\0';
@@ -208,7 +232,7 @@ Move Board::create_move(const char* msg){
 		bool _is_capturing = Board::is_piece_capturing(start, end, piece);
 		bool _is_castling = Board::is_piece_castling(start, end, piece);
 		bool _is_en_passant = Board::is_piece_taking_en_passant(end, piece);
-		
+		std::cout << "_is_castling == " << _is_castling <<std::endl;
 		return Move(start, end, piece, _is_capturing, false, _is_castling, _is_en_passant);
 	} 
 	
@@ -224,12 +248,11 @@ Move Board::create_move(const char* msg){
 
 void Board::playMove(Move move) {
 	// Play move
-	
+	std::cout << "Comment est le is_castling dans le playmove ? " << move.isCastling<<std::endl;
 	Board newBoard = withMove(move);
 	Board::change_special_rules_after_move(move);
 	memcpy(&FEN, &(newBoard.FEN), 64 * sizeof(char));
 	pieces = newBoard.pieces;
-	std::cout <<"New Special Rules : " << specialRulesData << std::endl;
 }
 
 
@@ -312,10 +335,9 @@ bool Board::is_piece_capturing(const char* start, const char* end, Piece piece){
 
 bool Board::is_piece_castling(const char* start, const char* end, Piece piece){
 	//Check if a move correspond to a castlening
-	std::cout <<"ispiececastling" <<std::endl;
+	std::cout <<"is piece castling ?" <<std::endl;
 	if (piece.type == 'K')
 	{
-		std::cout << "start : " << start << "end : " << end << std::endl;
 		
 		if ( (strcmp(start,"e1") == 0 && strcmp(end,"c1") == 0)
 		  || (strcmp(start,"e1") == 0 && strcmp(end,"g1") == 0) )
@@ -379,6 +401,7 @@ bool Board::isLegal(const Move move) {
 	
 		if (Board::is_castling_valid(move))
 		{
+			std::cout <<"La légalité du roque est validé, le coup est légal"<<std::endl;
 			return true;
 		}
 	}
@@ -441,7 +464,7 @@ bool Board::is_piece_correctly_moving(const Move move){
 		int row_gap=std::abs(departure_row-arrival_row);
 		char column_gap=std::abs(departure_column-arrival_column);
 		
-		if (row_gap>1){return false;} //TODO : castling
+		if (row_gap>1){return false;}
 		if (column_gap>1){return false;}
 		
 		return true;
@@ -648,13 +671,13 @@ bool Board::is_castling_valid(const Move move){
 				}
 				
 				// Check if the square is controled by an opponent
-				/*std::cout<<"On regarde si il y a possibilité d'échec l'index "<<king_new_index<<std::endl;
+				std::cout<<"On regarde si il y a possibilité d'échec à l'index "<<king_new_index<<std::endl;
 				char* king_new_coord = indextoCoord(king_new_index);
 				Move move_king_castling(move.start,king_new_coord,move.movingPiece,false,false,false,false);
 					
 				Board Board_during_castling = withMove(move_king_castling);
 				
-				if (isCheck(Board_during_castling, move.movingPiece.isWhite, king_new_coord))
+				/*if (isCheck(Board_during_castling, move.movingPiece.isWhite, king_new_coord))
 				{
 					return false;
 				}*/
@@ -682,7 +705,7 @@ bool Board::isCheck(Board board, const bool isWhite, const char* square_to_verif
 		while (current_piece != nullptr) {
     			Piece piece = *current_piece;
     			if (piece.isWhite != isWhite) {
-        			char fictive_msg[4];
+        			char fictive_msg[5];
         			memcpy(fictive_msg, piece.coord, 2 * sizeof(char));
         			memcpy(fictive_msg + 2, square_to_verify, 2 * sizeof(char));
         			Move attacking_square = board.create_move(fictive_msg);
