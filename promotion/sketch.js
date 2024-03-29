@@ -1,42 +1,22 @@
-let rows = 8;
-let cols = 8;
-let squareSize;
-let colors = ["#f3dbb4", "#b38c62"];
-let selectedColor = "#98c47e";
-let FEN = "rnbqkbnrpppppppp................................PPPPPPPPRNBQKBNR";
 let pieceImages = {};
-let selectedSquare = null;
-let selectedPiece = null;
-let port = "8080";
-let url = "http://localhost:" + port;
 let isWhite = true;
-
-function setPort(value) {
-	port = value;
-	url = "http://localhost:" + port;
-	console.log("Port : " + port);
-}
 
 function preload() {
   pieceImages['Q'] = loadImage("Images/Q.png");
-  pieceImages['K'] = loadImage("Images/K.png");
-  pieceImages['P'] = loadImage("Images/P.png");
   pieceImages['N'] = loadImage("Images/N.png");
   pieceImages['B'] = loadImage("Images/B.png");
   pieceImages['R'] = loadImage("Images/R.png");
   
   pieceImages['q'] = loadImage("Images/q.png");
-  pieceImages['k'] = loadImage("Images/k.png");
-  pieceImages['p'] = loadImage("Images/p.png");
   pieceImages['n'] = loadImage("Images/n.png");
   pieceImages['b'] = loadImage("Images/b.png");
   pieceImages['r'] = loadImage("Images/r.png");
 }
 
 function setup() {
-
+    //window.resizeTo(410,120);
     createCanvas(900, 900);
-    squareSize = width / rows;
+    squareSize = 100;
     for (let key in pieceImages) {
     	pieceImages[key].resize(squareSize, 0);
     }
@@ -49,11 +29,14 @@ function setup() {
 }
 
 function draw() {
-    httpGet(url, 'text', gotData);
-    drawBoard();
+	let x = 0;
+	for (let img in pieceImages) {
+		image(pieceImages[img], x, 0);
+		x += 100;
+	}
 }
 
-
+/*
 
 function drawBoard() {
     for (let i = 0; i < rows; i++) {
@@ -93,10 +76,10 @@ function drawPieces(){
 
 function mousePressed() {
 
-	/*let params = `scrollbars=no,resizable=no,status=no,location=no,toolbar=no,menubar=no,
-	width=400,height=100,left=100,top=100`;
+	let params = `scrollbars=no,resizable=no,status=no,location=no,toolbar=no,menubar=no,
+	width=600,height=300,left=100,top=100`;
 
-	open('/promotion', 'test', params);*/
+	open('/promotion', 'test', params);
 	let _col = floor(mouseX / squareSize);
 	let _row = floor(mouseY / squareSize);
 
@@ -150,7 +133,7 @@ function sendData(data) {
 }
 
 
-
+*/
 
 
 
