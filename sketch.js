@@ -10,9 +10,16 @@ let selectedPiece = null;
 let port = "8080";
 let url = "http://localhost:" + port;
 let isWhite = true;
+let Box;
 
 function setPort(value) {
 	port = value;
+	url = "http://localhost:" + port;
+	console.log("Port : " + port);
+}
+
+function updateValue() {
+	port = Box.value();
 	url = "http://localhost:" + port;
 	console.log("Port : " + port);
 }
@@ -36,6 +43,8 @@ function preload() {
 function setup() {
 
     createCanvas(900, 900);
+    Box = select('#valueBox');
+    Box.input(updateValue);
     squareSize = width / rows;
     for (let key in pieceImages) {
     	pieceImages[key].resize(squareSize, 0);
