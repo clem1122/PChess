@@ -400,10 +400,12 @@ bool Board::isLegal(const Move move) {
 		kingIndex = -1;
 	}
 	std::cout << "coord du roi : " << indextoCoord(kingIndex) << std::endl;
+	//isCheck(*this, move.movingPiece.isWhite, indextoCoord(kingIndex));
 	std::cout << "Prévision : " << std::endl;
 	withMove(move).print();
-	if(isCheck(withMove(move), move.movingPiece.isWhite, indextoCoord(kingIndex))) {return false;};
+	if(withMove(move).isCheck(move.movingPiece.isWhite, indextoCoord(kingIndex))) {return false;};
 	// Special En Passant move
+	std::cout << "///////////////////////////" << std::endl;
 	if (move.isEnPassant)
 	{
 	
@@ -723,15 +725,15 @@ bool Board::is_en_passant_valid(const Move move){
 // Game logic to check if there is check on the king POV ('k' or 'K' for now)
 
 
-bool Board::isCheck(Board board, const bool isKingWhite, const char* square_to_verify) {
+bool Board::isCheck(const bool isKingWhite, const char* square_to_verify) {
 		for(int i=0; i<64; i++) {
-    			Piece piece = board.pieces[i];
+    			Piece piece = pieces[i];
     			if (piece.isWhite != isKingWhite && piece.type!='.') {
         			char fictive_msg[4];
         			strncpy(fictive_msg, piece.coord, 2);
         			strncpy(fictive_msg + 2, square_to_verify, 2);
         			
-        			Move attacking_move = board.create_move(fictive_msg);
+        			Move attacking_move = create_move(fictive_msg);
         			attacking_move.isCapture = true;
         				if (is_piece_correctly_moving(attacking_move) && not is_there_obstacle_on_way(attacking_move)) {
         					std::cout<<"Roi en echec : " << attacking_move.start<<std::endl;

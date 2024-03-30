@@ -112,6 +112,7 @@ void* CommunicationRoutine(void* _) {
 			std::cout <<"Move : " << msg << std::endl;
 			//std::cout <<"Move.isCastling " << move.isCastling;
 			game.board.playMove(move);
+			std::cout << "Plateau actuel : " << std::endl;
 			game.board.print();
 			send(waiterSocket, game.board.FEN);
 			send(playerSocket, game.board.FEN);
