@@ -114,8 +114,8 @@ void* CommunicationRoutine(void* _) {
 			game.board.playMove(move);
 			std::cout << "Plateau actuel : " << std::endl;
 			game.board.print();
-			send(waiterSocket, game.board.FEN);
-			send(playerSocket, game.board.FEN);
+			send(waiterSocket, game.board.FEN());
+			send(playerSocket, game.board.FEN());
 
 			
 			isJ1Turn = !isJ1Turn;

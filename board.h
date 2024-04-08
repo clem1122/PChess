@@ -3,17 +3,28 @@
 #include "move.h"
 
 class Board{
+
+private:
+
+	char FEN_[64]; //The 64 squares and the pieces above each of them
+	char specialRulesData_[6]; //To whom is the turn (w/b) ; Possible castling (KQkq, - when not possible anymore) ; Index of the En Passant square
+	int en_passant_index_;
+	Piece* pieces_;
+
 public:
-	char FEN[64]; //The 64 squares and the pieces above each of them
-	char specialRulesData[6]; //To whom is the turn (w/b) ; Possible castling (KQkq, - when not possible anymore) ; Index of the En Passant square
-	int en_passant_index;
-	Piece* pieces;
+
 	
 	Board();
 	Board(const char* FEN);
 	~Board();
 	
-
+	//Functions to get variables
+	
+	char* FEN() {return FEN_;};
+	char* specialRulesData() {return specialRulesData_;};
+	int en_passant_index() {return en_passant_index_;};
+	Piece* pieces() {return pieces_;};
+	
 	//Utility translation functions
 	char* indextoCoord(const int &index);
 	int coordtoIndex(const char* coord);
