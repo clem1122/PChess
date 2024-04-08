@@ -1,8 +1,8 @@
 #include "game.h"
 
 Game::Game() {
-	socketJ1 = 0;
-	socketJ2 = 0;
+	socketJ1_ = 0;
+	socketJ2_ = 0;
 }
 
 Game::~Game() {

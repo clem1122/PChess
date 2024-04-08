@@ -56,19 +56,19 @@ void * hconnect (void * t)
 	getpeername(client_fd, (sockaddr *)&addr, &addr_len);
     inet_ntop(AF_INET, &addr.sin_addr, client_ip, INET_ADDRSTRLEN);
 	int f = *((int *)d->fd);
-	if (game.socketJ1 == 0) {
+	if (game.socketJ1() == 0) {
 		std::cout << "first connexion " << "socket : " << f << std::endl;
-		game.socketJ1 = f;	
+		game.set_socketJ1(f);	
 		//game.nameJ1 = name;
 		
 		
 	} else {
-		game.socketJ2 = f;
+		game.set_socketJ2(f);
 		//game.nameJ2 = name;
 		std::cout << "second connexion " <<  " socket : " << f << std::endl;
-		send(game.socketJ1, stringToChar("1"));
-		send(game.socketJ2, stringToChar("4"));
-		if(game.socketJ2 == game.socketJ1) {std::cout << "ohoh" << std::endl;}
+		send(game.socketJ1(), stringToChar("1"));
+		send(game.socketJ2(), stringToChar("4"));
+		if(game.socketJ2() == game.socketJ1()) {std::cout << "ohoh" << std::endl;}
 	}
 	
 	free(d);
@@ -89,20 +89,21 @@ void* CommunicationRoutine(void* _) {
 	
 	while(true) {
 		sleep(1);
-		if(game.socketJ1 != 0 && game.socketJ2 != 0) {
+		if(game.socketJ1() != 0 && game.socketJ2() != 0) {
 			if(isJ1Turn) {
-				playerSocket = game.socketJ1;
-				waiterSocket = game.socketJ2;
+				playerSocket = game.socketJ1();
+				waiterSocket = game.socketJ2();
 			} else {
-				playerSocket = game.socketJ2;
-				waiterSocket = game.socketJ1;
+				playerSocket = game.socketJ2();
+				waiterSocket = game.socketJ1();
 			}
 			
 			do {
 				msg = receive(playerSocket);
 				move = game.board.create_move(msg);									
 				isMoveValid = game.board.isLegal(move) && 
-				(move.movingPiece().isWhite() != (playerSocket == game.socketJ2)); // soit isWhite et J1 soit !isWhite et J2 
+				(move.movingPiece().isWhite() != (playerSocket == game.socketJ2())); // soit isWhite et J1 soit !isWhite et J2 
+
 				if(not isMoveValid) {
 					std::cout << "Unvalid piece movement : " << msg << std::endl;
 					send(playerSocket, stringToChar("err0"));
