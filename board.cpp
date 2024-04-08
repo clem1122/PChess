@@ -393,11 +393,12 @@ bool Board::isLegal(const Move move) {
 	//std::cout << "is move Legal" << std::endl;
 	
 	int kingIndex;
+	Board board_after_move = withMove(move); 
 	for(int i = 0; i < 64; i++) {
 
 
-		if ((pieces_[i].type() == 'K' && move.movingPiece().isWhite()) || 
-		    (pieces_[i].type() == 'k' && not move.movingPiece().isWhite())) {
+		if ((board_after_move.pieces_[i].type() == 'K' && move.movingPiece().isWhite()) || 
+		    (board_after_move.pieces_[i].type() == 'k' && not move.movingPiece().isWhite())) {
 			kingIndex = i;
 			break;
 		}
@@ -406,8 +407,8 @@ bool Board::isLegal(const Move move) {
 	std::cout << "coord du roi : " << indextoCoord(kingIndex) << std::endl;
 	//isCheck(*this, move.movingPiece().isWhite(), indextoCoord(kingIndex));
 	std::cout << "Prévision : " << std::endl;
-	withMove(move).print();
-	if(withMove(move).isCheck(move.movingPiece().isWhite(), indextoCoord(kingIndex))) {return false;};
+	board_after_move.print();
+	if(board_after_move.isCheck(move.movingPiece().isWhite(), indextoCoord(kingIndex))) {return false;};
 	// Special En Passant move
 	std::cout << "///////////////////////////" << std::endl;
 	if (move.isEnPassant())
@@ -554,19 +555,18 @@ bool Board::is_piece_correctly_moving(const Move move){
 }
 
 
-
-
-bool Board::is_there_obstacle_on_way(const Move move){
-	//Return true if there is a piece able to block the move of the piece on its way.
-	//This function does NOT check the case of a piece ON the arrival square, another function is in charge of this
-//	std::cout << "is there obstacle on the way" << std::endl;
+int* Board::trajectory(const Move move){
+	
+	int* trajectory_squares = new int[8];
+	trajectory_squares[0]=99;
+	
 	// Get infos from move
 	char start_col=move.start()[0];
 	char end_col=move.end()[0];
 	char start_row=move.start()[1];
 	char end_row=move.end()[1];
 	char coord_considered[2];
-
+	
 	// Rook/Queen case
 	if (move.movingPiece().type()=='r' 
 	 || move.movingPiece().type()=='R' 
@@ -583,10 +583,9 @@ bool Board::is_there_obstacle_on_way(const Move move){
 	 		{
 	 			coord_considered[0] = start_col + i * direction; //Check squares on the left or right depending on direction
 	 			int index_considered = coordtoIndex(coord_considered);
-	 			if (is_piece_on_square(index_considered)){return true;}
-	 		
+	 			trajectory_squares[i-1] = index_considered;
 	 		}
-	 		return false;
+
 	 	}
 	 	
 	 	else if (end_col == start_col) //Move along a column
@@ -598,15 +597,16 @@ bool Board::is_there_obstacle_on_way(const Move move){
 	 		for (int i=1 ; i<gap ; i++)
 	 		{
 	 			coord_considered[1]=start_row + i*direction; //Check squares on the up or down depending on direction
-	 			int index_considered=coordtoIndex(coord_considered);
-	 			
-	 			if (is_piece_on_square(index_considered)){return true;}
+	 			int index_considered = coordtoIndex(coord_considered);
+	 			trajectory_squares[i-1] = index_considered;
 	 		}
-	 		return false;
+	 	
+
 	 	}
+	 	return trajectory_squares;
 	 	
 	 }
-	 
+	 	
 	 // Bishop/Queen case
 	 if (move.movingPiece().type() == 'b' 
 	  || move.movingPiece().type() == 'B' 
@@ -622,7 +622,7 @@ bool Board::is_there_obstacle_on_way(const Move move){
 	 		coord_considered[0] = start_col + i * direction_col;
 	 		coord_considered[1] = start_row + i * direction_row;
 	 		int index_considered=coordtoIndex(coord_considered);
-	 		if (is_piece_on_square(index_considered)){return true;}
+	 		trajectory_squares[i-1] = index_considered;
 	 	}
 	 }
 	 
@@ -638,13 +638,31 @@ bool Board::is_there_obstacle_on_way(const Move move){
 	 		coord_considered[1] = start_row + direction;
 	 		int index_considered=coordtoIndex(coord_considered);
 	 		
-	 		if (is_piece_on_square(index_considered)){return true;}
+	 		trajectory_squares[0] = index_considered;
 	 	}
 	 
 	 }
 	 
-	 // King case does not need to be done because it only moves one square at a time
-	 // Knight case does not need to be done because knight precisely do not bother with piece on their way
+	 return trajectory_squares;
+}
+
+bool Board::is_there_obstacle_on_way(const Move move){
+	//Return true if there is a piece able to block the move of the piece on its way.
+	//This function does NOT check the case of a piece ON the arrival square, another function is in charge of this
+//	std::cout << "is there obstacle on the way" << std::endl;
+
+	int* squares_visited = trajectory(move);
+	int i = 0;
+	
+	while (squares_visited[i] != 99)
+	{
+		if (is_piece_on_square(squares_visited[i++]))
+		{
+			std::cout << "Piece à la coord :" << indextoCoord(squares_visited[i-1]) << std::endl;
+			return true;
+		}
+		
+	}
 	
 	return false;
 }
@@ -688,6 +706,12 @@ bool Board::is_castling_valid(const Move move){
 			int gap = std::abs(king_start_index - king_end_index);
 			int direction = (king_end_index - king_start_index)/gap;
 			
+			//Check if king is check
+			if (isCheck(move.movingPiece().isWhite(), move.start()))
+			{
+				return false;
+			}
+			
 			// For each square crossed by the king during the castling
 			for (int i = 1 ; i<=gap ; i++)
 			{
@@ -697,7 +721,6 @@ bool Board::is_castling_valid(const Move move){
 				// Check if the square is empty
 				if (is_piece_on_square(king_new_index))
 				{
-
 					return false;
 				}
 				
@@ -707,11 +730,11 @@ bool Board::is_castling_valid(const Move move){
 				Move move_king_castling(move.start(),king_new_coord,move.movingPiece(),false,false,false,false);
 					
 				Board Board_during_castling = withMove(move_king_castling);
-				/*
-				if (isCheck(Board_during_castling, move.movingPiece().isWhite(), king_new_coord))
+				
+				if (Board_during_castling.isCheck(move.movingPiece().isWhite(), king_new_coord))
 				{
 					return false;
-				}*/
+				}
 					
 			}
 

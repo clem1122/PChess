@@ -42,6 +42,7 @@ public:
 	bool is_piece_promotioning(const char* coord_end, Piece piece);
 	
 	//Functions to check the legality of a move
+	int* trajectory(const Move move);
 	bool isLegal(const Move move);
 	bool is_piece_on_square(int index_arrival);
 	bool is_white_on_square(int index_arrival);
