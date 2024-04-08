@@ -672,7 +672,7 @@ bool Board::is_there_obstacle_on_arrival(const Move move){
 bool Board::is_castling_valid(const Move move){
 	
 
-	std::cout<<"Les règles spéciales sont "<<specialRulesData<<std::endl;
+	std::cout<<"Les règles spéciales sont "<<specialRulesData_<<std::endl;
 	if ( (strcmp(move.end(),"g1") == 0 && specialRulesData_[1]=='K') 
 	  || (strcmp(move.end(),"c1") == 0 && specialRulesData_[2]=='Q')
 	  || (strcmp(move.end(),"g8") == 0 && specialRulesData_[3]=='k')
@@ -707,8 +707,8 @@ bool Board::is_castling_valid(const Move move){
 				Move move_king_castling(move.start(),king_new_coord,move.movingPiece(),false,false,false,false);
 					
 				Board Board_during_castling = withMove(move_king_castling);
-				
-				/*if (isCheck(Board_during_castling, move.movingPiece().isWhite(), king_new_coord))
+				/*
+				if (isCheck(Board_during_castling, move.movingPiece().isWhite(), king_new_coord))
 				{
 					return false;
 				}*/

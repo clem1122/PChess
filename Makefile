@@ -3,7 +3,7 @@ FLAGS = -O -Wall -Werror -Wshadow
 CLIENT = client.o
 SERVER = server.o
 
-all: client server
+all: client server main
 
 server.o : server.cpp
 	c++ -c server.cpp -o server.o $(FLAGS)

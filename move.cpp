@@ -9,17 +9,17 @@ Move::Move(){
 
 Move::Move(const char* _start, const char* _end, Piece _movingPiece, bool _isCapture, bool _isPromotion, bool _isCastling, bool _isEnPassant){
 
-	movingPiece = _movingPiece;
-	isCapture = _isCapture;
-	isPromotion = _isPromotion;
-	isCastling = _isCastling;
-	isEnPassant = _isEnPassant;
+	movingPiece_ = _movingPiece;
+	isCapture_ = _isCapture;
+	isPromotion_ = _isPromotion;
+	isCastling_ = _isCastling;
+	isEnPassant_ = _isEnPassant;
 	
-	strncpy(start, _start, 2);
-	strncpy(end, _end, 2);
+	strncpy(start_, _start, 2);
+	strncpy(end_, _end, 2);
 
-	start[2] = '\0';
-	end[2] = '\0';
+	start_[2] = '\0';
+	end_[2] = '\0';
 
 	
 }

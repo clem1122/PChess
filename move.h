@@ -3,8 +3,8 @@
 
 class Move{
 private:
-	const char start_[3]; // TODO : Gérer le stack overflow
-	const char end_[3];
+	char start_[3]; // TODO : Gérer le stack overflow
+	char end_[3];
 	
 	Piece movingPiece_; // = new Piece("Q", "d1", true);
 	
@@ -17,8 +17,8 @@ public:
 	Move();
 	Move(const char* _start, const char* _end, Piece _movingPiece, bool _isCapture, bool _isPromotion, bool _isCastling, bool _isEnPassant);
 	
-	const char* start()const{return start_;} // TODO : Gérer le stack overflow
-	const char* end()const{return end_;}
+	char* start()const{return const_cast<char*>(start_);} // TODO : Gérer le stack overflow
+	char* end()const{return const_cast<char*>(end_);}
 	
 	Piece movingPiece()const{return movingPiece_;} // = new Piece("Q", "d1", true);
 	

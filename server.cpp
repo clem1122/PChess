@@ -102,7 +102,7 @@ void* CommunicationRoutine(void* _) {
 				msg = receive(playerSocket);
 				move = game.board.create_move(msg);									
 				isMoveValid = game.board.isLegal(move) && 
-				(move.movingPiece.get_isWhite() != (playerSocket == game.socketJ2)); // soit isWhite et J1 soit !isWhite et J2 
+				(move.movingPiece().isWhite() != (playerSocket == game.socketJ2)); // soit isWhite et J1 soit !isWhite et J2 
 				if(not isMoveValid) {
 					std::cout << "Unvalid piece movement : " << msg << std::endl;
 					send(playerSocket, stringToChar("err0"));
