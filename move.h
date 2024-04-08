@@ -2,19 +2,33 @@
 #include "piece.h"
 
 class Move{
+private:
+	const char start_[3]; // TODO : Gérer le stack overflow
+	const char end_[3];
+	
+	Piece movingPiece_; // = new Piece("Q", "d1", true);
+	
+	bool isCapture_;
+	bool isPromotion_;
+	bool isCastling_;
+	bool isEnPassant_;
+
 public:
-	char start[3]; // TODO : Gérer le stack overflow
-	char end[3];
-	
-	Piece movingPiece; // = new Piece("Q", "d1", true);
-	
-	bool isCapture;
-	bool isPromotion;
-	bool isCastling;
-	bool isEnPassant;
-	
 	Move();
 	Move(const char* _start, const char* _end, Piece _movingPiece, bool _isCapture, bool _isPromotion, bool _isCastling, bool _isEnPassant);
+	
+	const char* start()const{return start_;} // TODO : Gérer le stack overflow
+	const char* end()const{return end_;}
+	
+	Piece movingPiece()const{return movingPiece_;} // = new Piece("Q", "d1", true);
+	
+	bool isCapture()const{return isCapture_;};
+	bool isPromotion()const{return isPromotion_;}
+	bool isCastling()const{return isCastling_;}
+	bool isEnPassant()const{return isEnPassant_;}
+	
+	void set_isCapture(bool b){isCapture_ = b;}
+
 	
 	
 };

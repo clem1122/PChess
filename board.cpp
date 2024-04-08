@@ -62,13 +62,13 @@ void Board::change_en_passant_square(bool has_a_pawn_moved, bool is_pawn_white, 
 
 void Board::block_castling(const Move move, bool isQueenTower){
 
-	if (move.movingPiece.type == 'K')
+	if (move.movingPiece().type() == 'K')
 	{
 		specialRulesData_[1]='-';
 		specialRulesData_[2]='-';
 	}
 	
-	if (move.movingPiece.type == 'k')
+	if (move.movingPiece().type() == 'k')
 	{
 		specialRulesData_[3]='-';
 		specialRulesData_[4]='-';
@@ -76,13 +76,13 @@ void Board::block_castling(const Move move, bool isQueenTower){
 	
 
 	
-	if (move.movingPiece.type == 'R')
+	if (move.movingPiece().type() == 'R')
 	{
 		if (not isQueenTower){specialRulesData_[1]='-';}
 		if (isQueenTower){specialRulesData_[2]='-';}
 	}
 	
-	if (move.movingPiece.type == 'r')
+	if (move.movingPiece().type() == 'r')
 	{
 		if (not isQueenTower){specialRulesData_[3]='-';}
 		if (isQueenTower){specialRulesData_[4]='-';}
@@ -119,8 +119,8 @@ int Board::coordtoIndex(const char* coord) {
 
 // Utility function to play a move
 Board Board::withMove(const Move move) {
-	int startIndex = Board::coordtoIndex(move.start);
-	int endIndex = Board::coordtoIndex(move.end);
+	int startIndex = Board::coordtoIndex(move.start());
+	int endIndex = Board::coordtoIndex(move.end());
 	
 	char newFEN[64];
 	memcpy(&newFEN, &FEN_, 64 * sizeof(char));
@@ -128,31 +128,32 @@ Board Board::withMove(const Move move) {
 	newFEN[endIndex] = FEN_[startIndex];
 	
 	// En passant : We must erase the captured pawn
-	if (move.isEnPassant)
+	if (move.isEnPassant())
 	{
 		int captured_pawn_index = 0;
-		if (move.movingPiece.isWhite){captured_pawn_index = en_passant_index_ + 8;}
-		if (not move.movingPiece.isWhite){captured_pawn_index = en_passant_index_ - 8;}
+
+		if (move.movingPiece().isWhite()){captured_pawn_index = en_passant_index_ + 8;}
+		if (not move.movingPiece().isWhite()){captured_pawn_index = en_passant_index_ - 8;}
 		
 		newFEN[captured_pawn_index]='.';
 	}
 	
 	// Castling : We must move also the tower
-	if (move.isCastling)
+	if (move.isCastling())
 	{	
 		int past_tower_index = 99;
 		int new_tower_index = 99;
 		char tower_type = 'R';
 		
-		if (not move.movingPiece.isWhite) {tower_type = 'r';}
-		std::cout << move.end[1] << std::endl;
-		if (move.end[0] == 'g')
+		if (not move.movingPiece().isWhite()) {tower_type = 'r';}
+		std::cout << move.end()[1] << std::endl;
+		if (move.end()[0] == 'g')
 		{
 			past_tower_index = endIndex + 1;
 			new_tower_index = endIndex - 1;
 		}
 		
-		if (move.end[0] =='c')
+		if (move.end()[0] =='c')
 		{
 			past_tower_index = endIndex - 2;
 			new_tower_index = endIndex+ 1;
@@ -163,9 +164,9 @@ Board Board::withMove(const Move move) {
 	}
 
 	// Promotion : we must replace the pawn
-	if (move.isPromotion)
+	if (move.isPromotion())
 	{	
-		newFEN[endIndex] = move.movingPiece.isWhite ? 'Q' : 'q';
+		newFEN[endIndex] = move.movingPiece().isWhite() ? 'Q' : 'q';
 	
 	}
 	Board *newBoard = new Board(newFEN);
@@ -188,7 +189,7 @@ Piece* Board::FENtoPieces(const char* _FEN) {
 char* Board::PiecestoFEN(const Piece* _pieces) {
 	char *newFEN = new char[64];
 	for(int i = 0; i < 64; i++) {
-			newFEN[i] = _pieces[i].type;
+			newFEN[i] = _pieces[i].type();
 	}
     return newFEN;
 }
@@ -263,17 +264,17 @@ void Board::change_special_rules_after_move(Move move){
 	Board::change_turn();
 	
 	//CASTLING if the piece is a king or a rook
-		if (move.movingPiece.type == 'K' || move.movingPiece.type == 'k'){
+		if (move.movingPiece().type() == 'K' || move.movingPiece().type() == 'k'){
 			Board::block_castling(move,false);
 		}
 		
-		if (move.movingPiece.type == 'r' || move.movingPiece.type == 'R'){
-			if ( strcmp(move.start,"a1") == 0 || strcmp(move.start,"a8") == 0)
+		if (move.movingPiece().type() == 'r' || move.movingPiece().type() == 'R'){
+			if ( strcmp(move.start(),"a1") == 0 || strcmp(move.start(),"a8") == 0)
 			{
 				Board::block_castling(move,true);
 			}
 			
-			if ( strcmp(move.start,"h1") == 0 || strcmp(move.start,"h8") == 0)
+			if ( strcmp(move.start(),"h1") == 0 || strcmp(move.start(),"h8") == 0)
 			{
 				Board::block_castling(move,false);
 			}
@@ -281,18 +282,18 @@ void Board::change_special_rules_after_move(Move move){
 		}
 	
 	//EN PASSANT if the piece is a pawn which has moved 2 rows
-	int departure_row=move.start[1] - '0';
-	int arrival_row=move.end[1] - '0';
+	int departure_row=move.start()[1] - '0';
+	int arrival_row=move.end()[1] - '0';
 	int row_gap = std::abs(departure_row - arrival_row);
 	
-	if ( (move.movingPiece.type == 'p' || move.movingPiece.type == 'P') && (row_gap==2) )
+	if ( (move.movingPiece().type() == 'p' || move.movingPiece().type() == 'P') && (row_gap==2) )
 	{
-		Board::change_en_passant_square(true,move.movingPiece.isWhite,move.end);
+		Board::change_en_passant_square(true,move.movingPiece().isWhite(),move.end());
 	}
 	
 	else 
 	{
-		Board::change_en_passant_square(false,move.movingPiece.isWhite,move.end);
+		Board::change_en_passant_square(false,move.movingPiece().isWhite(),move.end());
 	}
 	
 	//std::cout<<"Nouvelles règles speciales : "<<specialRulesData<<en_passant_index<<std::endl;
@@ -322,9 +323,10 @@ bool Board::is_piece_capturing(const char* start, const char* end, Piece piece){
 	
 	if (Board::is_piece_on_square(arrival_index)){
 	
-		bool isPieceOnArrivalWhite = pieces_[Board::coordtoIndex(end)].isWhite;
-	
-		if (isPieceOnArrivalWhite != piece.isWhite){
+
+
+		bool isPieceOnArrivalWhite = pieces_[Board::coordtoIndex(end)].isWhite();
+		if (isPieceOnArrivalWhite != piece.isWhite()){
 			return true;
 		}
 	}
@@ -335,7 +337,7 @@ bool Board::is_piece_capturing(const char* start, const char* end, Piece piece){
 bool Board::is_piece_castling(const char* start, const char* end, Piece piece){
 	//Check if a move correspond to a castlening
 	//std::cout <<"is piece castling ?" <<std::endl;
-	if (piece.type == 'K')
+	if (piece.type() == 'K')
 	{
 		
 		if ( (strcmp(start,"e1") == 0 && strcmp(end,"c1") == 0)
@@ -348,7 +350,7 @@ bool Board::is_piece_castling(const char* start, const char* end, Piece piece){
 	}
 	
 	
-	if (piece.type == 'k')
+	if (piece.type() == 'k')
 	{
 		
 		if ( (strcmp(start,"e8") == 0 && strcmp(end,"c8") == 0)
@@ -365,7 +367,7 @@ bool Board::is_piece_castling(const char* start, const char* end, Piece piece){
 bool Board::is_piece_taking_en_passant(const char* coord_end, Piece piece){
 	//Check if a move correspond to a En passant move
 	
-	if (piece.type == 'p' || piece.type == 'P')
+	if (piece.type() == 'p' || piece.type() == 'P')
 	{
 		int end_index = coordtoIndex(coord_end);
 		
@@ -381,8 +383,8 @@ bool Board::is_piece_taking_en_passant(const char* coord_end, Piece piece){
 
 bool Board::is_piece_promotioning(const char* coord_end, Piece piece){
 
-	int final_row = piece.isWhite ? 8 : 1;
-	return (piece.type == 'p' || piece.type == 'P') && (coord_end[1] - '0' == final_row);	
+	int final_row = piece.isWhite() ? 8 : 1;
+	return (piece.type() == 'p' || piece.type() == 'P') && (coord_end[1] - '0' == final_row);	
 
 	
 }
@@ -392,21 +394,23 @@ bool Board::isLegal(const Move move) {
 	
 	int kingIndex;
 	for(int i = 0; i < 64; i++) {
-		if ((pieces_[i].type == 'K' && move.movingPiece.isWhite) || 
-		    (pieces_[i].type == 'k' && not move.movingPiece.isWhite)) {
+
+
+		if ((pieces_[i].type() == 'K' && move.movingPiece().isWhite()) || 
+		    (pieces_[i].type() == 'k' && not move.movingPiece().isWhite())) {
 			kingIndex = i;
 			break;
 		}
 		kingIndex = -1;
 	}
 	std::cout << "coord du roi : " << indextoCoord(kingIndex) << std::endl;
-	//isCheck(*this, move.movingPiece.isWhite, indextoCoord(kingIndex));
+	//isCheck(*this, move.movingPiece().isWhite(), indextoCoord(kingIndex));
 	std::cout << "Prévision : " << std::endl;
 	withMove(move).print();
-	if(withMove(move).isCheck(move.movingPiece.isWhite, indextoCoord(kingIndex))) {return false;};
+	if(withMove(move).isCheck(move.movingPiece().isWhite(), indextoCoord(kingIndex))) {return false;};
 	// Special En Passant move
 	std::cout << "///////////////////////////" << std::endl;
-	if (move.isEnPassant)
+	if (move.isEnPassant())
 	{
 	
 		if (Board::is_en_passant_valid(move))
@@ -417,7 +421,7 @@ bool Board::isLegal(const Move move) {
 	}
 	
 	// Special Castling move
-	if (move.isCastling)
+	if (move.isCastling())
 	{
 		std::cout<<"Un roque est demandé"<<std::endl;
 	
@@ -450,16 +454,16 @@ bool Board::isLegal(const Move move) {
 bool Board::is_piece_correctly_moving(const Move move){
 	// Get infos from move
 	//std::cout << "is piece correctly moving" << std::endl;
-	char departure_column=move.start[0];
-	char arrival_column=move.end[0];
-	int departure_row=move.start[1] - '0';
-	int arrival_row=move.end[1] - '0';
+	char departure_column=move.start()[0];
+	char arrival_column=move.end()[0];
+	int departure_row=move.start()[1] - '0';
+	int arrival_row=move.end()[1] - '0';
 
 	
-	if (move.movingPiece.type=='r' 
-	 || move.movingPiece.type=='R' 
-	 || move.movingPiece.type=='q' 
-	 || move.movingPiece.type=='Q')
+	if (move.movingPiece().type()=='r' 
+	 || move.movingPiece().type()=='R' 
+	 || move.movingPiece().type()=='q' 
+	 || move.movingPiece().type()=='Q')
 	{
 		//Rook/Queen must have a move along a column or a row	
 		if (departure_column == arrival_column || departure_row == arrival_row){
@@ -467,10 +471,10 @@ bool Board::is_piece_correctly_moving(const Move move){
 		}
 	}
 		
-	if (move.movingPiece.type=='b' 
-	 || move.movingPiece.type=='B' 
-	 || move.movingPiece.type=='q' 
-	 || move.movingPiece.type=='Q')
+	if (move.movingPiece().type()=='b' 
+	 || move.movingPiece().type()=='B' 
+	 || move.movingPiece().type()=='q' 
+	 || move.movingPiece().type()=='Q')
 	{
 		//Bishop/Queen must increase row and column the same way
 		int gap_row = std::abs(arrival_row-departure_row);
@@ -481,7 +485,7 @@ bool Board::is_piece_correctly_moving(const Move move){
 		}
 	}
 		
-	if (move.movingPiece.type=='k' || move.movingPiece.type=='K'){
+	if (move.movingPiece().type()=='k' || move.movingPiece().type()=='K'){
 		//King can only change its row/column by 1
 		
 		int row_gap=std::abs(departure_row-arrival_row);
@@ -493,7 +497,7 @@ bool Board::is_piece_correctly_moving(const Move move){
 		return true;
 	}
 	
-	if (move.movingPiece.type=='p' || move.movingPiece.type=='P'){
+	if (move.movingPiece().type()=='p' || move.movingPiece().type()=='P'){
 	//Pawn can only move 1 row depending on its color or 2 if it is on its starting place
 		int row_gap=arrival_row-departure_row;
 		int column_gap=arrival_column-departure_column;
@@ -501,18 +505,18 @@ bool Board::is_piece_correctly_moving(const Move move){
 		bool isOnStartingRow = false;
 		
 		//Check if pawn moves toward good direction
-		bool isMovingGoodDirection = (move.movingPiece.isWhite == isMovingUp); 
+		bool isMovingGoodDirection = (move.movingPiece().isWhite() == isMovingUp); 
 
 		//Check if on starting row
-		if ( (move.movingPiece.isWhite && departure_row==2) 
-		 || (not move.movingPiece.isWhite && departure_row==7) ){
+		if ( (move.movingPiece().isWhite() && departure_row==2) 
+		 || (not move.movingPiece().isWhite() && departure_row==7) ){
 		 
 		 	isOnStartingRow = true;
 		 } 
 
 
 		if (isMovingGoodDirection){
-			if (column_gap==0 && not move.isCapture){
+			if (column_gap==0 && not move.isCapture()){
 
 				if (std::abs(row_gap)==1){
 					return true;
@@ -523,7 +527,7 @@ bool Board::is_piece_correctly_moving(const Move move){
 				}
 			}
 
-			if (std::abs(column_gap)==1 && std::abs(row_gap)==1 && move.isCapture){
+			if (std::abs(column_gap)==1 && std::abs(row_gap)==1 && move.isCapture()){
 				return true;
 				
 			}
@@ -532,11 +536,11 @@ bool Board::is_piece_correctly_moving(const Move move){
 		
 	}
 	
-	if (move.movingPiece.type=='n' || move.movingPiece.type=='N'){
+	if (move.movingPiece().type()=='n' || move.movingPiece().type()=='N'){
 		//Knight can only move on 8 squares easily seen with the FEN
 		
-		int startIndex = Board::coordtoIndex(move.start);
-		int endIndex = Board::coordtoIndex(move.end);
+		int startIndex = Board::coordtoIndex(move.start());
+		int endIndex = Board::coordtoIndex(move.end());
 		
 		int FEN_gap=std::abs(startIndex-endIndex);
 		
@@ -557,17 +561,17 @@ bool Board::is_there_obstacle_on_way(const Move move){
 	//This function does NOT check the case of a piece ON the arrival square, another function is in charge of this
 //	std::cout << "is there obstacle on the way" << std::endl;
 	// Get infos from move
-	char start_col=move.start[0];
-	char end_col=move.end[0];
-	char start_row=move.start[1];
-	char end_row=move.end[1];
+	char start_col=move.start()[0];
+	char end_col=move.end()[0];
+	char start_row=move.start()[1];
+	char end_row=move.end()[1];
 	char coord_considered[2];
 
 	// Rook/Queen case
-	if (move.movingPiece.type=='r' 
-	 || move.movingPiece.type=='R' 
-	 || move.movingPiece.type=='q' 
-	 || move.movingPiece.type=='Q'){
+	if (move.movingPiece().type()=='r' 
+	 || move.movingPiece().type()=='R' 
+	 || move.movingPiece().type()=='q' 
+	 || move.movingPiece().type()=='Q'){
 	 
 	 	if (end_row == start_row) //Move along a row
 	 	{	 	
@@ -604,10 +608,10 @@ bool Board::is_there_obstacle_on_way(const Move move){
 	 }
 	 
 	 // Bishop/Queen case
-	 if (move.movingPiece.type == 'b' 
-	  || move.movingPiece.type == 'B' 
-	  || move.movingPiece.type == 'q' 
-	  || move.movingPiece.type == 'Q'){
+	 if (move.movingPiece().type() == 'b' 
+	  || move.movingPiece().type() == 'B' 
+	  || move.movingPiece().type() == 'q' 
+	  || move.movingPiece().type() == 'Q'){
 	 
 	 	int gap = std::abs(end_row - start_row);
 	 	int direction_row = (end_row - start_row)/gap;
@@ -623,7 +627,7 @@ bool Board::is_there_obstacle_on_way(const Move move){
 	 }
 	 
 	 // Pawn case
-	 if (move.movingPiece.type=='p' || move.movingPiece.type=='P'){
+	 if (move.movingPiece().type()=='p' || move.movingPiece().type()=='P'){
 	 
 	 	int gap = std::abs(end_row - start_row);
 	 	int direction = end_row - start_row;
@@ -650,13 +654,14 @@ bool Board::is_there_obstacle_on_arrival(const Move move){
 	//std::cout << "is there obstacle on arrival" << std::endl;
 	//Return true if a piece of the same color is on the arrival square
 	
-	char PieceOnArrival = pieces_[Board::coordtoIndex(move.end)].type;
+	char PieceOnArrival = pieces_[Board::coordtoIndex(move.end())].type();
 	
 	if (PieceOnArrival == '.'){return false;}
 	
-	bool isPieceOnArrivalWhite = pieces_[Board::coordtoIndex(move.end)].isWhite;
+	bool isPieceOnArrivalWhite = pieces_[Board::coordtoIndex(move.end())].isWhite();
+
 	
-	if (isPieceOnArrivalWhite == move.movingPiece.isWhite){
+	if (isPieceOnArrivalWhite == move.movingPiece().isWhite()){
 		return true;
 	}
 	
@@ -666,17 +671,18 @@ bool Board::is_there_obstacle_on_arrival(const Move move){
 // Game logic to do a castling, a  special movement non respecting rules of isLegal
 bool Board::is_castling_valid(const Move move){
 	
-	std::cout<<"Les règles spéciales sont "<<specialRulesData_<<std::endl;
-	if ( (strcmp(move.end,"g1") == 0 && specialRulesData_[1]=='K') 
-	  || (strcmp(move.end,"c1") == 0 && specialRulesData_[2]=='Q')
-	  || (strcmp(move.end,"g8") == 0 && specialRulesData_[3]=='k')
-	  || (strcmp(move.end,"c8") == 0 && specialRulesData_[4]=='q') )
-	
+
+	std::cout<<"Les règles spéciales sont "<<specialRulesData<<std::endl;
+	if ( (strcmp(move.end(),"g1") == 0 && specialRulesData_[1]=='K') 
+	  || (strcmp(move.end(),"c1") == 0 && specialRulesData_[2]=='Q')
+	  || (strcmp(move.end(),"g8") == 0 && specialRulesData_[3]=='k')
+	  || (strcmp(move.end(),"c8") == 0 && specialRulesData_[4]=='q') )
+	  
 	
 		{
 
-			int king_start_index = coordtoIndex(move.start);
-			int king_end_index = coordtoIndex(move.end);
+			int king_start_index = coordtoIndex(move.start());
+			int king_end_index = coordtoIndex(move.end());
 			
 			std::cout<<"Le roi est à l'index "<<king_start_index<<std::endl;
 			int gap = std::abs(king_start_index - king_end_index);
@@ -698,11 +704,11 @@ bool Board::is_castling_valid(const Move move){
 				// Check if the square is controled by an opponent
 				std::cout<<"On regarde si il y a possibilité d'échec à l'index "<<king_new_index<<std::endl;
 				char* king_new_coord = indextoCoord(king_new_index);
-				Move move_king_castling(move.start,king_new_coord,move.movingPiece,false,false,false,false);
+				Move move_king_castling(move.start(),king_new_coord,move.movingPiece(),false,false,false,false);
 					
 				Board Board_during_castling = withMove(move_king_castling);
 				
-				/*if (isCheck(Board_during_castling, move.movingPiece.isWhite, king_new_coord))
+				/*if (isCheck(Board_during_castling, move.movingPiece().isWhite(), king_new_coord))
 				{
 					return false;
 				}*/
@@ -718,7 +724,7 @@ bool Board::is_castling_valid(const Move move){
 bool Board::is_en_passant_valid(const Move move){
 	//To check if the en passant is correct, we can use the function is_piece_correctly_moving with the given move but with a isCapture true.
 
-	Move en_passant_move(move.start, move.end, move.movingPiece, true, false, false,true);
+	Move en_passant_move(move.start(), move.end(), move.movingPiece(), true, false, false,true);
 	return Board::is_piece_correctly_moving(en_passant_move);
 }
 
@@ -727,16 +733,17 @@ bool Board::is_en_passant_valid(const Move move){
 
 bool Board::isCheck(const bool isKingWhite, const char* square_to_verify) {
 		for(int i=0; i<64; i++) {
+
     			Piece piece = pieces_[i];
-    			if (piece.isWhite != isKingWhite && piece.type!='.') {
+    			if (piece.isWhite() != isKingWhite && piece.type()!='.') {
         			char fictive_msg[4];
-        			strncpy(fictive_msg, piece.coord, 2);
+        			strncpy(fictive_msg, piece.coord(), 2);
         			strncpy(fictive_msg + 2, square_to_verify, 2);
         			
         			Move attacking_move = create_move(fictive_msg);
-        			attacking_move.isCapture = true;
+        			attacking_move.set_isCapture(true);
         				if (is_piece_correctly_moving(attacking_move) && not is_there_obstacle_on_way(attacking_move)) {
-        					std::cout<<"Roi en echec : " << attacking_move.start<<std::endl;
+        					std::cout<<"Roi en echec : " << attacking_move.start()<<std::endl;
             					return true;
        						 }	
     				}
