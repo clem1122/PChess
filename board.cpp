@@ -253,6 +253,12 @@ void Board::playMove(Move move) {
 	Board::change_special_rules_after_move(move);
 	memcpy(&FEN_, &(newBoard.FEN_), 64 * sizeof(char));
 	pieces_ = newBoard.pieces_;
+	
+	/*if (isCheckmate(is_playing_player_white()))
+	{
+		std::cout<<"Le joueur n'est pas en échec et mat"<<std::endl;
+	}*/
+	
 }
 
 
@@ -390,6 +396,7 @@ bool Board::is_piece_promotioning(const char* coord_end, Piece piece){
 }
 //Functions to check if a move is legal
 bool Board::isLegal(const Move move) {
+
 	//std::cout << "is move Legal" << std::endl;
 	
 	int kingIndex;
@@ -764,25 +771,119 @@ bool Board::is_en_passant_valid(const Move move){
 
 
 bool Board::isCheck(const bool isKingWhite, const char* square_to_verify) {
-		for(int i=0; i<64; i++) {
-
-    			Piece piece = pieces_[i];
-    			if (piece.isWhite() != isKingWhite && piece.type()!='.') {
-        			char fictive_msg[4];
-        			strncpy(fictive_msg, piece.coord(), 2);
-        			strncpy(fictive_msg + 2, square_to_verify, 2);
-        			
-        			Move attacking_move = create_move(fictive_msg);
-        			attacking_move.set_isCapture(true);
-        				if (is_piece_correctly_moving(attacking_move) && not is_there_obstacle_on_way(attacking_move)) {
-        					std::cout<<"Roi en echec : " << attacking_move.start()<<std::endl;
-            					return true;
-       						 }	
-    				}
-			}
-return false;
+		
+		if (find_checking_pieces(isKingWhite, square_to_verify)[0].type() != '.')
+		{
+			std::cout<<"ECHEC !"<<std::endl;
+			return true;
+		}
+		
+	std::cout<<"Trkl pas echec"<<std::endl;
+	
+	return false;
 }
 
+
+bool Board::isCheckmate(const bool isWhite){
+
+	int king_index = find_king(isWhite);
+	Piece king = pieces_[king_index];
+	//char king_col = king.coord()[0];
+	//int king_row = king.coord()[1] - '0';
+	
+/*
+ Has to consider 3 things :
+	1- if the squares accessible to the checked king is controlled by an ennemy piece
+	2- if ALL the allied pieces cannot eat the checking piece by going on its square
+	3- if ALL the allied pieces cannot go on the trajectory of the checking piece
+
+NOTE : If there is more than 1 checking piece, moving the king is mandatory to avoid checkmate*/
+
+// 1-
+
+	for (int i = -1 ; i<2 ; i++)
+	{
+		for (int j = -1 ; j<2 ; j++)
+		{
+			char* king_new_coord = new char[2];
+			king_new_coord[0] = king.coord()[0] + i;
+			king_new_coord[1] = king.coord()[1] + j;
+	
+			if (isValidCoord(king.coord(),king_new_coord))
+			{
+				bool is_king_capturing = (is_piece_on_square(coordtoIndex(king_new_coord))) && (is_white_on_square(coordtoIndex(king_new_coord)) != isWhite);
+
+				Move move_king_escaping(king.coord(),king_new_coord,king,false,is_king_capturing,false,false);
+				
+				Board Board_alt = withMove(move_king_escaping);
+				
+				if (not is_there_obstacle_on_arrival(move_king_escaping))
+					if (not Board_alt.isCheck(isWhite,king_new_coord))
+					{
+						{
+							std::cout << "Le roi peut se déplacer en "<<king_new_coord <<std::endl;
+							return false;
+						}
+					}				
+			
+			}
+		}
+	
+	}
+	
+	std::cout<<"Le roi ne peut se déplacer dans aucune de ses 8 cases adjacentes"<<std::endl;
+	return true;
+}
+
+int  Board::find_king(const bool isKingWhite){
+
+	for (int i = 0 ; i<64 ; i++)
+	{
+		Piece verified_piece = pieces_[i];
+		
+		if (verified_piece.type() == 'k' || verified_piece.type() == 'K')
+		{
+			if (verified_piece.isWhite() == isKingWhite)
+			{
+				return i;
+			}
+		}
+
+	}
+
+	return 99;
+}
+
+Piece* Board::find_checking_pieces(const bool isKingWhite, const char* square_to_verify){
+
+	Piece* checking_pieces = new Piece[2];
+	
+	int j = 0;
+	for(int i=0; i<64; i++) 
+	{
+
+    		Piece piece = pieces_[i];
+    		if (piece.isWhite() != isKingWhite && piece.type()!='.')
+    		{
+        		char fictive_msg[4];
+        		strncpy(fictive_msg, piece.coord(), 2);
+        		strncpy(fictive_msg + 2, square_to_verify, 2);
+        			
+        		Move attacking_move = create_move(fictive_msg);
+        		attacking_move.set_isCapture(true);
+        		
+        		if (is_piece_correctly_moving(attacking_move) && not is_there_obstacle_on_way(attacking_move)) 
+        		{
+        			checking_pieces[j] = piece;
+            			j++;
+       			}	
+    		}
+	
+	}
+	
+return checking_pieces;
+	
+}
 
 
 void Board::print(){

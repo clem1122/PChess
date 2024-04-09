@@ -24,6 +24,7 @@ public:
 	char* specialRulesData() {return specialRulesData_;};
 	int en_passant_index() {return en_passant_index_;};
 	Piece* pieces() {return pieces_;};
+	bool is_playing_player_white() {return specialRulesData_[0] == 'w' ? true : false;};
 	
 	//Utility translation functions
 	char* indextoCoord(const int &index);
@@ -51,6 +52,10 @@ public:
 	bool is_there_obstacle_on_arrival(const Move move);
 	bool is_castling_valid(const Move move);
 	bool is_en_passant_valid(const Move move);
+	bool isCheck(const bool isWhite, const char* square_to_verify);
+	bool isCheckmate(bool isWhite);
+	int  find_king(const bool isKingWhite);
+	Piece* find_checking_pieces(const bool isKingWhite, const char* square_to_verify);
 	
 	//Functions to play move and change rules in consequence
 	void playMove(Move move);
@@ -59,7 +64,7 @@ public:
 	void change_en_passant_square(bool has_a_pawn_moved, bool is_pawn_white, const char* end_coord);
 	void block_castling(const Move move, bool isQueenTower);
 	
-	bool isCheck(const bool isWhite, const char* square_to_verify);
+
 	void print();
 }; 
 	
