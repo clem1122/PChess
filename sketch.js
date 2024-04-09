@@ -51,7 +51,7 @@ function setup() {
     }
     
     noStroke();
-    frameRate(10);
+    frameRate(50);
 
     
  
@@ -62,7 +62,10 @@ function draw() {
     drawBoard();
 }
 
-
+function getColor(){
+	sendData("colo");
+	httpGet(url, 'text', gotData);
+}
 
 function drawBoard() {
     for (let i = 0; i < rows; i++) {
@@ -86,26 +89,27 @@ function drawBoard() {
 
 function drawPieces(){
 	for (let i = 0; i < rows; i++) {
-		    for (let j = 0; j < cols; j++) {
+		for (let j = 0; j < cols; j++) {
 				let FENindex = isWhite ? i * 8 + j : 63 - (i * 8 + j);
 				if (FEN[FENindex] != '.') {
 					let x = j * squareSize;
-		            let y = i * squareSize;
+		           		let y = i * squareSize;
 					image(pieceImages[FEN[FENindex]], x, y);
 				}
 		    }
 		}
 }
+ 
 
 
 
 
 function mousePressed() {
 
-	/*let params = `scrollbars=no,resizable=no,status=no,location=no,toolbar=no,menubar=no,
+	let params = `scrollbars=no,resizable=no,status=no,location=no,toolbar=no,menubar=no,
 	width=400,height=100,left=100,top=100`;
-
-	open('/promotion', 'test', params);*/
+	//open('/promotion', 'test', params);
+	
 	let _col = floor(mouseX / squareSize);
 	let _row = floor(mouseY / squareSize);
 
@@ -121,7 +125,7 @@ function mousePressed() {
 		} else {
 		
 			
-			let endCoord = String.fromCharCode(97 + _col) + (8 -_row);
+			let endCoord = String.fromCharCode(97 + _col) + (8 - _row);
 			
 			let {row, col} = selectedSquare;
 			
@@ -145,11 +149,17 @@ function mousePressed() {
 // Callback function to handle the response from the server
 function gotData(data) {
   // Print the received data to the console
-  
+  console.log('Received data: <', data, '>');	
   if (data.length == 64){
-  	console.log('Received data: <', data, '>');	
+  	
+
   	FEN = data;
   }
+  else if (data.length == 1)
+  {
+  	console.log('Received other data: <', data, '>');
+  }	
+  
 
 }
 
