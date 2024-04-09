@@ -558,7 +558,8 @@ bool Board::is_piece_correctly_moving(const Move move){
 int* Board::trajectory(const Move move){
 	
 	int* trajectory_squares = new int[8];
-	trajectory_squares[0]=99;
+	
+	for (int i=0 ; i<8 ; i++){trajectory_squares[i]=99;}
 	
 	// Get infos from move
 	char start_col=move.start()[0];
@@ -585,7 +586,7 @@ int* Board::trajectory(const Move move){
 	 			int index_considered = coordtoIndex(coord_considered);
 	 			trajectory_squares[i-1] = index_considered;
 	 		}
-
+	 		trajectory_squares[gap]=99;
 	 	}
 	 	
 	 	else if (end_col == start_col) //Move along a column
@@ -603,6 +604,8 @@ int* Board::trajectory(const Move move){
 	 	
 
 	 	}
+	 	
+
 	 	return trajectory_squares;
 	 	
 	 }
@@ -624,13 +627,16 @@ int* Board::trajectory(const Move move){
 	 		int index_considered=coordtoIndex(coord_considered);
 	 		trajectory_squares[i-1] = index_considered;
 	 	}
+	 	
+
+	 	return trajectory_squares;
 	 }
 	 
 	 // Pawn case
 	 if (move.movingPiece().type()=='p' || move.movingPiece().type()=='P'){
 	 
 	 	int gap = std::abs(end_row - start_row);
-	 	int direction = end_row - start_row;
+	 	int direction = (end_row - start_row)/gap;
 	 	
 	 	if (gap==2)
 	 	{
@@ -642,7 +648,7 @@ int* Board::trajectory(const Move move){
 	 	}
 	 
 	 }
-	 
+
 	 return trajectory_squares;
 }
 
@@ -653,12 +659,15 @@ bool Board::is_there_obstacle_on_way(const Move move){
 
 	int* squares_visited = trajectory(move);
 	int i = 0;
+
 	
 	while (squares_visited[i] != 99)
 	{
+	std::cout << "Trajectory de " << move.movingPiece().type() <<"  :" << indextoCoord(squares_visited[i]) << std::endl;
+
+	
 		if (is_piece_on_square(squares_visited[i++]))
 		{
-			std::cout << "Piece à la coord :" << indextoCoord(squares_visited[i-1]) << std::endl;
 			return true;
 		}
 		
