@@ -18,6 +18,7 @@ char FEN[64];
 string move = "....";
 std::mutex moveMutex;
 std::condition_variable moveCV;
+std::string White;
 
 void send(int s, char msg[]) {
 	ssize_t size;
@@ -82,35 +83,65 @@ void* HTMLManager(void* _) {
    		}
 	}
 	
+	
+	// Accept incoming connections
     while (true) {
-        // Accept incoming connections
-        tcp::socket socket(io);
-        acceptor.accept(socket);
+    	sleep(0.1);
+    	tcp::socket socket(io);
+	    acceptor.accept(socket);
+    	boost::system::error_code error;
+    	boost::asio::streambuf request;
+		
 		
         // Read the request
-        boost::system::error_code error;
-        boost::asio::streambuf request;
+        
+        
         boost::asio::read_until(socket, request, "\r\n\r\n", error);
 		std::istream request_stream(&request);
     	std::stringstream request_data;
     	request_data << request_stream.rdbuf();
-
+    	std::string response;
+		std::string coucou = "coucou";
+		
+		
    		//Print the request data
    		string requestStr = request_data.str();
-   		const char* requestType = requestStr.substr(0,4).c_str(); //c_str convertit string -> char*
+   		//const char* requestType = requestStr.substr(0,4).c_str(); //c_str convertit string -> char*
 		//std::cout << "Request data:\n" << request_data.str().substr(0,4) << std::endl;
 		
-		if (strcmp(requestType, "POST") == 0) {
-			move = requestStr.substr(requestStr.length() - 4);
+		std::string msg = requestStr.substr(requestStr.length() - 4);
+		if (msg == "colo") {
+			std::cout << "color asked" << std::endl;
+			response = createRequest(White);
+		}
+		else if(msg == "FEN_")
+		{
+		
+		}
+		else
+		{
 			std::lock_guard<std::mutex> lock(moveMutex); //verrou d'écriture toussa toussa
-			std::cout << "POST : " << move << std::endl;
+			std::cout << "POST : " << msg << std::endl;
+			move = msg;
 			moveCV.notify_one();
-		} 
-        // Send the response
+			response = createRequest(FEN);
+		}
 
-    	std::string response = createRequest(FEN);
-    	boost::asio::write(socket, boost::asio::buffer(response));
-        
+		boost::asio::write(socket, boost::asio::buffer(response));
+        // Send the response
+    	//std::cout << response << std::endl;
+    	/*
+    	if(connard) {
+    		response = createRequest(White);
+    		connard = false;
+    		
+    	}
+    	else {
+    		response = createRequest(FEN);
+    		connard = true;
+    		boost::asio::write(socket, boost::asio::buffer(response));
+    	}*/
+    	
         
     }
 
@@ -165,8 +196,10 @@ int main (int argc, char * argv[])
 	buf = receive(s);
 	if (strcmp(buf, "1") == 0) {
 		isMyTurn = true;
+		White = 'W';
 	} else if (strcmp(buf, "2")) {
 		isMyTurn = false;
+		White = 'B';
 	} else {
 		std::cout << "Error on data received" << std::endl;	
 		isMyTurn = false;
@@ -175,12 +208,10 @@ int main (int argc, char * argv[])
 
 	while (true) { 
 		if (isMyTurn) {
-		    
-		    
 		    //std::cin.getline(input, sizeof(input)); 
 		    std::cout << "Move to play : " << std::endl;
 		    std::unique_lock<std::mutex> lock(moveMutex);
-        	moveCV.wait(lock, []{ return move != "...."; });
+        	    moveCV.wait(lock, []{ return move != "...."; });
 		    std::cout << move << std::endl;
 			send(s, stringToChar(move));;
 		    move = "....";
