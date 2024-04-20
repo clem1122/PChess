@@ -788,6 +788,7 @@ bool Board::isCheckmate(const bool isWhite){
 
 	int king_index = find_king(isWhite);
 	Piece king = pieces_[king_index];
+	Piece* checking_piece_list = find_checking_pieces(isWhite, king.coord());
 	//char king_col = king.coord()[0];
 	//int king_row = king.coord()[1] - '0';
 	
@@ -797,9 +798,9 @@ bool Board::isCheckmate(const bool isWhite){
 	2- if ALL the allied pieces cannot eat the checking piece by going on its square
 	3- if ALL the allied pieces cannot go on the trajectory of the checking piece
 
-NOTE : If there is more than 1 checking piece, moving the king is mandatory to avoid checkmate*/
+NOTE : If there is more than 1 checking piece, moving the king is mandatory to avoid checkmate : only checking 1- is enough */
 
-// 1-
+// 1- Can the king move ?
 
 	for (int i = -1 ; i<2 ; i++)
 	{
@@ -832,6 +833,47 @@ NOTE : If there is more than 1 checking piece, moving the king is mandatory to a
 	}
 	
 	std::cout<<"Le roi ne peut se déplacer dans aucune de ses 8 cases adjacentes"<<std::endl;
+	
+	//If there is more than 1 checking piece, not to be able to move the kink means checkmate
+	if (checking_piece_list[1].type() =! '.')
+	{
+		return true
+	}
+	
+	checking_piece = checking_piece_list[0];
+	
+// 2-Can an ally eat the checking piece ?
+
+	for (int i = 0 ; i<64 ; i++)
+	{
+		Piece actual_piece = pieces_[i];
+		
+		if (actual_piece.isWhite() == isWhite)
+		{
+			char fictive_msg[4];
+        		strncpy(fictive_msg, actual_piece.coord(), 2);
+        		strncpy(fictive_msg + 2, checking_piece.coord(), 2);
+        			
+        		Move fictive_attacking_move = create_move(fictive_msg);
+        		fictive_attacking_move.set_isCapture(true);
+        		
+        		if (is_piece_correctly_moving(fictive_attacking_move) && not is_there_obstacle_on_way(fictive_attacking_move)) 
+        		{
+        			return false;
+       			}	
+		}
+	
+	}
+	
+// 3-	
+
+	char fictive_msg[4];
+        strncpy(fictive_msg, actual_piece.coord(), 2);
+        strncpy(fictive_msg + 2, checking_piece.coord(), 2);
+        		
+	Move checking_move = create_move();
+	int* attacking_trajectory = trajectory();
+	
 	return true;
 }
 
