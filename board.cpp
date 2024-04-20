@@ -239,7 +239,7 @@ Move Board::create_move(const char* msg){
 	
 	else
 	{
-		std::cout << "Illegal Move : bad coord" << std::endl;
+		std::cout << "Illegal Move : "<<start<<" "<<end<<" is a bad coord" << std::endl;
 		return Move();
 	}
 
@@ -250,22 +250,31 @@ Move Board::create_move(const char* msg){
 void Board::playMove(Move move) {
 	// Play move
 	Board newBoard = withMove(move);
+	
+		
+	char* opponent_king_coord = indextoCoord(newBoard.find_king(not is_playing_player_white()));
+	
+	if (newBoard.isCheck(not is_playing_player_white(),opponent_king_coord))
+	{
+		std::cout<<"Echec"<<std::endl;
+		
+		if (newBoard.isCheckmate(not is_playing_player_white()))
+		{
+			std::cout<<"Echec et mat !"<<std::endl;
+		}
+	}
+
+
 	Board::change_special_rules_after_move(move);
 	memcpy(&FEN_, &(newBoard.FEN_), 64 * sizeof(char));
 	pieces_ = newBoard.pieces_;
-	
-	/*if (isCheckmate(is_playing_player_white()))
-	{
-		std::cout<<"Le joueur n'est pas en échec et mat"<<std::endl;
-	}*/
-	
+
 }
 
 
 void Board::change_special_rules_after_move(Move move){
 	//Change special rules after move
 	
-	//std::cout<<"Précédentes règles speciales : "<<specialRulesData<<en_passant_index<<std::endl;
 	//CHANGE TURN
 	Board::change_turn();
 	
@@ -301,8 +310,7 @@ void Board::change_special_rules_after_move(Move move){
 	{
 		Board::change_en_passant_square(false,move.movingPiece().isWhite(),move.end());
 	}
-	
-	//std::cout<<"Nouvelles règles speciales : "<<specialRulesData<<en_passant_index<<std::endl;
+
 }
 
 
@@ -416,12 +424,13 @@ bool Board::isLegal(const Move move) {
 	std::cout << "Prévision : " << std::endl;
 	board_after_move.print();
 	if(board_after_move.isCheck(move.movingPiece().isWhite(), indextoCoord(kingIndex))) {return false;};
-	// Special En Passant move
 	std::cout << "///////////////////////////" << std::endl;
+	
+	// Special En Passant move
 	if (move.isEnPassant())
 	{
 	
-		if (Board::is_en_passant_valid(move))
+		if (is_en_passant_valid(move))
 		{
 			return true;
 		}
@@ -431,23 +440,20 @@ bool Board::isLegal(const Move move) {
 	// Special Castling move
 	if (move.isCastling())
 	{
-		std::cout<<"Un roque est demandé"<<std::endl;
-	
-		if (Board::is_castling_valid(move))
+		if (is_castling_valid(move))
 		{
-			std::cout <<"La légalité du roque est validé, le coup est légal"<<std::endl;
 			return true;
 		}
 	}
 	
 	// Classic move
-	if(Board::is_piece_correctly_moving(move))
+	if(is_piece_correctly_moving(move))
 	{
 
-		if(not Board::is_there_obstacle_on_way(move))
+		if(not is_there_obstacle_on_way(move))
 		{
 
-			if(not Board::is_there_obstacle_on_arrival(move))
+			if(not is_there_obstacle_on_arrival(move))
 			{
 
 					return true; //TODO  : check at next move
@@ -634,7 +640,7 @@ int* Board::trajectory(const Move move){
 	 		int index_considered=coordtoIndex(coord_considered);
 	 		trajectory_squares[i-1] = index_considered;
 	 	}
-	 	
+	 	trajectory_squares[gap]=99;	
 
 	 	return trajectory_squares;
 	 }
@@ -653,7 +659,7 @@ int* Board::trajectory(const Move move){
 	 		
 	 		trajectory_squares[0] = index_considered;
 	 	}
-	 
+	 	trajectory_squares[gap]=99;
 	 }
 
 	 return trajectory_squares;
@@ -670,14 +676,10 @@ bool Board::is_there_obstacle_on_way(const Move move){
 	
 	while (squares_visited[i] != 99)
 	{
-	std::cout << "Trajectory de " << move.movingPiece().type() <<"  :" << indextoCoord(squares_visited[i]) << std::endl;
-
-	
 		if (is_piece_on_square(squares_visited[i++]))
 		{
 			return true;
 		}
-		
 	}
 	
 	return false;
@@ -774,23 +776,20 @@ bool Board::isCheck(const bool isKingWhite, const char* square_to_verify) {
 		
 		if (find_checking_pieces(isKingWhite, square_to_verify)[0].type() != '.')
 		{
-			std::cout<<"ECHEC !"<<std::endl;
 			return true;
 		}
-		
-	std::cout<<"Trkl pas echec"<<std::endl;
 	
 	return false;
 }
 
 
 bool Board::isCheckmate(const bool isWhite){
-
+	
+	std::cout<<"Y a-t-il échec et mat ?"<<std::endl;
+	
 	int king_index = find_king(isWhite);
 	Piece king = pieces_[king_index];
 	Piece* checking_piece_list = find_checking_pieces(isWhite, king.coord());
-	//char king_col = king.coord()[0];
-	//int king_row = king.coord()[1] - '0';
 	
 /*
  Has to consider 3 things :
@@ -822,7 +821,6 @@ NOTE : If there is more than 1 checking piece, moving the king is mandatory to a
 					if (not Board_alt.isCheck(isWhite,king_new_coord))
 					{
 						{
-							std::cout << "Le roi peut se déplacer en "<<king_new_coord <<std::endl;
 							return false;
 						}
 					}				
@@ -832,15 +830,15 @@ NOTE : If there is more than 1 checking piece, moving the king is mandatory to a
 	
 	}
 	
-	std::cout<<"Le roi ne peut se déplacer dans aucune de ses 8 cases adjacentes"<<std::endl;
-	
-	//If there is more than 1 checking piece, not to be able to move the kink means checkmate
-	if (checking_piece_list[1].type() =! '.')
+	std::cout<<"  ==> Le roi ne peut plus bouger"<<std::endl;
+	//If there is more than 1 checking piece, not to be able to move the king means checkmate
+	if (checking_piece_list[1].type() != '.')
 	{
-		return true
+		std::cout<<"Echec à la découverte"<<std::endl;
+		return true;
 	}
 	
-	checking_piece = checking_piece_list[0];
+	Piece checking_piece = checking_piece_list[0];
 	
 // 2-Can an ally eat the checking piece ?
 
@@ -848,8 +846,13 @@ NOTE : If there is more than 1 checking piece, moving the king is mandatory to a
 	{
 		Piece actual_piece = pieces_[i];
 		
-		if (actual_piece.isWhite() == isWhite)
+		if (	   actual_piece.type() != '.' 
+			&& actual_piece.type() != 'k' 
+			&& actual_piece.type() != 'K' 
+			&& actual_piece.isWhite() == isWhite)
+			
 		{
+			std::cout<<"On regarde la pièce en "<<actual_piece.coord()<<" si elle peut manger l'attaquant"<<std::endl;
 			char fictive_msg[4];
         		strncpy(fictive_msg, actual_piece.coord(), 2);
         		strncpy(fictive_msg + 2, checking_piece.coord(), 2);
@@ -865,15 +868,52 @@ NOTE : If there is more than 1 checking piece, moving the king is mandatory to a
 	
 	}
 	
-// 3-	
-
-	char fictive_msg[4];
-        strncpy(fictive_msg, actual_piece.coord(), 2);
-        strncpy(fictive_msg + 2, checking_piece.coord(), 2);
-        		
-	Move checking_move = create_move();
-	int* attacking_trajectory = trajectory();
+	std::cout<<"  ==> Aucune pièce ne peut manger la pièce mettant en échec"<<std::endl;
 	
+// 3- Can an ally go on the trajectory of the checking piece ?
+	
+	char fictive_checking_msg[4];
+	strncpy(fictive_checking_msg, checking_piece.coord(), 2);
+	strncpy(fictive_checking_msg + 2, king.coord(), 2);
+					
+	Move checking_move = create_move(fictive_checking_msg);
+	int* attacking_trajectory = trajectory(checking_move);
+	
+	for (int j= 0 ; j<8 ; j++)
+	{
+
+		if (attacking_trajectory[j] != 99)
+		{
+			std::cout<<"On regarde la case "<<indextoCoord(attacking_trajectory[j])<<std::endl;
+			char* square_on_trajectory = indextoCoord(attacking_trajectory[j]);
+			
+			for (int i = 0 ; i<64 ; i++)
+			{
+				Piece actual_piece = pieces_[i];
+
+				if (actual_piece.type() != '.' && actual_piece.isWhite() == isWhite)
+				{
+					std::cout<<"On regarde la pièce en "<<actual_piece.coord()<<" si elle peut bloquer l'attaque"<<std::endl;
+					char fictive_msg[4];
+					strncpy(fictive_msg, actual_piece.coord(), 2);
+					strncpy(fictive_msg + 2, square_on_trajectory, 2);
+					
+					Move fictive_blocking_move = create_move(fictive_msg);	
+					
+					if (is_piece_correctly_moving(fictive_blocking_move) && not is_there_obstacle_on_way(fictive_blocking_move))
+					{
+						return false;
+					}	
+				}
+			
+			
+			}
+		}
+	}
+
+
+// Finally, if there is no working option
+
 	return true;
 }
 
