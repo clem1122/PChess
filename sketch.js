@@ -16,6 +16,8 @@ function setPort(value) {
 	port = value;
 	url = "http://localhost:" + port;
 	console.log("Port : " + port);
+	getColor();
+
 }
 
 function updateValue() {
@@ -52,9 +54,6 @@ function setup() {
     
     noStroke();
     frameRate(10);
-
-    
- 
 }
 
 function draw() {
@@ -125,11 +124,11 @@ function mousePressed() {
 		} else {
 		
 			
-			let endCoord = String.fromCharCode(97 + _col) + (8 - _row);
+			let endCoord = isWhite ? String.fromCharCode(97 + _col) + (8 - _row) : String.fromCharCode(104 - _col) + (1+_row);
 			
 			let {row, col} = selectedSquare;
 			
-			let startCoord = String.fromCharCode(97 + col) + (8 - row);
+			let startCoord = isWhite ? String.fromCharCode(97 + col) + (8 - row) : String.fromCharCode(104 - col) + (1+row);
 			let move = startCoord + endCoord;
 			
 			selectedPiece = null;
@@ -156,7 +155,8 @@ function gotData(data) {
   }
   else if (data.length == 1)
   {
-  	console.log('Received other data: <', data, '>');
+  	console.log('Received color : <', data, '>');
+  	isWhite = (data == 'W');
   }	else {
     console.log('Received data: <', data, '>');
   }
