@@ -51,14 +51,14 @@ function setup() {
     }
     
     noStroke();
-    frameRate(10);
+    frameRate(50);
 
     
  
 }
 
 function draw() {
-    sendData("FEN_");
+    httpGet(url, 'text', gotData);
     drawBoard();
 }
 
@@ -93,7 +93,7 @@ function drawPieces(){
 				let FENindex = isWhite ? i * 8 + j : 63 - (i * 8 + j);
 				if (FEN[FENindex] != '.') {
 					let x = j * squareSize;
-		           	let y = i * squareSize;
+		           		let y = i * squareSize;
 					image(pieceImages[FEN[FENindex]], x, y);
 				}
 		    }
@@ -149,24 +149,23 @@ function mousePressed() {
 // Callback function to handle the response from the server
 function gotData(data) {
   // Print the received data to the console
-  	
+  console.log('Received data: <', data, '>');	
   if (data.length == 64){
+  	
+
   	FEN = data;
-  	console.log('FEN :', FEN);
   }
   else if (data.length == 1)
   {
   	console.log('Received other data: <', data, '>');
-  }	else {
-    console.log('Received data: <', data, '>');
-  }
+  }	
   
 
 }
 
 function sendData(data) {
 
-   httpPost(url, 'text', data, function(response) {gotData(response);}, function(error) {console.error('Error sending data:', error);});
+   httpPost(url, 'text', data, function(response) {}, function(error) {console.error('Error sending data:', error);});
 }
 
 

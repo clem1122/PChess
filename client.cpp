@@ -101,6 +101,7 @@ void* HTMLManager(void* _) {
     	std::stringstream request_data;
     	request_data << request_stream.rdbuf();
     	std::string response;
+		std::string coucou = "coucou";
 		
 		
    		//Print the request data
@@ -110,28 +111,37 @@ void* HTMLManager(void* _) {
 		
 		std::string msg = requestStr.substr(requestStr.length() - 4);
 		if (msg == "colo") {
-			
+			std::cout << "color asked" << std::endl;
 			response = createRequest(White);
-			std::cout << "Color : <" << White << ">" << std::endl;
-			boost::asio::write(socket, boost::asio::buffer(response));
 		}
 		else if(msg == "FEN_")
 		{
-			response = createRequest(FEN);
-			//std::cout << "FEN : <" << FEN << ">" << std::endl;
-			boost::asio::write(socket, boost::asio::buffer(response));
+		
 		}
-		else if(msg != "\r\n\r\n") // see createRequest for more info : check if msg is not null
+		else
 		{
 			std::lock_guard<std::mutex> lock(moveMutex); //verrou d'écriture toussa toussa
-			//std::cout << "POST : <" << msg << ">" << std::endl;
+			std::cout << "POST : " << msg << std::endl;
 			move = msg;
 			moveCV.notify_one();
 			response = createRequest(FEN);
-			boost::asio::write(socket, boost::asio::buffer(response));
 		}
 
-		
+		boost::asio::write(socket, boost::asio::buffer(response));
+        // Send the response
+    	//std::cout << response << std::endl;
+    	/*
+    	if(connard) {
+    		response = createRequest(White);
+    		connard = false;
+    		
+    	}
+    	else {
+    		response = createRequest(FEN);
+    		connard = true;
+    		boost::asio::write(socket, boost::asio::buffer(response));
+    	}*/
+    	
         
     }
 
