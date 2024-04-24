@@ -36,6 +36,7 @@ public:
 	
 	//Functions to create the object move
 	Move create_move(const char* msg);
+	const char* create_msg(const char* departure_coord, const char* arrival_coord);
 	bool isValidCoord(const char* _start, const char* _end);
 	bool is_piece_capturing(const char* start, const char* end, Piece piece);
 	bool is_piece_castling(const char* start, const char* end, Piece piece);
