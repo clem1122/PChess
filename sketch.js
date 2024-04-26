@@ -21,9 +21,7 @@ function setPort(value) {
 }
 
 function updateValue() {
-	port = Box.value();
-	url = "http://localhost:" + port;
-	console.log("Port : " + port);
+	setPort(Box.value())
 }
 
 function preload() {
