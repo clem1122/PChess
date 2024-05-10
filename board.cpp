@@ -22,6 +22,7 @@ Board::Board(const char* _FEN) {
 
 // Board Destructor
 Board::~Board() {
+	delete[] pieces_;
     // Implement destructor logic here
 }
 
@@ -180,7 +181,9 @@ Piece* Board::FENtoPieces(const char* _FEN) {
 	Piece *p = new Piece[64]; 
 	for(int i = 0; i < 64; i++) {
 		if(_FEN[i] != '.') {
-			p[i] = Piece(_FEN[i], Board::indextoCoord(i), (bool)std::isupper(_FEN[i]));
+			char* temp_coord = Board::indextoCoord(i); //Create
+			p[i] = Piece(_FEN[i], temp_coord, (bool)std::isupper(_FEN[i]));
+			delete[] temp_coord; //Delete
 		}
 	}
     return p;
@@ -260,7 +263,7 @@ void Board::playMove(Move move) {
 
 	// Create the new board
 	Board newBoard = withMove(move);	
-	char* opponent_king_coord = indextoCoord(newBoard.find_king(not is_playing_player_white()));
+	char* opponent_king_coord = indextoCoord(newBoard.find_king(not is_playing_player_white())); //Create
 	
 	// Is there check or checkmate
 	if (newBoard.isCheck(not is_playing_player_white(),opponent_king_coord))
@@ -280,6 +283,7 @@ void Board::playMove(Move move) {
 	memcpy(&FEN_, &(newBoard.FEN_), 64 * sizeof(char));
 	pieces_ = newBoard.pieces_;
 
+	delete[] opponent_king_coord; //delete
 }
 
 
@@ -422,7 +426,16 @@ bool Board::isLegal(const Move move) {
 	
 	// If at the end of the move, the king is checked, the move is mandatory illegal
 	int kingIndex = board_after_move.find_king(move.movingPiece().isWhite());	
-	if(board_after_move.isCheck(move.movingPiece().isWhite(), indextoCoord(kingIndex))) {return false;};
+	char* kingCoord = indextoCoord(kingIndex); //create
+	
+	//Whatever happens, if at the endof the move, player is check, the move is illegal
+	if(board_after_move.isCheck(move.movingPiece().isWhite(), kingCoord)) 
+	{
+		delete[] kingCoord; //delete inside if
+		return false;
+	}
+	
+	delete[] kingCoord; //delete outside if
 	
 	// Special En Passant move
 	if (move.isEnPassant())
@@ -668,7 +681,7 @@ bool Board::is_there_obstacle_on_way(const Move move){
 	//This function does NOT check the case of a piece ON the arrival square, another function is in charge of this
 //	std::cout << "is there obstacle on the way" << std::endl;
 
-	int* squares_visited = trajectory(move);
+	int* squares_visited = trajectory(move); //create
 	int i = 0;
 
 	
@@ -676,10 +689,12 @@ bool Board::is_there_obstacle_on_way(const Move move){
 	{
 		if (is_piece_on_square(squares_visited[i++]))
 		{
+			delete[] squares_visited; //delete inside if
 			return true;
 		}
 	}
 	
+	delete[] squares_visited; //delete outside if
 	return false;
 }
 
@@ -742,16 +757,18 @@ bool Board::is_castling_valid(const Move move){
 				
 				// Check if the square is controled by an opponent
 				std::cout<<"On regarde si il y a possibilité d'échec à l'index "<<king_new_index<<std::endl;
-				char* king_new_coord = indextoCoord(king_new_index);
+				char* king_new_coord = indextoCoord(king_new_index); //create
 				Move move_king_castling(move.start(),king_new_coord,move.movingPiece(),false,false,false,false);
 					
 				Board Board_during_castling = withMove(move_king_castling);
 				
 				if (Board_during_castling.isCheck(move.movingPiece().isWhite(), king_new_coord))
 				{
+					delete[] king_new_coord; //delete inside if
 					return false;
 				}
-					
+				
+				delete[] king_new_coord; //delete outside if	
 			}
 
 			return true;
@@ -772,10 +789,15 @@ bool Board::is_en_passant_valid(const Move move){
 
 bool Board::isCheck(const bool isKingWhite, const char* square_to_verify) {
 		
-		if (find_checking_pieces(isKingWhite, square_to_verify)[0].type() != '.')
+		Piece* list_checking_piece = find_checking_pieces(isKingWhite, square_to_verify); //create
+		
+		if (list_checking_piece[0].type() != '.')
 		{
+			delete[] list_checking_piece; //delete inside if
 			return true;
 		}
+	
+	delete[] list_checking_piece; //delete outside if
 	
 	return false;
 }
@@ -787,7 +809,7 @@ bool Board::isCheckmate(const bool isWhite){
 	
 	int king_index = find_king(isWhite);
 	Piece king = pieces_[king_index];
-	Piece* checking_piece_list = find_checking_pieces(isWhite, king.coord());
+	Piece* checking_piece_list = find_checking_pieces(isWhite, king.coord()); //create
 	
 /*
  Has to consider 3 things :
@@ -809,9 +831,12 @@ NOTE : If there is more than 1 checking piece, moving the king is mandatory to a
 			//std::cout<<"On regarde le déplacement possible en "<<king_new_coord<<std::endl;
 			if (isValidCoord(king.coord(),king_new_coord))
 			{
+				const char* temp_msg = create_msg(king.coord(),king_new_coord); //create
 				char fictive_escaping_msg[4];
-				strncpy( fictive_escaping_msg , create_msg(king.coord(),king_new_coord), 4);
+				strncpy( fictive_escaping_msg ,temp_msg , 4);
 				Move move_king_escaping = create_move(fictive_escaping_msg);
+				
+				delete[] temp_msg; //delete
 				
 				if (isLegal(move_king_escaping))
 				{
@@ -827,11 +852,13 @@ NOTE : If there is more than 1 checking piece, moving the king is mandatory to a
 	//If there is more than 1 checking piece, not to be able to move the king means checkmate
 	if (checking_piece_list[1].type() != '.')
 	{
+		delete[] checking_piece_list; //delete inside if
 		std::cout<<"Echec à la découverte"<<std::endl;
 		return true;
 	}
 	
 	Piece checking_piece = checking_piece_list[0];
+	delete[] checking_piece_list; //delete outside if;
 	
 // 2-Can an ally eat the checking piece ?
 
@@ -846,11 +873,13 @@ NOTE : If there is more than 1 checking piece, moving the king is mandatory to a
 			
 		{
 			//std::cout<<"On regarde la pièce en "<<actual_piece.coord()<<" si elle peut manger l'attaquant"<<std::endl;
-			
+			const char* temp_msg = create_msg(actual_piece.coord(),checking_piece.coord()); //create
 			char fictive_attacking_msg[4];     		
-        		strncpy( fictive_attacking_msg , create_msg(actual_piece.coord(),checking_piece.coord()), 4);  			
+        		strncpy( fictive_attacking_msg , temp_msg, 4);  			
         		Move fictive_attacking_move = create_move(fictive_attacking_msg);
 
+			delete[] temp_msg; //delete
+			
         		if (isLegal(fictive_attacking_move))
         		{
         			return false;
@@ -863,11 +892,13 @@ NOTE : If there is more than 1 checking piece, moving the king is mandatory to a
 	
 // 3- Can an ally go on the trajectory of the checking piece ?
 	
+	const char* temp_msg = create_msg(checking_piece.coord(),king.coord()); //create
 	char fictive_checking_msg[4];
-	strncpy(fictive_checking_msg, create_msg(checking_piece.coord(),king.coord()), 4);  				
+	strncpy(fictive_checking_msg, temp_msg , 4);  				
 	Move checking_move = create_move(fictive_checking_msg);
 	
-	int* attacking_trajectory = trajectory(checking_move);
+	delete[] temp_msg;
+	int* attacking_trajectory = trajectory(checking_move); //create
 	
 	for (int j= 0 ; j<8 ; j++)
 	{
@@ -875,7 +906,7 @@ NOTE : If there is more than 1 checking piece, moving the king is mandatory to a
 		if (attacking_trajectory[j] != 99)
 		{
 			//std::cout<<"On regarde la case "<<indextoCoord(attacking_trajectory[j])<<std::endl;
-			char* square_on_trajectory = indextoCoord(attacking_trajectory[j]);
+			char* square_on_trajectory = indextoCoord(attacking_trajectory[j]);//create
 			
 			for (int i = 0 ; i<64 ; i++)
 			{
@@ -884,21 +915,28 @@ NOTE : If there is more than 1 checking piece, moving the king is mandatory to a
 				if (actual_piece.type() != '.' && actual_piece.isWhite() == isWhite)
 				{
 					//std::cout<<"On regarde la pièce en "<<actual_piece.coord()<<" si elle peut bloquer l'attaque"<<std::endl;
-					
+					const char* temp_msg_2 = create_msg(actual_piece.coord(),square_on_trajectory); //create
 					char fictive_blocking_msg[4];
-					strncpy( fictive_blocking_msg , create_msg(actual_piece.coord(),square_on_trajectory), 4);
+					strncpy( fictive_blocking_msg , temp_msg_2, 4);
+					delete[] temp_msg_2; //delete
+					delete[] square_on_trajectory; //delete inside if
+					
 					Move fictive_blocking_move = create_move(fictive_blocking_msg);	
 					
 					if (isLegal(fictive_blocking_move))
 					{
+						delete[] attacking_trajectory; //delete inside if
 						return false;
 					}	
 				}
 			
+			delete[] square_on_trajectory; //delete outside if
 			
 			}
 		}
 	}
+	
+	delete[] attacking_trajectory; //delete outside if
 
 
 // Finally, if there is no working option
