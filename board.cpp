@@ -182,7 +182,7 @@ Piece* Board::FENtoPieces(const char* _FEN) {
 		if(_FEN[i] != '.') {
 			char* temp_coord = Board::indextoCoord(i); //Create
 			p[i] = Piece(_FEN[i], temp_coord, (bool)std::isupper(_FEN[i]));
-			delete[] temp_coord; //Delete
+			//delete[] temp_coord; //Delete
 		}
 	}
     return p;
