@@ -22,7 +22,6 @@ Board::Board(const char* _FEN) {
 
 // Board Destructor
 Board::~Board() {
-	delete[] pieces_;
     // Implement destructor logic here
 }
 
@@ -283,8 +282,11 @@ void Board::playMove(Move move) {
 	memcpy(&FEN_, &(newBoard.FEN_), 64 * sizeof(char));
 	pieces_ = newBoard.pieces_;
 
+
 	delete[] opponent_king_coord; //delete
+
 }
+
 
 
 void Board::change_special_rules_after_move(Move move){
@@ -431,11 +433,13 @@ bool Board::isLegal(const Move move) {
 	//Whatever happens, if at the endof the move, player is check, the move is illegal
 	if(board_after_move.isCheck(move.movingPiece().isWhite(), kingCoord)) 
 	{
-		delete[] kingCoord; //delete inside if
+
+		delete[] kingCoord; //delete inside if 
 		return false;
 	}
 	
-	delete[] kingCoord; //delete outside if
+	delete[] kingCoord; //delete outside if 
+
 	
 	// Special En Passant move
 	if (move.isEnPassant())
@@ -689,12 +693,15 @@ bool Board::is_there_obstacle_on_way(const Move move){
 	{
 		if (is_piece_on_square(squares_visited[i++]))
 		{
-			delete[] squares_visited; //delete inside if
+
+			delete[] squares_visited; //delete inside if 
 			return true;
 		}
 	}
 	
-	delete[] squares_visited; //delete outside if
+
+	delete[] squares_visited; //delete outside if 
+
 	return false;
 }
 
@@ -764,7 +771,9 @@ bool Board::is_castling_valid(const Move move){
 				
 				if (Board_during_castling.isCheck(move.movingPiece().isWhite(), king_new_coord))
 				{
-					delete[] king_new_coord; //delete inside if
+
+					delete[] king_new_coord; //delete inside if 
+
 					return false;
 				}
 				
