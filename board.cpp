@@ -938,10 +938,11 @@ NOTE : If there is more than 1 checking piece, moving the king is mandatory to a
 						return false;
 					}	
 				}
+				
+			}
 			
 			delete[] square_on_trajectory; //delete outside if
 			
-			}
 		}
 	}
 	
