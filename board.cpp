@@ -22,7 +22,7 @@ Board::Board(const char* _FEN) {
 
 // Board Destructor
 Board::~Board() {
-    // Implement destructor logic here
+    
 }
 
 // Utility function to modify easily the special rules array
@@ -92,13 +92,14 @@ void Board::block_castling(const Move move, bool isQueenTower){
 }
 // Utility function to convert index to coordinate
 char* Board::indextoCoord(const int &index) {
-    char* coord = new char[2];
+    char* coord = new char[3];
     const char* ref = "abcdefgh";
     int row = 8 - (index / 8);
     char column = ref[index % 8];
     
     coord[0] = column;
     coord[1] = '0' + row; // conversion in char
+    coord[2] = '\0';
     return coord;
 }
 
@@ -596,7 +597,10 @@ int* Board::trajectory(const Move move){
 	char end_row=move.end()[1];
 	char coord_considered[2];
 	
+	
 	// Rook/Queen case
+	if ((end_row == start_row) || (end_col == start_col)) 
+	{
 	if (move.movingPiece().type()=='r' 
 	 || move.movingPiece().type()=='R' 
 	 || move.movingPiece().type()=='q' 
@@ -632,10 +636,10 @@ int* Board::trajectory(const Move move){
 	 	
 
 	 	}
-	 	
 
 	 	return trajectory_squares;
 	 	
+	 }
 	 }
 	 	
 	 // Bishop/Queen case
@@ -643,7 +647,7 @@ int* Board::trajectory(const Move move){
 	  || move.movingPiece().type() == 'B' 
 	  || move.movingPiece().type() == 'q' 
 	  || move.movingPiece().type() == 'Q'){
-	 
+
 	 	int gap = std::abs(end_row - start_row);
 	 	int direction_row = (end_row - start_row)/gap;
 	 	int direction_col = (end_col - start_col)/gap;
@@ -984,13 +988,17 @@ Piece* Board::find_checking_pieces(const bool isKingWhite, const char* square_to
     		Piece piece = pieces_[i];
     		if (piece.isWhite() != isKingWhite && piece.type()!='.')
     		{
-        		char fictive_msg[4];
-        		strncpy(fictive_msg, piece.coord(), 2);
-        		strncpy(fictive_msg + 2, square_to_verify, 2);
+    			std::cout<<"On regarde la pièce "<<piece.type()<<" en "<<piece.coord()<<std::endl;
+        		
+        		const char* temp_msg = create_msg(piece.coord(),square_to_verify); //create
+			char fictive_msg[4];
+			strncpy( fictive_msg , temp_msg, 4);
+			
+			delete[] temp_msg; //delete
         			
         		Move attacking_move = create_move(fictive_msg);
         		attacking_move.set_isCapture(true);
-        		
+
         		if (is_piece_correctly_moving(attacking_move) && not is_there_obstacle_on_way(attacking_move)) 
         		{
         			checking_pieces[j] = piece;
@@ -1000,6 +1008,7 @@ Piece* Board::find_checking_pieces(const bool isKingWhite, const char* square_to
 	
 	}
 	
+std::cout<<"Checking_pieces[0] : "<<checking_pieces[0].coord()<<std::endl;	
 return checking_pieces;
 	
 }
