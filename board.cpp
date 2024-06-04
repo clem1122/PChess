@@ -148,7 +148,6 @@ Board Board::withMove(const Move move) {
 		char tower_type = 'R';
 		
 		if (not move.movingPiece().isWhite()) {tower_type = 'r';}
-		std::cout << move.end()[1] << std::endl;
 		if (move.end()[0] == 'g')
 		{
 			past_tower_index = endIndex + 1;
