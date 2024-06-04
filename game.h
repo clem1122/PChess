@@ -34,4 +34,3 @@ public:
 	bool isOver() {return isOver_;};
 };
 
-//172.23.230.84

@@ -15,6 +15,8 @@ public:
 	char* coord(){return coord_;}
 	bool isWhite()const{return isWhite_;}
 	
+	~Piece();
+	
 
 };
-	
+

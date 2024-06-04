@@ -24,6 +24,10 @@ Move::Move(const char* _start, const char* _end, Piece _movingPiece, bool _isCap
 	
 }
 
+Move::~Move() {
+
+}
+
 
 
 

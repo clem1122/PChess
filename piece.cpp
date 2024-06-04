@@ -12,3 +12,7 @@ Piece::Piece(const char _type, const char* _coord, bool _isWhite) {
 	isWhite_ = _isWhite;
 }
 
+Piece::~Piece() {
+
+}
+
