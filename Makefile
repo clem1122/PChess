@@ -38,7 +38,7 @@ client: $(CLIENT)
 
 	
 clear: 
-	rm -f $(OBJS) main
+	rm -f $(OBJS) $(CLIENT) $(SERVER) main server client
 	
 build:
 	make clear main
