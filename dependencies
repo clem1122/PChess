@@ -1,0 +1,52 @@
+#!/bin/bash
+
+# Define the list of packages to install
+packages=(
+    "libboost-all-dev"  # For Boost libraries including Boost.Asio
+    "build-essential"   # Essential build tools like gcc, g++, make
+    "libc6-dev"         # GNU C Library development files
+    "libstdc++6"        # GNU Standard C++ Library
+)
+
+# Update package lists
+echo "Updating package lists..."
+sudo apt-get update
+
+# Install the packages
+echo "Installing packages..."
+for package in "${packages[@]}"; do
+    if dpkg -l | grep -qw $package; then
+        echo "$package is already installed"
+    else
+        echo "Installing $package..."
+        sudo apt-get install -y $package
+    fi
+done
+
+# Check if Boost.Asio is installed
+if [ ! -f /usr/include/boost/asio.hpp ]; then
+    echo "Boost.Asio not found. Installing Boost.Asio..."
+    # If not found, install Boost libraries
+    sudo apt-get install -y libboost-all-dev
+else
+    echo "Boost.Asio is already installed"
+fi
+
+# Additional libraries that are part of POSIX and usually come with the system
+# For completeness, you can verify but they are typically pre-installed:
+posix_libs=(
+    "unistd.h"
+    "arpa/inet.h"
+    "netdb.h"
+)
+
+echo "Verifying additional POSIX libraries..."
+for lib in "${posix_libs[@]}"; do
+    if [ ! -f /usr/include/$lib ]; then
+        echo "$lib is missing and should be part of POSIX libraries on your system."
+    else
+        echo "$lib is already present."
+    fi
+done
+
+echo "All necessary libraries and packages have been installed or verified."
