@@ -108,9 +108,10 @@ void* HTMLManager(void* _) {
    		//const char* requestType = requestStr.substr(0,4).c_str(); //c_str convertit string -> char*
 		//std::cout << "Request data:\n" << request_data.str().substr(0,4) << std::endl;
 		
+		if (requestStr.length() < 4) {continue;}
 		std::string msg = requestStr.substr(requestStr.length() - 4);
 		if (msg == "colo") {
-			
+		
 			response = createRequest(White);
 			std::cout << "Color : <" << White << ">" << std::endl;
 			boost::asio::write(socket, boost::asio::buffer(response));
@@ -199,7 +200,7 @@ int main (int argc, char * argv[])
 	while (true) { 
 		if (isMyTurn) {
 		    //std::cin.getline(input, sizeof(input)); 
-		    std::cout << "Move to play : " << std::endl;
+		    std::cout << "Move to play : ";
 		    std::unique_lock<std::mutex> lock(moveMutex);
         	    moveCV.wait(lock, []{ return move != "...."; });
 		    std::cout << move << std::endl;

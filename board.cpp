@@ -116,7 +116,7 @@ int Board::coordtoIndex(const char* coord) {
     	}
     }
     int index = (8-row) * 8 + columnNb;
-    return index; // tkt ça marche
+    return index;
 }
 
 // Utility function to play a move
@@ -140,7 +140,7 @@ Board Board::withMove(const Move move) {
 		newFEN[captured_pawn_index]='.';
 	}
 	
-	// Castling : We must move also the tower
+	// Castling : We must also move the tower
 	if (move.isCastling())
 	{	
 		int past_tower_index = 99;
@@ -199,8 +199,6 @@ char* Board::PiecestoFEN(const Piece* _pieces) {
 }
 
 // Utility function to check some infos on the board
-
-
 bool Board::is_piece_on_square(int index_arrival){
 	return (FEN_[index_arrival] != '.');
 }
@@ -215,7 +213,6 @@ bool Board::is_white_on_square(int index_arrival){
 }
 
 // Utility function around move
-
 const char* Board::create_msg(const char* departure_coord, const char* arrival_coord){
 
 	char* fictive_msg =  new char[4];
@@ -229,7 +226,6 @@ Move Board::create_move(const char* msg){
 	//Create move
 	char start[3];
 	char end[3];	
-	//std::cout <<msg<<std::endl;
 	strncpy(start, msg, 2);
 	strncpy(end, msg+2, 2);
 	start[2] = '\0';
@@ -284,7 +280,7 @@ void Board::playMove(Move move) {
 	pieces_ = newBoard.pieces_;
 
 
-	delete[] opponent_king_coord; //delete
+	delete[] opponent_king_coord;
 
 }
 
@@ -368,7 +364,6 @@ bool Board::is_piece_capturing(const char* start, const char* end, Piece piece){
 
 bool Board::is_piece_castling(const char* start, const char* end, Piece piece){
 	//Check if a move correspond to a castlening
-	//std::cout <<"is piece castling ?" <<std::endl;
 	if (piece.type() == 'K')
 	{
 		
@@ -376,7 +371,7 @@ bool Board::is_piece_castling(const char* start, const char* end, Piece piece){
 		  || (strcmp(start,"e1") == 0 && strcmp(end,"g1") == 0) )
 		  
 		  {
-		  	std::cout << "roque valide" << std::endl;
+		  	std::cout << "Roque valide" << std::endl;
 		  	return true;
 		  }
 	}
@@ -425,13 +420,12 @@ bool Board::isLegal(const Move move) {
 
 
 	Board board_after_move = withMove(move); 
-	//std::cout<<"Le move de "<<move.movingPiece().type()<<" de "<<move.start()<<" en "<<move.end()<<" est-il légal ? "<<std::endl;
 	
 	// If at the end of the move, the king is checked, the move is mandatory illegal
 	int kingIndex = board_after_move.find_king(move.movingPiece().isWhite());	
-	char* kingCoord = indextoCoord(kingIndex); //create
+	char* kingCoord = indextoCoord(kingIndex);
 	
-	//Whatever happens, if at the endof the move, player is check, the move is illegal
+	//Whatever happens, if at the end of the move, player is checked, the move is illegal
 	if(board_after_move.isCheck(move.movingPiece().isWhite(), kingCoord)) 
 	{
 
@@ -472,7 +466,7 @@ bool Board::isLegal(const Move move) {
 			if(not is_there_obstacle_on_arrival(move))
 			{
 
-					return true; //TODO  : check at next move
+					return true;
 			}
 		}
 	}
@@ -483,7 +477,6 @@ bool Board::isLegal(const Move move) {
 
 bool Board::is_piece_correctly_moving(const Move move){
 	// Get infos from move
-	//std::cout << "is piece correctly moving" << std::endl;
 	char departure_column=move.start()[0];
 	char arrival_column=move.end()[0];
 	int departure_row=move.start()[1] - '0';
@@ -528,7 +521,7 @@ bool Board::is_piece_correctly_moving(const Move move){
 	}
 	
 	if (move.movingPiece().type()=='p' || move.movingPiece().type()=='P'){
-	//Pawn can only move 1 row depending on its color or 2 if it is on its starting place
+		//Pawn can only move 1 row depending on its color or 2 if it is on its starting place
 		int row_gap=arrival_row-departure_row;
 		int column_gap=arrival_column-departure_column;
 		bool isMovingUp = row_gap>0;
@@ -687,7 +680,7 @@ int* Board::trajectory(const Move move){
 bool Board::is_there_obstacle_on_way(const Move move){
 	//Return true if there is a piece able to block the move of the piece on its way.
 	//This function does NOT check the case of a piece ON the arrival square, another function is in charge of this
-//	std::cout << "is there obstacle on the way" << std::endl;
+
 
 	int* squares_visited = trajectory(move); //create
 	int i = 0;
@@ -711,7 +704,6 @@ bool Board::is_there_obstacle_on_way(const Move move){
 
 
 bool Board::is_there_obstacle_on_arrival(const Move move){
-	//std::cout << "is there obstacle on arrival" << std::endl;
 	//Return true if a piece of the same color is on the arrival square
 	
 	char PieceOnArrival = pieces_[Board::coordtoIndex(move.end())].type();
@@ -744,7 +736,7 @@ bool Board::is_castling_valid(const Move move){
 			int king_start_index = coordtoIndex(move.start());
 			int king_end_index = coordtoIndex(move.end());
 			
-			std::cout<<"Le roi est à l'index "<<king_start_index<<std::endl;
+			
 			int gap = std::abs(king_start_index - king_end_index);
 			int direction = (king_end_index - king_start_index)/gap;
 			
@@ -758,7 +750,7 @@ bool Board::is_castling_valid(const Move move){
 			for (int i = 1 ; i<=gap ; i++)
 			{
 				int king_new_index = king_start_index + i * direction;
-				std::cout<<"On regarde si il y a une pièce à l'index "<<king_new_index<<std::endl;
+				
 				
 				// Check if the square is empty
 				if (is_piece_on_square(king_new_index))
@@ -767,7 +759,7 @@ bool Board::is_castling_valid(const Move move){
 				}
 				
 				// Check if the square is controled by an opponent
-				std::cout<<"On regarde si il y a possibilité d'échec à l'index "<<king_new_index<<std::endl;
+				
 				char* king_new_coord = indextoCoord(king_new_index); //create
 				Move move_king_castling(move.start(),king_new_coord,move.movingPiece(),false,false,false,false);
 					
@@ -797,7 +789,7 @@ bool Board::is_en_passant_valid(const Move move){
 	return Board::is_piece_correctly_moving(en_passant_move);
 }
 
-// Game logic to check if there is check on the king POV ('k' or 'K' for now)
+// Game logic to check if there is a check on the king POV
 
 
 bool Board::isCheck(const bool isKingWhite, const char* square_to_verify) {
@@ -818,8 +810,6 @@ bool Board::isCheck(const bool isKingWhite, const char* square_to_verify) {
 
 bool Board::isCheckmate(const bool isWhite){
 	
-	std::cout<<"Y a-t-il échec et mat ?"<<std::endl;
-	
 	int king_index = find_king(isWhite);
 	Piece king = pieces_[king_index];
 	Piece* checking_piece_list = find_checking_pieces(isWhite, king.coord()); //create
@@ -827,10 +817,10 @@ bool Board::isCheckmate(const bool isWhite){
 /*
  Has to consider 3 things :
 	1- if the squares accessible to the checked king is controlled by an ennemy piece
-	2- if ALL the allied pieces cannot eat the checking piece by going on its square
-	3- if ALL the allied pieces cannot go on the trajectory of the checking piece
+	2- if ALL the ally pieces cannot capture the checking piece by going on its square
+	3- if ALL the ally pieces cannot go on the trajectory of the checking piece
 
-NOTE : If there is more than 1 checking piece, moving the king is mandatory to avoid checkmate : only checking 1- is enough */
+NOTE : If there is more than 1 checking piece, moving the king is mandatory to avoid checkmate : only checking condition 1- is enough */
 
 // 1- Can the king move ?
 
@@ -841,7 +831,7 @@ NOTE : If there is more than 1 checking piece, moving the king is mandatory to a
 			char* king_new_coord = new char[2];
 			king_new_coord[0] = king.coord()[0] + i;
 			king_new_coord[1] = king.coord()[1] + j;
-			//std::cout<<"On regarde le déplacement possible en "<<king_new_coord<<std::endl;
+			
 			if (isValidCoord(king.coord(),king_new_coord))
 			{
 				const char* temp_msg = create_msg(king.coord(),king_new_coord); //create
@@ -861,8 +851,8 @@ NOTE : If there is more than 1 checking piece, moving the king is mandatory to a
 	
 	}
 	
-	//std::cout<<"  ==> Le roi ne peut plus bouger"<<std::endl;
-	//If there is more than 1 checking piece, not to be able to move the king means checkmate
+	
+	//If there is more than 1 checking piece ? not being able to move the king means checkmate
 	if (checking_piece_list[1].type() != '.')
 	{
 		delete[] checking_piece_list; //delete inside if
@@ -873,7 +863,7 @@ NOTE : If there is more than 1 checking piece, moving the king is mandatory to a
 	Piece checking_piece = checking_piece_list[0];
 	delete[] checking_piece_list; //delete outside if;
 	
-// 2-Can an ally eat the checking piece ?
+// 2-Can an ally capture the checking piece ?
 
 	for (int i = 0 ; i<64 ; i++)
 	{
@@ -885,7 +875,7 @@ NOTE : If there is more than 1 checking piece, moving the king is mandatory to a
 			&& actual_piece.isWhite() == isWhite)
 			
 		{
-			//std::cout<<"On regarde la pièce en "<<actual_piece.coord()<<" si elle peut manger l'attaquant"<<std::endl;
+		
 			const char* temp_msg = create_msg(actual_piece.coord(),checking_piece.coord()); //create
 			char fictive_attacking_msg[4];     		
         		strncpy( fictive_attacking_msg , temp_msg, 4);  			
@@ -901,7 +891,7 @@ NOTE : If there is more than 1 checking piece, moving the king is mandatory to a
 	
 	}
 	
-	//std::cout<<"  ==> Aucune pièce ne peut manger la pièce mettant en échec"<<std::endl;
+	
 	
 // 3- Can an ally go on the trajectory of the checking piece ?
 	
@@ -918,7 +908,6 @@ NOTE : If there is more than 1 checking piece, moving the king is mandatory to a
 
 		if (attacking_trajectory[j] != 99)
 		{
-			//std::cout<<"On regarde la case "<<indextoCoord(attacking_trajectory[j])<<std::endl;
 			char* square_on_trajectory = indextoCoord(attacking_trajectory[j]);//create
 			
 			for (int i = 0 ; i<64 ; i++)
@@ -927,7 +916,7 @@ NOTE : If there is more than 1 checking piece, moving the king is mandatory to a
 
 				if (actual_piece.type() != '.' && actual_piece.isWhite() == isWhite)
 				{
-					//std::cout<<"On regarde la pièce en "<<actual_piece.coord()<<" si elle peut bloquer l'attaque"<<std::endl;
+					
 					const char* temp_msg_2 = create_msg(actual_piece.coord(),square_on_trajectory); //create
 					char fictive_blocking_msg[4];
 					strncpy( fictive_blocking_msg , temp_msg_2, 4);
@@ -958,7 +947,7 @@ NOTE : If there is more than 1 checking piece, moving the king is mandatory to a
 	return true;
 }
 
-int  Board::find_king(const bool isKingWhite){
+int Board::find_king(const bool isKingWhite){  // Return the index of the white or black king
 
 	for (int i = 0 ; i<64 ; i++)
 	{
@@ -988,13 +977,13 @@ Piece* Board::find_checking_pieces(const bool isKingWhite, const char* square_to
     		Piece piece = pieces_[i];
     		if (piece.isWhite() != isKingWhite && piece.type()!='.')
     		{
-    			std::cout<<"On regarde la pièce "<<piece.type()<<" en "<<piece.coord()<<std::endl;
+    			
         		
         		const char* temp_msg = create_msg(piece.coord(),square_to_verify); //create
-			char fictive_msg[4];
-			strncpy( fictive_msg , temp_msg, 4);
-			
-			delete[] temp_msg; //delete
+				char fictive_msg[4];
+				strncpy( fictive_msg , temp_msg, 4);
+				
+				delete[] temp_msg; //delete
         			
         		Move attacking_move = create_move(fictive_msg);
         		attacking_move.set_isCapture(true);
@@ -1002,13 +991,12 @@ Piece* Board::find_checking_pieces(const bool isKingWhite, const char* square_to
         		if (is_piece_correctly_moving(attacking_move) && not is_there_obstacle_on_way(attacking_move)) 
         		{
         			checking_pieces[j] = piece;
-            			j++;
+            		j++;
        			}	
     		}
 	
 	}
 	
-std::cout<<"Checking_pieces[0] : "<<checking_pieces[0].coord()<<std::endl;	
 return checking_pieces;
 	
 }
