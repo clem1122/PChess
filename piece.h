@@ -1,18 +1,19 @@
 #pragma once
+#include <string>
 
 class Piece{
 private:
 	char type_;
-	char coord_[2];
+	std::string coord_;
 	bool isWhite_;
 
 
 public: 
 	Piece();
-	Piece(const char _type, const char* _coord, bool _isWhite);
+	Piece(const char _type, const std::string _coord, bool _isWhite);
 	
 	char type()const{return type_;}
-	char* coord(){return coord_;}
+	std::string coord(){return coord_;}
 	bool isWhite()const{return isWhite_;}
 	
 	~Piece();

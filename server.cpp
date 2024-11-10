@@ -100,12 +100,16 @@ void* CommunicationRoutine(void* _) {
 			
 			do {
 				msg = receive(playerSocket);
-				move = game.board.create_move(msg);									
+				move = game.board.create_move(std::string(msg));									
 				isMoveValid = game.board.isLegal(move) && 
 				(move.movingPiece().isWhite() != (playerSocket == game.socketJ2())); // soit isWhite et J1 soit !isWhite et J2 
 
 				if(not isMoveValid) {
-					std::cout << "Unvalid piece movement : " << msg << std::endl;
+					if(!game.board.isLegal(move)) {
+						std::cout << "Unvalid piece movement - Illegal :" << msg << std::endl;
+					} else {
+						std::cout << "Unvalid piece movement - Wrong color : " << msg << std::endl;
+					}
 					send(playerSocket, stringToChar("err0"));
 				}
 				
@@ -115,8 +119,12 @@ void* CommunicationRoutine(void* _) {
 			game.board.playMove(move);
 			std::cout << "Plateau actuel : " << std::endl;
 			game.board.print();
-			send(waiterSocket, game.board.FEN());
-			send(playerSocket, game.board.FEN());
+			std::string FEN = game.board.FEN();
+			char* temp_msg = new char[FEN.length() + 1];
+			std::strcpy(temp_msg, FEN.c_str());
+			std::cout << temp_msg << std::endl;
+			send(waiterSocket, temp_msg);
+			send(playerSocket, temp_msg);
 
 			
 			isJ1Turn = !isJ1Turn;

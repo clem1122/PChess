@@ -1,10 +1,11 @@
 #pragma once
 #include "piece.h"
+#include <string>
 
 class Move{
 private:
-	char start_[3];
-	char end_[3];
+	std::string start_;
+	std::string end_;
 	
 	Piece movingPiece_; // = new Piece("Q", "d1", true);
 	
@@ -15,9 +16,9 @@ private:
 
 public:
 	Move();
-	Move(const char* _start, const char* _end, Piece _movingPiece, bool _isCapture, bool _isPromotion, bool _isCastling, bool _isEnPassant);
-	char* start()const{return const_cast<char*>(start_);}
-	char* end()const{return const_cast<char*>(end_);}
+	Move(std::string _start, std::string _end, Piece _movingPiece, bool _isCapture, bool _isPromotion, bool _isCastling, bool _isEnPassant);
+	std::string start()const{return start_;}
+	std::string end()const{return end_;}
 
 	
 	Piece movingPiece()const{return movingPiece_;} // = new Piece("Q", "d1", true);

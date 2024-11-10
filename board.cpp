@@ -6,17 +6,17 @@
 
 // Board Constructor
 Board::Board() {
-	const char *startFEN = "rnbqkbnrpppppppp................................PPPPPPPPRNBQKBNR";
-	memcpy(&FEN_, startFEN, 64 * sizeof(char));
-	memcpy(&specialRulesData_, "wKQkq", 5 * sizeof(char));
-	en_passant_index_=99;
+	std::string startFEN = "rnbqkbnrpppppppp................................PPPPPPPPRNBQKBNR";
+	FEN_ = startFEN;
+	specialRulesData_ = "wKQkq";
+	en_passant_index_= 99;
 	pieces_ = FENtoPieces(FEN_);
 	
 }
 
 // Board Constructor with FEN parameter
-Board::Board(const char* _FEN) {
-	memcpy(&FEN_, _FEN, 64 * sizeof(char)); 
+Board::Board(std::string _FEN) {
+	FEN_ = _FEN;
 	pieces_ = FENtoPieces(FEN_);
 }
 
@@ -40,7 +40,7 @@ void Board::change_turn(){
 	}
 }
 
-void Board::change_en_passant_square(bool has_a_pawn_moved, bool is_pawn_white, const char* end_coord){
+void Board::change_en_passant_square(bool has_a_pawn_moved, bool is_pawn_white, std::string end_coord){
 	//Change the index in the special rule array 
 	// This new index correspond to the square behind the new position of the pawn, where a En Passant can be done
 	if (has_a_pawn_moved)
@@ -91,24 +91,23 @@ void Board::block_castling(const Move move, bool isQueenTower){
 
 }
 // Utility function to convert index to coordinate
-char* Board::indextoCoord(const int &index) {
-    char* coord = new char[3];
-    const char* ref = "abcdefgh";
+std::string Board::indextoCoord(const int &index) {
+    std::string coord(2, ' ');
+    std::string ref = "abcdefgh";
     int row = 8 - (index / 8);
     char column = ref[index % 8];
     
     coord[0] = column;
     coord[1] = '0' + row; // conversion in char
-    coord[2] = '\0';
     return coord;
 }
 
 // Utility function to convert coordinate to index
-int Board::coordtoIndex(const char* coord) {
+int Board::coordtoIndex(std::string coord) {
     char column = coord[0]; //"a4" -> "a"
     int row = coord[1] - '0'; //"a4" -> 4
     int columnNb = 0;
-    const char* ref = "abcdefgh";
+    std::string ref = "abcdefgh";
     for(int i = 0; i < 8; i++){
     	if (column == ref[i]){
     		columnNb = i; // a = 0, h = 7
@@ -124,8 +123,7 @@ Board Board::withMove(const Move move) {
 	int startIndex = Board::coordtoIndex(move.start());
 	int endIndex = Board::coordtoIndex(move.end());
 	
-	char newFEN[64];
-	memcpy(&newFEN, &FEN_, 64 * sizeof(char));
+	std::string newFEN = FEN_;
 	newFEN[startIndex] = '.';
 	newFEN[endIndex] = FEN_[startIndex];
 	
@@ -176,21 +174,22 @@ Board Board::withMove(const Move move) {
 }
 
 // Utility function to convert FEN string to pieces
-Piece* Board::FENtoPieces(const char* _FEN) {
+Piece* Board::FENtoPieces(std::string _FEN) {
 	Piece *p = new Piece[64]; 
 	for(int i = 0; i < 64; i++) {
 		if(_FEN[i] != '.') {
-			char* temp_coord = Board::indextoCoord(i); //Create
+			std::string temp_coord = Board::indextoCoord(i); //Create
+			std::cout << "init :" << _FEN[i] << std::endl;
 			p[i] = Piece(_FEN[i], temp_coord, (bool)std::isupper(_FEN[i]));
-			//delete[] temp_coord; //Delete
+			
 		}
 	}
     return p;
 }
 
 // Utility function to convert pieces to FEN string
-char* Board::PiecestoFEN(const Piece* _pieces) {
-	char *newFEN = new char[64];
+std::string Board::PiecestoFEN(const Piece* _pieces) {
+	std::string newFEN(64, ' ');
 	for(int i = 0; i < 64; i++) {
 			newFEN[i] = _pieces[i].type();
 	}
@@ -212,25 +211,27 @@ bool Board::is_white_on_square(int index_arrival){
 }
 
 // Utility function around move
-const char* Board::create_msg(const char* departure_coord, const char* arrival_coord){
+std::string Board::create_msg(std::string departure_coord, std::string arrival_coord){
 
-	char* fictive_msg =  new char[4];
-        strncpy(fictive_msg, departure_coord, 2);
-        strncpy(fictive_msg + 2, arrival_coord, 2);
-	
+	std::string fictive_msg = departure_coord + arrival_coord;
+	if(fictive_msg.length() != 4) {
+		std::cout << "Error create_msg : msg:" << fictive_msg << ">" <<std::endl;
+		std::cout << "dep_l:" << departure_coord.length() << " arr_l:" << arrival_coord.length() <<std::endl;
+		for(int i =0; i < 6; i++){
+			std::cout << i << ":" << fictive_msg[i] << std::endl;
+		}
+	}
 	return fictive_msg;
 }
 
-Move Board::create_move(const char* msg){
+Move Board::create_move(std::string msg){
 	//Create move
-	char start[3];
-	char end[3];	
-	strncpy(start, msg, 2);
-	strncpy(end, msg+2, 2);
-	start[2] = '\0';
-	end[2] = '\0';
-
-
+	if(msg.length() != 4) {
+		std::cout << "Erreur create_move : msg:" << msg <<std::endl;
+	}
+	std::string start = msg.substr(0, 2) ;
+	std::string end = msg.substr(2, 2);	
+	std::cout << "start :" << start << " end :" << end <<">" << std::endl;
 	if (isValidCoord(start, end)) 
 	{
 		int startIndex = coordtoIndex(start);
@@ -246,7 +247,7 @@ Move Board::create_move(const char* msg){
 	
 	else
 	{
-		std::cout << "Illegal Move : "<<start<<" "<<end<<" is a bad coord" << std::endl;
+		std::cout << "Illegal Move : "<<start<<" "<<end<<" is a bad move" << std::endl;
 		return Move();
 	}
 
@@ -258,9 +259,10 @@ void Board::playMove(Move move) {
 
 	// Create the new board
 	Board newBoard = withMove(move);	
-	char* opponent_king_coord = indextoCoord(newBoard.find_king(not is_playing_player_white())); //Create
+	std::string opponent_king_coord = indextoCoord(newBoard.find_king(not is_playing_player_white())); //Create
 	
 	// Is there check or checkmate
+	std::cout << "1" << std::endl;
 	if (newBoard.isCheck(not is_playing_player_white(),opponent_king_coord))
 	{
 		std::cout<<"Echec"<<std::endl;
@@ -275,11 +277,10 @@ void Board::playMove(Move move) {
 	Board::change_special_rules_after_move(move);
 	
 	// Change actual FEN and array of pieces
-	memcpy(&FEN_, &(newBoard.FEN_), 64 * sizeof(char));
+	FEN_ = newBoard.FEN_;
 	pieces_ = newBoard.pieces_;
 
 
-	delete[] opponent_king_coord;
 
 }
 
@@ -297,12 +298,12 @@ void Board::change_special_rules_after_move(Move move){
 		}
 		
 		if (move.movingPiece().type() == 'r' || move.movingPiece().type() == 'R'){
-			if ( strcmp(move.start(),"a1") == 0 || strcmp(move.start(),"a8") == 0)
+			if (move.start() == "a1"|| move.start() == "a8")
 			{
 				Board::block_castling(move,true);
 			}
 			
-			if ( strcmp(move.start(),"h1") == 0 || strcmp(move.start(),"h8") == 0)
+			if (move.start() == "h1" || move.start() == "h8")
 			{
 				Board::block_castling(move,false);
 			}
@@ -328,13 +329,28 @@ void Board::change_special_rules_after_move(Move move){
 
 
 // Utility functions to create the object Move
-bool Board::isValidCoord(const char* _start, const char* _end) {
-	char departure_column=_start[0];
-	char arrival_column=_end[0];
+bool Board::isValidCoord(std::string _start, std::string _end) {
+    if (_start.length() != 2 || _end.length() != 2) {
+    	std::cout << "Erreur: isValidCoord"<< std::endl;
+    	std::cout << "str1:<" << _start.length() << "> str2:<" << _end << ">" << std::endl;
+        return false;
+    }
+	char departure_column =_start[0];
+	char arrival_column =_end[0];
 	int departure_row=_start[1] - '0';
 	int arrival_row=_end[1] - '0';
 
 	//Check if the coordinates do have sense
+	if('a' <= departure_column && departure_column <= 'h'
+		&&  'a' <= arrival_column   && arrival_column   <= 'h'
+		&&   1  <= departure_row    && departure_row    <=  8
+		&&   1  <= arrival_row      && arrival_row      <=  8
+		&&        (departure_column != arrival_column 
+		||         departure_row    != arrival_row) == false) 
+		
+	{
+		std::cout << "depart:" << departure_column << departure_row << " arrivee:" << arrival_column << arrival_row << std::endl;
+	}
 	return 	'a' <= departure_column && departure_column <= 'h'
 		&&  'a' <= arrival_column   && arrival_column   <= 'h'
 		&&   1  <= departure_row    && departure_row    <=  8
@@ -344,7 +360,7 @@ bool Board::isValidCoord(const char* _start, const char* _end) {
 		
 }
 
-bool Board::is_piece_capturing(const char* start, const char* end, Piece piece){
+bool Board::is_piece_capturing(std::string start, std::string end, Piece piece){
 	//Check if a move correspond to a capture
 	int arrival_index = Board::coordtoIndex(end);
 	
@@ -361,36 +377,30 @@ bool Board::is_piece_capturing(const char* start, const char* end, Piece piece){
 
 }
 
-bool Board::is_piece_castling(const char* start, const char* end, Piece piece){
-	//Check if a move correspond to a castlening
-	if (piece.type() == 'K')
-	{
-		
-		if ( (strcmp(start,"e1") == 0 && strcmp(end,"c1") == 0)
-		  || (strcmp(start,"e1") == 0 && strcmp(end,"g1") == 0) )
-		  
-		  {
-		  	std::cout << "Roque valide" << std::endl;
-		  	return true;
-		  }
-	}
-	
-	
-	if (piece.type() == 'k')
-	{
-		
-		if ( (strcmp(start,"e8") == 0 && strcmp(end,"c8") == 0)
-		  || (strcmp(start,"e8") == 0 && strcmp(end,"g8") == 0) )
-		  
-		  {
-		  	return true;
-		  }
-	}
-	
-	return false;
+bool Board::is_piece_castling(std::string start, std::string end, Piece piece){
+	//Check if a move correspond to a castling
+    if (piece.type() == 'K')
+    {
+        if ((start == "e1" && end == "c1") || (start == "e1" && end == "g1"))
+        {
+            std::cout << "Roque valide" << std::endl;
+            return true;
+        }
+    }
+
+    if (piece.type() == 'k')
+    {
+        if ((start == "e8" && end == "c8") || (start == "e8" && end == "g8"))
+        {
+            return true;
+        }
+    }
+
+    return false;
 }
 
-bool Board::is_piece_taking_en_passant(const char* coord_end, Piece piece){
+
+bool Board::is_piece_taking_en_passant(std::string coord_end, Piece piece){
 	//Check if a move correspond to a En passant move
 	
 	if (piece.type() == 'p' || piece.type() == 'P')
@@ -407,7 +417,7 @@ bool Board::is_piece_taking_en_passant(const char* coord_end, Piece piece){
 	return false;
 }
 
-bool Board::is_piece_promotioning(const char* coord_end, Piece piece){
+bool Board::is_piece_promotioning(std::string coord_end, Piece piece){
 
 	int final_row = piece.isWhite() ? 8 : 1;
 	return (piece.type() == 'p' || piece.type() == 'P') && (coord_end[1] - '0' == final_row);	
@@ -422,17 +432,17 @@ bool Board::isLegal(const Move move) {
 	
 	// If at the end of the move, the king is checked, the move is mandatory illegal
 	int kingIndex = board_after_move.find_king(move.movingPiece().isWhite());	
-	char* kingCoord = indextoCoord(kingIndex);
+	std::string kingCoord = indextoCoord(kingIndex);
 	
 	//Whatever happens, if at the end of the move, player is checked, the move is illegal
+	std::cout << "2:"<< kingCoord << std::endl;
 	if(board_after_move.isCheck(move.movingPiece().isWhite(), kingCoord)) 
 	{
 
-		delete[] kingCoord; //delete inside if 
+		std::cout << "ici" << std::endl;
 		return false;
 	}
-	
-	delete[] kingCoord; //delete outside if 
+
 
 	
 	// Special En Passant move
@@ -458,18 +468,18 @@ bool Board::isLegal(const Move move) {
 	// Classic move
 	if(is_piece_correctly_moving(move))
 	{
-
+		std::cout << "ca bouge" << std::endl;
 		if(not is_there_obstacle_on_way(move))
 		{
-
+			std::cout << "pas d'obstacle" << std::endl;
 			if(not is_there_obstacle_on_arrival(move))
 			{
-
+					std::cout << "case vide" << std::endl;
 					return true;
 			}
 		}
 	}
-
+	std::cout << "la" << std::endl;
 	return false;
 }
 
@@ -480,6 +490,8 @@ bool Board::is_piece_correctly_moving(const Move move){
 	char arrival_column=move.end()[0];
 	int departure_row=move.start()[1] - '0';
 	int arrival_row=move.end()[1] - '0';
+	
+	std::cout << "Move :" << departure_column << departure_row << arrival_column << arrival_row <<std::endl;
 
 	
 	if (move.movingPiece().type()=='r' 
@@ -583,11 +595,11 @@ int* Board::trajectory(const Move move){
 	for (int i=0 ; i<8 ; i++){trajectory_squares[i]=99;}
 	
 	// Get infos from move
-	char start_col=move.start()[0];
-	char end_col=move.end()[0];
-	char start_row=move.start()[1];
-	char end_row=move.end()[1];
-	char coord_considered[2];
+	char start_col = move.start()[0];
+	char end_col = move.end()[0];
+	char start_row = move.start()[1];
+	char end_row = move.end()[1];
+	std::string coord_considered(2, ' ');
 	
 	
 	// Rook/Queen case
@@ -724,12 +736,11 @@ bool Board::is_castling_valid(const Move move){
 	
 
 	std::cout<<"Les règles spéciales sont "<<specialRulesData_<<std::endl;
-	if ( (strcmp(move.end(),"g1") == 0 && specialRulesData_[1]=='K') 
-	  || (strcmp(move.end(),"c1") == 0 && specialRulesData_[2]=='Q')
-	  || (strcmp(move.end(),"g8") == 0 && specialRulesData_[3]=='k')
-	  || (strcmp(move.end(),"c8") == 0 && specialRulesData_[4]=='q') )
-	  
-	
+	if ((move.end() == "g1" && specialRulesData_[1] == 'K') 
+		|| (move.end() == "c1" && specialRulesData_[2] == 'Q') 
+		|| (move.end() == "g8" && specialRulesData_[3] == 'k') 
+		|| (move.end() == "c8" && specialRulesData_[4] == 'q'))
+
 		{
 
 			int king_start_index = coordtoIndex(move.start());
@@ -740,6 +751,7 @@ bool Board::is_castling_valid(const Move move){
 			int direction = (king_end_index - king_start_index)/gap;
 			
 			//Check if king is check
+			std::cout << "3" << std::endl;
 			if (isCheck(move.movingPiece().isWhite(), move.start()))
 			{
 				return false;
@@ -759,20 +771,20 @@ bool Board::is_castling_valid(const Move move){
 				
 				// Check if the square is controled by an opponent
 				
-				char* king_new_coord = indextoCoord(king_new_index); //create
+				std::string king_new_coord = indextoCoord(king_new_index); //create
 				Move move_king_castling(move.start(),king_new_coord,move.movingPiece(),false,false,false,false);
 					
 				Board Board_during_castling = withMove(move_king_castling);
-				
+				std::cout << "4" << std::endl;
 				if (Board_during_castling.isCheck(move.movingPiece().isWhite(), king_new_coord))
 				{
 
-					delete[] king_new_coord; //delete inside if 
+					
 
 					return false;
 				}
 				
-				delete[] king_new_coord; //delete outside if	
+				
 			}
 
 			return true;
@@ -791,7 +803,8 @@ bool Board::is_en_passant_valid(const Move move){
 // Game logic to check if there is a check on the king POV
 
 
-bool Board::isCheck(const bool isKingWhite, const char* square_to_verify) {
+bool Board::isCheck(const bool isKingWhite, std::string square_to_verify) {
+		
 		
 		Piece* list_checking_piece = find_checking_pieces(isKingWhite, square_to_verify); //create
 		
@@ -808,7 +821,6 @@ bool Board::isCheck(const bool isKingWhite, const char* square_to_verify) {
 
 
 bool Board::isCheckmate(const bool isWhite){
-	
 	int king_index = find_king(isWhite);
 	Piece king = pieces_[king_index];
 	Piece* checking_piece_list = find_checking_pieces(isWhite, king.coord()); //create
@@ -827,18 +839,17 @@ NOTE : If there is more than 1 checking piece, moving the king is mandatory to a
 	{
 		for (int j = -1 ; j<2 ; j++)
 		{
-			char* king_new_coord = new char[2];
+			std::string king_new_coord(2, ' ');
 			king_new_coord[0] = king.coord()[0] + i;
 			king_new_coord[1] = king.coord()[1] + j;
 			
 			if (isValidCoord(king.coord(),king_new_coord))
 			{
-				const char* temp_msg = create_msg(king.coord(),king_new_coord); //create
-				char fictive_escaping_msg[4];
-				strncpy( fictive_escaping_msg ,temp_msg , 4);
+				std::string fictive_escaping_msg = create_msg(king.coord(),king_new_coord); //create
+				std::cout << "Escaping" << std::endl;
 				Move move_king_escaping = create_move(fictive_escaping_msg);
 				
-				delete[] temp_msg; //delete
+				
 				
 				if (isLegal(move_king_escaping))
 				{
@@ -875,17 +886,14 @@ NOTE : If there is more than 1 checking piece, moving the king is mandatory to a
 			
 		{
 		
-			const char* temp_msg = create_msg(actual_piece.coord(),checking_piece.coord()); //create
-			char fictive_attacking_msg[4];     		
-        		strncpy( fictive_attacking_msg , temp_msg, 4);  			
-        		Move fictive_attacking_move = create_move(fictive_attacking_msg);
+			std::string fictive_attacking_msg = create_msg(actual_piece.coord(),checking_piece.coord()); //create	
+			std::cout << "Attacking" << std::endl;		
+        	Move fictive_attacking_move = create_move(fictive_attacking_msg);
 
-			delete[] temp_msg; //delete
-			
-        		if (isLegal(fictive_attacking_move))
-        		{
-        			return false;
-       			}	
+    		if (isLegal(fictive_attacking_move))
+    		{
+    			return false;
+   			}	
 		}
 	
 	}
@@ -894,12 +902,11 @@ NOTE : If there is more than 1 checking piece, moving the king is mandatory to a
 	
 // 3- Can an ally go on the trajectory of the checking piece ?
 	
-	const char* temp_msg = create_msg(checking_piece.coord(),king.coord()); //create
-	char fictive_checking_msg[4];
-	strncpy(fictive_checking_msg, temp_msg , 4);  				
+	std::string fictive_checking_msg = create_msg(checking_piece.coord(),king.coord()); //create  
+	std::cout << "Checking" << std::endl;				
 	Move checking_move = create_move(fictive_checking_msg);
 	
-	delete[] temp_msg;
+	
 	int* attacking_trajectory = trajectory(checking_move); //create
 	
 	for (int j= 0 ; j<8 ; j++)
@@ -907,7 +914,7 @@ NOTE : If there is more than 1 checking piece, moving the king is mandatory to a
 
 		if (attacking_trajectory[j] != 99)
 		{
-			char* square_on_trajectory = indextoCoord(attacking_trajectory[j]);//create
+			std::string square_on_trajectory = indextoCoord(attacking_trajectory[j]);//create
 			
 			for (int i = 0 ; i<64 ; i++)
 			{
@@ -916,12 +923,8 @@ NOTE : If there is more than 1 checking piece, moving the king is mandatory to a
 				if (actual_piece.type() != '.' && actual_piece.isWhite() == isWhite)
 				{
 					
-					const char* temp_msg_2 = create_msg(actual_piece.coord(),square_on_trajectory); //create
-					char fictive_blocking_msg[4];
-					strncpy( fictive_blocking_msg , temp_msg_2, 4);
-					delete[] temp_msg_2; //delete
-					delete[] square_on_trajectory; //delete inside if
-					
+					std::string fictive_blocking_msg = create_msg(actual_piece.coord(),square_on_trajectory); //create
+					std::cout << "Blocking" << std::endl;
 					Move fictive_blocking_move = create_move(fictive_blocking_msg);	
 					
 					if (isLegal(fictive_blocking_move))
@@ -933,7 +936,7 @@ NOTE : If there is more than 1 checking piece, moving the king is mandatory to a
 				
 			}
 			
-			delete[] square_on_trajectory; //delete outside if
+			
 			
 		}
 	}
@@ -948,10 +951,10 @@ NOTE : If there is more than 1 checking piece, moving the king is mandatory to a
 
 int Board::find_king(const bool isKingWhite){  // Return the index of the white or black king
 
-	for (int i = 0 ; i<64 ; i++)
+	for (int i = 0 ; i< 64 ; i++)
 	{
 		Piece verified_piece = pieces_[i];
-		
+		std::cout << verified_piece.type() << std::endl;
 		if (verified_piece.type() == 'k' || verified_piece.type() == 'K')
 		{
 			if (verified_piece.isWhite() == isKingWhite)
@@ -961,11 +964,11 @@ int Board::find_king(const bool isKingWhite){  // Return the index of the white 
 		}
 
 	}
-
+	std::cout << "ohoh" <<std::endl;
 	return 99;
 }
 
-Piece* Board::find_checking_pieces(const bool isKingWhite, const char* square_to_verify){
+Piece* Board::find_checking_pieces(const bool isKingWhite, std::string square_to_verify){
 
 	Piece* checking_pieces = new Piece[2];
 	
@@ -978,13 +981,9 @@ Piece* Board::find_checking_pieces(const bool isKingWhite, const char* square_to
     		{
     			
         		
-        		const char* temp_msg = create_msg(piece.coord(),square_to_verify); //create
-				char fictive_msg[4];
-				strncpy( fictive_msg , temp_msg, 4);
-				
-				delete[] temp_msg; //delete
-        			
-        		Move attacking_move = create_move(fictive_msg);
+        		std::string fictive_msg = create_msg(piece.coord(),square_to_verify); //create
+        		//std::cout << "Fictive>" << square_to_verify << std::endl;
+				Move attacking_move = create_move(fictive_msg);
         		attacking_move.set_isCapture(true);
 
         		if (is_piece_correctly_moving(attacking_move) && not is_there_obstacle_on_way(attacking_move)) 
