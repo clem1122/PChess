@@ -65,6 +65,7 @@ public:
 	void change_turn();
 	void change_en_passant_square(bool has_a_pawn_moved, bool is_pawn_white, std::string end_coord);
 	void block_castling(const Move move, bool isQueenTower);
+	void play(std::string move);
 	
 
 	void print();

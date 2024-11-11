@@ -178,8 +178,7 @@ Piece* Board::FENtoPieces(std::string _FEN) {
 	Piece *p = new Piece[64]; 
 	for(int i = 0; i < 64; i++) {
 		if(_FEN[i] != '.') {
-			std::string temp_coord = Board::indextoCoord(i); //Create
-			std::cout << "init :" << _FEN[i] << std::endl;
+			std::string temp_coord = Board::indextoCoord(i);
 			p[i] = Piece(_FEN[i], temp_coord, (bool)std::isupper(_FEN[i]));
 			
 		}
@@ -216,10 +215,6 @@ std::string Board::create_msg(std::string departure_coord, std::string arrival_c
 	std::string fictive_msg = departure_coord + arrival_coord;
 	if(fictive_msg.length() != 4) {
 		std::cout << "Error create_msg : msg:" << fictive_msg << ">" <<std::endl;
-		std::cout << "dep_l:" << departure_coord.length() << " arr_l:" << arrival_coord.length() <<std::endl;
-		for(int i =0; i < 6; i++){
-			std::cout << i << ":" << fictive_msg[i] << std::endl;
-		}
 	}
 	return fictive_msg;
 }
@@ -228,10 +223,11 @@ Move Board::create_move(std::string msg){
 	//Create move
 	if(msg.length() != 4) {
 		std::cout << "Erreur create_move : msg:" << msg <<std::endl;
+		return Move();
 	}
 	std::string start = msg.substr(0, 2) ;
 	std::string end = msg.substr(2, 2);	
-	std::cout << "start :" << start << " end :" << end <<">" << std::endl;
+
 	if (isValidCoord(start, end)) 
 	{
 		int startIndex = coordtoIndex(start);
@@ -262,7 +258,6 @@ void Board::playMove(Move move) {
 	std::string opponent_king_coord = indextoCoord(newBoard.find_king(not is_playing_player_white())); //Create
 	
 	// Is there check or checkmate
-	std::cout << "1" << std::endl;
 	if (newBoard.isCheck(not is_playing_player_white(),opponent_king_coord))
 	{
 		std::cout<<"Echec"<<std::endl;
@@ -341,16 +336,7 @@ bool Board::isValidCoord(std::string _start, std::string _end) {
 	int arrival_row=_end[1] - '0';
 
 	//Check if the coordinates do have sense
-	if('a' <= departure_column && departure_column <= 'h'
-		&&  'a' <= arrival_column   && arrival_column   <= 'h'
-		&&   1  <= departure_row    && departure_row    <=  8
-		&&   1  <= arrival_row      && arrival_row      <=  8
-		&&        (departure_column != arrival_column 
-		||         departure_row    != arrival_row) == false) 
-		
-	{
-		std::cout << "depart:" << departure_column << departure_row << " arrivee:" << arrival_column << arrival_row << std::endl;
-	}
+
 	return 	'a' <= departure_column && departure_column <= 'h'
 		&&  'a' <= arrival_column   && arrival_column   <= 'h'
 		&&   1  <= departure_row    && departure_row    <=  8
@@ -435,11 +421,8 @@ bool Board::isLegal(const Move move) {
 	std::string kingCoord = indextoCoord(kingIndex);
 	
 	//Whatever happens, if at the end of the move, player is checked, the move is illegal
-	std::cout << "2:"<< kingCoord << std::endl;
 	if(board_after_move.isCheck(move.movingPiece().isWhite(), kingCoord)) 
 	{
-
-		std::cout << "ici" << std::endl;
 		return false;
 	}
 
@@ -468,18 +451,14 @@ bool Board::isLegal(const Move move) {
 	// Classic move
 	if(is_piece_correctly_moving(move))
 	{
-		std::cout << "ca bouge" << std::endl;
 		if(not is_there_obstacle_on_way(move))
 		{
-			std::cout << "pas d'obstacle" << std::endl;
 			if(not is_there_obstacle_on_arrival(move))
 			{
-					std::cout << "case vide" << std::endl;
 					return true;
 			}
 		}
 	}
-	std::cout << "la" << std::endl;
 	return false;
 }
 
@@ -490,9 +469,6 @@ bool Board::is_piece_correctly_moving(const Move move){
 	char arrival_column=move.end()[0];
 	int departure_row=move.start()[1] - '0';
 	int arrival_row=move.end()[1] - '0';
-	
-	std::cout << "Move :" << departure_column << departure_row << arrival_column << arrival_row <<std::endl;
-
 	
 	if (move.movingPiece().type()=='r' 
 	 || move.movingPiece().type()=='R' 
@@ -735,7 +711,6 @@ bool Board::is_there_obstacle_on_arrival(const Move move){
 bool Board::is_castling_valid(const Move move){
 	
 
-	std::cout<<"Les règles spéciales sont "<<specialRulesData_<<std::endl;
 	if ((move.end() == "g1" && specialRulesData_[1] == 'K') 
 		|| (move.end() == "c1" && specialRulesData_[2] == 'Q') 
 		|| (move.end() == "g8" && specialRulesData_[3] == 'k') 
@@ -751,7 +726,6 @@ bool Board::is_castling_valid(const Move move){
 			int direction = (king_end_index - king_start_index)/gap;
 			
 			//Check if king is check
-			std::cout << "3" << std::endl;
 			if (isCheck(move.movingPiece().isWhite(), move.start()))
 			{
 				return false;
@@ -775,7 +749,7 @@ bool Board::is_castling_valid(const Move move){
 				Move move_king_castling(move.start(),king_new_coord,move.movingPiece(),false,false,false,false);
 					
 				Board Board_during_castling = withMove(move_king_castling);
-				std::cout << "4" << std::endl;
+		
 				if (Board_during_castling.isCheck(move.movingPiece().isWhite(), king_new_coord))
 				{
 
@@ -846,7 +820,6 @@ NOTE : If there is more than 1 checking piece, moving the king is mandatory to a
 			if (isValidCoord(king.coord(),king_new_coord))
 			{
 				std::string fictive_escaping_msg = create_msg(king.coord(),king_new_coord); //create
-				std::cout << "Escaping" << std::endl;
 				Move move_king_escaping = create_move(fictive_escaping_msg);
 				
 				
@@ -879,7 +852,7 @@ NOTE : If there is more than 1 checking piece, moving the king is mandatory to a
 	{
 		Piece actual_piece = pieces_[i];
 		
-		if (	   actual_piece.type() != '.' 
+		if (   actual_piece.type() != '.' 
 			&& actual_piece.type() != 'k' 
 			&& actual_piece.type() != 'K' 
 			&& actual_piece.isWhite() == isWhite)
@@ -887,8 +860,7 @@ NOTE : If there is more than 1 checking piece, moving the king is mandatory to a
 		{
 		
 			std::string fictive_attacking_msg = create_msg(actual_piece.coord(),checking_piece.coord()); //create	
-			std::cout << "Attacking" << std::endl;		
-        	Move fictive_attacking_move = create_move(fictive_attacking_msg);
+			Move fictive_attacking_move = create_move(fictive_attacking_msg);
 
     		if (isLegal(fictive_attacking_move))
     		{
@@ -903,7 +875,6 @@ NOTE : If there is more than 1 checking piece, moving the king is mandatory to a
 // 3- Can an ally go on the trajectory of the checking piece ?
 	
 	std::string fictive_checking_msg = create_msg(checking_piece.coord(),king.coord()); //create  
-	std::cout << "Checking" << std::endl;				
 	Move checking_move = create_move(fictive_checking_msg);
 	
 	
@@ -924,7 +895,6 @@ NOTE : If there is more than 1 checking piece, moving the king is mandatory to a
 				{
 					
 					std::string fictive_blocking_msg = create_msg(actual_piece.coord(),square_on_trajectory); //create
-					std::cout << "Blocking" << std::endl;
 					Move fictive_blocking_move = create_move(fictive_blocking_msg);	
 					
 					if (isLegal(fictive_blocking_move))
@@ -954,7 +924,6 @@ int Board::find_king(const bool isKingWhite){  // Return the index of the white 
 	for (int i = 0 ; i< 64 ; i++)
 	{
 		Piece verified_piece = pieces_[i];
-		std::cout << verified_piece.type() << std::endl;
 		if (verified_piece.type() == 'k' || verified_piece.type() == 'K')
 		{
 			if (verified_piece.isWhite() == isKingWhite)
@@ -964,7 +933,7 @@ int Board::find_king(const bool isKingWhite){  // Return the index of the white 
 		}
 
 	}
-	std::cout << "ohoh" <<std::endl;
+	std::cout << "Erreur find_king : King not found" <<std::endl;
 	return 99;
 }
 
@@ -982,8 +951,7 @@ Piece* Board::find_checking_pieces(const bool isKingWhite, std::string square_to
     			
         		
         		std::string fictive_msg = create_msg(piece.coord(),square_to_verify); //create
-        		//std::cout << "Fictive>" << square_to_verify << std::endl;
-				Move attacking_move = create_move(fictive_msg);
+        		Move attacking_move = create_move(fictive_msg);
         		attacking_move.set_isCapture(true);
 
         		if (is_piece_correctly_moving(attacking_move) && not is_there_obstacle_on_way(attacking_move)) 
@@ -999,7 +967,21 @@ return checking_pieces;
 	
 }
 
+void Board::play(std::string m){
+	Move move = create_move(m);
+	if (move.movingPiece().isWhite() != (specialRulesData()[0] == 'w')){
+		std::cout << "Error play : Wrong player" << std::endl;
+		return;
+	}
+	if(!isLegal(move)){
+		std::cout << "Error play : Illegal move" << std::endl;
+		return;
+	}
+	playMove(move);
+	print();
 
+
+}
 void Board::print(){
 	std::cout << "------------------" << std::endl;
 	for (int i = 0; i<64;i++){
