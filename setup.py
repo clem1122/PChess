@@ -5,7 +5,7 @@ from pybind11.setup_helpers import Pybind11Extension, build_ext
 ext_modules = [
     Pybind11Extension(
         "PChess",
-        ["bindings.cpp", "piece.cpp"],  # Fichiers sources
+        ["bindings.cpp", "piece.cpp", "board.cpp", "move.cpp"],  # Fichiers sources
     ),
 ]
 
