@@ -118,60 +118,6 @@ int Board::coordtoIndex(std::string coord) {
     return index;
 }
 
-// Utility function to play a move
-Board Board::withMove(const Move move) {
-	int startIndex = Board::coordtoIndex(move.start());
-	int endIndex = Board::coordtoIndex(move.end());
-	
-	std::string newFEN = FEN_;
-	newFEN[startIndex] = '.';
-	newFEN[endIndex] = FEN_[startIndex];
-	
-	// En passant : We must erase the captured pawn
-	if (move.isEnPassant())
-	{
-		int captured_pawn_index = 0;
-
-		if (move.movingPiece().isWhite()){captured_pawn_index = en_passant_index_ + 8;}
-		if (not move.movingPiece().isWhite()){captured_pawn_index = en_passant_index_ - 8;}
-		
-		newFEN[captured_pawn_index]='.';
-	}
-	
-	// Castling : We must also move the tower
-	if (move.isCastling())
-	{	
-		int past_tower_index = 99;
-		int new_tower_index = 99;
-		char tower_type = 'R';
-		
-		if (not move.movingPiece().isWhite()) {tower_type = 'r';}
-		if (move.end()[0] == 'g')
-		{
-			past_tower_index = endIndex + 1;
-			new_tower_index = endIndex - 1;
-		}
-		
-		if (move.end()[0] =='c')
-		{
-			past_tower_index = endIndex - 2;
-			new_tower_index = endIndex+ 1;
-		}
-		
-		newFEN[past_tower_index] = '.';
-		newFEN[new_tower_index] = tower_type;
-	}
-
-	// Promotion : we must replace the pawn
-	if (move.isPromotion())
-	{	
-		newFEN[endIndex] = move.movingPiece().isWhite() ? 'Q' : 'q';
-	
-	}
-	Board *newBoard = new Board(newFEN);
-	
-    return *newBoard;
-}
 
 // Utility function to convert FEN string to pieces
 Piece* Board::FENtoPieces(std::string _FEN) {
@@ -236,9 +182,9 @@ Move Board::create_move(std::string msg){
 		bool _is_capturing = Board::is_piece_capturing(start, end, piece);
 		bool _is_castling = Board::is_piece_castling(start, end, piece);
 		bool _is_en_passant = Board::is_piece_taking_en_passant(end, piece);
-		bool _is_promotioning = Board::is_piece_promotioning(end, piece);
+		bool _is_promoting = Board::is_piece_promoting(end, piece);
 
-		return Move(start, end, piece, _is_capturing, _is_promotioning, _is_castling, _is_en_passant);
+		return Move(start, end, piece, _is_capturing, _is_promoting, _is_castling, _is_en_passant);
 	} 
 	
 	else
@@ -250,7 +196,7 @@ Move Board::create_move(std::string msg){
 		
 }
 
-
+// Utilisty function to play a move
 void Board::playMove(Move move) {
 
 	// Create the new board
@@ -279,6 +225,60 @@ void Board::playMove(Move move) {
 
 }
 
+// Utility function to manage things that happened thanks to a specific move
+Board Board::withMove(const Move move) {
+	int startIndex = Board::coordtoIndex(move.start());
+	int endIndex = Board::coordtoIndex(move.end());
+	
+	std::string newFEN = FEN_;
+	newFEN[startIndex] = '.';
+	newFEN[endIndex] = FEN_[startIndex];
+	
+	// En passant : We must erase the captured pawn
+	if (move.isEnPassant())
+	{
+		int captured_pawn_index = 0;
+
+		if (move.movingPiece().isWhite()){captured_pawn_index = en_passant_index_ + 8;}
+		if (not move.movingPiece().isWhite()){captured_pawn_index = en_passant_index_ - 8;}
+		
+		newFEN[captured_pawn_index]='.';
+	}
+	
+	// Castling : We must also move the tower
+	if (move.isCastling())
+	{	
+		int past_tower_index = 99;
+		int new_tower_index = 99;
+		char tower_type = 'R';
+		
+		if (not move.movingPiece().isWhite()) {tower_type = 'r';}
+		if (move.end()[0] == 'g')
+		{
+			past_tower_index = endIndex + 1;
+			new_tower_index = endIndex - 1;
+		}
+		
+		if (move.end()[0] =='c')
+		{
+			past_tower_index = endIndex - 2;
+			new_tower_index = endIndex+ 1;
+		}
+		
+		newFEN[past_tower_index] = '.';
+		newFEN[new_tower_index] = tower_type;
+	}
+
+	// Promotion : we must replace the pawn
+	if (move.isPromotion())
+	{	
+		newFEN[endIndex] = move.movingPiece().isWhite() ? 'Q' : 'q';
+	
+	}
+	Board *newBoard = new Board(newFEN);
+	
+    return *newBoard;
+}
 
 
 void Board::change_special_rules_after_move(Move move){
@@ -403,7 +403,7 @@ bool Board::is_piece_taking_en_passant(std::string coord_end, Piece piece){
 	return false;
 }
 
-bool Board::is_piece_promotioning(std::string coord_end, Piece piece){
+bool Board::is_piece_promoting(std::string coord_end, Piece piece){
 
 	int final_row = piece.isWhite() ? 8 : 1;
 	return (piece.type() == 'p' || piece.type() == 'P') && (coord_end[1] - '0' == final_row);	

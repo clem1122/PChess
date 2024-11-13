@@ -42,7 +42,7 @@ public:
 	bool is_piece_capturing(std::string start, std::string end, Piece piece);
 	bool is_piece_castling(std::string start, std::string end, Piece piece);
 	bool is_piece_taking_en_passant(std::string coord_end, Piece piece);
-	bool is_piece_promotioning(std::string coord_end, Piece piece);
+	bool is_piece_promoting(std::string coord_end, Piece piece);
 	
 	//Functions to check the legality of a move
 	bool isLegal(const Move move);
