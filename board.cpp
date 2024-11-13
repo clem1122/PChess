@@ -7,12 +7,16 @@
 // Board Constructor
 Board::Board() {
 	std::string startFEN = "rnbqkbnrpppppppp................................PPPPPPPPRNBQKBNR";
+	std::string start_valhalla_FEN = "................................";
 	FEN_ = startFEN;
+	valhalla_FEN_ = start_valhalla_FEN;
 	specialRulesData_ = "wKQkq";
 	en_passant_index_= 99;
 	pieces_ = FENtoPieces(FEN_);
+	valhalla_pieces_ = valhallaFENtoPieces(valhalla_FEN_);
 	
 }
+
 
 // Board Constructor with FEN parameter
 Board::Board(std::string _FEN) {
@@ -200,7 +204,8 @@ Move Board::create_move(std::string msg){
 void Board::playMove(Move move) {
 
 	// Create the new board
-	Board newBoard = withMove(move);	
+	Board newBoard = withMove(move);
+	
 	std::string opponent_king_coord = indextoCoord(newBoard.find_king(not is_playing_player_white())); //Create
 	
 	// Is there check or checkmate
@@ -213,6 +218,10 @@ void Board::playMove(Move move) {
 			std::cout<<"Echec et mat !"<<std::endl;
 		}
 	}
+	
+	//Send pieces to Valhalla
+	send_to_valhalla (move);
+	valhalla_pieces_ = valhallaFENtoPieces(valhalla_FEN_);
 
 	// Change special rules
 	Board::change_special_rules_after_move(move);
@@ -220,8 +229,7 @@ void Board::playMove(Move move) {
 	// Change actual FEN and array of pieces
 	FEN_ = newBoard.FEN_;
 	pieces_ = newBoard.pieces_;
-
-
+	
 
 }
 
@@ -273,9 +281,12 @@ Board Board::withMove(const Move move) {
 	if (move.isPromotion())
 	{	
 		newFEN[endIndex] = move.movingPiece().isWhite() ? 'Q' : 'q';
-	
 	}
+	
+	
+	// Create new board
 	Board *newBoard = new Board(newFEN);
+	
 	
     return *newBoard;
 }
@@ -979,9 +990,132 @@ void Board::play(std::string m){
 	}
 	playMove(move);
 	print();
+	valhalla_print();
 
 
 }
+
+
+// Valhalla functions
+
+void Board::valhalla_print(){
+std::cout<<std::endl;
+	std::cout << "------ Valhalla -----" << std::endl;
+	std::cout << std::endl;
+	
+	std::cout << "White losses" << std::endl;
+	for (int i=0 ; i<16 ; i++)
+	{
+	std::cout<<valhalla_FEN_[i];
+	}
+	std::cout<<std::endl;
+	
+	std::cout << "Black losses" << std::endl;
+	for (int j=16 ; j<32 ; j++)
+	{
+	std::cout<<valhalla_FEN_[j];
+	}
+	std::cout<<std::endl;
+	std::cout<<std::endl;
+	std::cout<<std::endl;
+
+	std::cout << "------------------" << std::endl;
+}
+
+
+Piece* Board::valhallaFENtoPieces(std::string _FEN) {
+	Piece *p = new Piece[32]; 
+	for(int i = 0; i < 32; i++) {
+		if(_FEN[i] != '.') {
+			std::string temp_coord = Board::indextoCoord(i);
+			p[i] = Piece(_FEN[i], temp_coord, (bool)std::isupper(_FEN[i]));
+			
+		}
+	}
+    return p;
+}
+
+
+std::string Board::valhalla_index_to_coord(const int &index){
+	std::string coord(2, ' ');
+	std::string ref = "Vv";
+	char v_type = ref[index/16];
+	int place_number = index%16 + 1;
+	
+	coord[0] = v_type;
+	coord[1] = '0' + place_number;
+	return coord;
+
+}
+
+int Board::valhalla_coord_to_index(std::string v_coord){
+	char v_type = v_coord[0];
+	int place_number = v_coord[1];
+	int index = place_number;
+	
+	int add = ((bool)std::isupper(v_type ) ? 0 : 15);
+	
+	index += add;
+	
+	return index;
+
+}
+void Board::send_to_valhalla (Move move){
+	//Take a move, and look which pieces must go to valhalla
+	int endIndex = Board::coordtoIndex(move.end());
+
+	// En passant : We must send the captured pawn to Valhalla
+	if (move.isEnPassant())
+	{
+		int captured_pawn_index = 0;
+
+		if (move.movingPiece().isWhite()){captured_pawn_index = en_passant_index_ + 8;}
+		if (not move.movingPiece().isWhite()){captured_pawn_index = en_passant_index_ - 8;}
+		
+		Piece captured_pawn= pieces_[captured_pawn_index];
+		go_to_valhalla(captured_pawn);
+	}
+	
+	
+	// Capture : we must send the killed piece to Valhalla
+	if (move.isCapture()  && not move.isEnPassant())
+	{
+		Piece killed_piece = pieces_[endIndex];
+		go_to_valhalla(killed_piece);
+	}
+	
+	
+	// Promotion : we must replace the pawn (and sending it to Valhalla)
+	if (move.isPromotion())
+	{	
+		Piece replaced_pawn = move.movingPiece();
+		go_to_valhalla(replaced_pawn);
+	}
+	
+
+}
+void Board::go_to_valhalla(Piece killed_piece){
+	//Take a piece and this piece goes to valhalla
+	
+	bool is_piece_white = killed_piece.isWhite() ;
+	int start_index = (is_piece_white ? 0 : 16);
+	int free_index = start_index;
+	
+	for (int j=0 ; j<16 ; j++)
+	{
+		if (valhalla_FEN_[j+start_index] == '.')
+		{
+			free_index += j;
+			break;
+		}
+	}
+	
+	
+	valhalla_FEN_[free_index] = killed_piece.type();
+}
+
+
+
 void Board::print(){
 	std::cout << "------------------" << std::endl;
 	for (int i = 0; i<64;i++){

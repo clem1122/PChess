@@ -119,6 +119,7 @@ void* CommunicationRoutine(void* _) {
 			game.board.playMove(move);
 			std::cout << "Plateau actuel : " << std::endl;
 			game.board.print();
+			game.board.valhalla_print();
 			std::string FEN = game.board.FEN();
 			char* temp_msg = new char[FEN.length() + 1];
 			std::strcpy(temp_msg, FEN.c_str());

@@ -8,9 +8,11 @@ class Board{
 private:
 
 	std::string FEN_; //The 64 squares and the pieces above each of them
+	std::string valhalla_FEN_; //The 32 places where we put dead pieces 
 	std::string specialRulesData_; //To whom is the turn (w/b) ; Possible castling (KQkq, - when not possible anymore) ; Index of the En Passant square
 	int en_passant_index_;
 	Piece* pieces_;
+	Piece* valhalla_pieces_;
 
 public:
 
@@ -22,9 +24,11 @@ public:
 	//Functions to get variables
 	
 	std::string FEN() {return FEN_;};
+	std::string valhalla_FEN() {return valhalla_FEN_;};
 	std::string specialRulesData() {return specialRulesData_;};
 	int en_passant_index() {return en_passant_index_;};
 	Piece* pieces() {return pieces_;};
+	Piece* valhalla_pieces() {return valhalla_pieces_;};
 	bool is_playing_player_white() {return specialRulesData_[0] == 'w' ? true : false;};
 	
 	//Utility translation functions
@@ -67,6 +71,13 @@ public:
 	void block_castling(const Move move, bool isQueenTower);
 	void play(std::string move);
 	
+	// Valhalla functions
+	Piece* valhallaFENtoPieces(std::string _FEN);
+	std::string valhalla_index_to_coord(const int &index);
+	int valhalla_coord_to_index(std::string v_cord);
+	void send_to_valhalla (Move move);
+	void go_to_valhalla(Piece killed_piece);
+	void valhalla_print();
 
 	void print();
 }; 
