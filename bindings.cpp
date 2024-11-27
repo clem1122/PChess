@@ -20,11 +20,13 @@ PYBIND11_MODULE(PChess, m){
 		.def(py::init<>())
 		.def(py::init<std::string>())
 		.def("FEN", &Board::FEN)
+		.def("valhalla_FEN", &Board::valhalla_FEN)
 		.def("special_rules", &Board::specialRulesData)
 		.def("create_move", &Board::create_move)
 		.def("play_move", &Board::playMove)
 		.def("play", &Board::play)
-		.def("print", &Board::print);
+		.def("print", &Board::print)
+		.def("print_valhalla", &Board::valhalla_print);
 	
 	py::class_<Move>(m, "Move")
 		.def(py::init<>())
