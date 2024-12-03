@@ -31,6 +31,12 @@ PYBIND11_MODULE(PChess, m){
 	py::class_<Move>(m, "Move")
 		.def(py::init<>())
 		.def(py::init<std::string, std::string, Piece, bool, bool, bool, bool>())
-		.def("isCapture", &Move::isCapture);
+		.def("start", &Move::start)
+		.def("end", &Move::end)
+		.def("moving_piece", &Move::movingPiece)
+		.def("isCapture", &Move::isCapture)
+		.def("isPromoting", &Move::isPromotion)
+		.def("isCastling", &Move::isCastling)
+		.def("isEnPassant", &Move::isEnPassant);
 
 }
