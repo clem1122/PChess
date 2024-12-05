@@ -150,6 +150,10 @@ bool Board::is_piece_on_square(int index_arrival){
 	return (FEN_[index_arrival] != '.');
 }
 
+Piece Board::piece_on_square(std::string coord_arrival){
+	return pieces_[coordtoIndex(coord_arrival)];
+}
+
 bool Board::is_white_on_square(int index_arrival){
 
 	if (is_piece_on_square(index_arrival) && isupper(FEN_[index_arrival])){

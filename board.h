@@ -62,6 +62,7 @@ public:
 	int  find_king(const bool isKingWhite);
 	int* trajectory(const Move move);
 	Piece* find_checking_pieces(const bool isKingWhite, std::string square_to_verify);
+	Piece piece_on_square(std::string square_arrival);
 	
 	//Functions to play move and change rules in consequence
 	void playMove(Move move);
