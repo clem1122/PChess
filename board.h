@@ -27,6 +27,7 @@ public:
 	std::string valhalla_FEN() {return valhalla_FEN_;};
 	std::string specialRulesData() {return specialRulesData_;};
 	int en_passant_index() {return en_passant_index_;};
+	std::string en_passant_coord() {return indextoCoord(en_passant_index_);};
 	Piece* pieces() {return pieces_;};
 	Piece* valhalla_pieces() {return valhalla_pieces_;};
 	bool is_playing_player_white() {return specialRulesData_[0] == 'w' ? true : false;};

@@ -23,6 +23,7 @@ PYBIND11_MODULE(PChess, m){
 		.def("pieces", &Board::pieces)
 		.def("valhalla_pieces", &Board::valhalla_pieces)
 		.def("piece_on_square", &Board::piece_on_square)
+		.def("en_passant_coord", &Board::en_passant_coord)
 		.def("valhalla_FEN", &Board::valhalla_FEN)
 		.def("special_rules", &Board::specialRulesData)
 		.def("create_move", &Board::create_move)
