@@ -3,6 +3,7 @@
 #include <iostream>
 #include <cstring>
 #include <cctype>
+#include <sstream>
 
 // Board Constructor
 Board::Board() {
@@ -22,6 +23,11 @@ Board::Board() {
 Board::Board(std::string _FEN) {
 	FEN_ = _FEN;
 	pieces_ = FENtoPieces(FEN_);
+	std::string start_valhalla_FEN = "................................";
+	valhalla_FEN_ = start_valhalla_FEN;
+	specialRulesData_ = "wKQkq";
+	en_passant_index_= 99;
+	valhalla_pieces_ = valhallaFENtoPieces(valhalla_FEN_);
 }
 
 // Board Destructor
@@ -150,8 +156,8 @@ bool Board::is_piece_on_square(int index_arrival){
 	return (FEN_[index_arrival] != '.');
 }
 
-Piece Board::piece_on_square(std::string coord_arrival){
-	return pieces_[coordtoIndex(coord_arrival)];
+Piece Board::piece_on_square(std::string coord){
+	return pieces_[coordtoIndex(coord)];
 }
 
 bool Board::is_white_on_square(int index_arrival){
@@ -223,7 +229,7 @@ void Board::playMove(Move move) {
 		}
 	}
 	
-	//Send pieces to Valhalla
+	//Send pieces to 
 	send_to_valhalla (move);
 	valhalla_pieces_ = valhallaFENtoPieces(valhalla_FEN_);
 
@@ -1042,21 +1048,24 @@ Piece* Board::valhallaFENtoPieces(std::string _FEN) {
 std::string Board::valhalla_index_to_coord(const int &index){
 	std::string coord(2, ' ');
 	std::string ref = "Vv";
+
+	std::stringstream ss;
+    ss << std::hex << index%16 + 1; //decimal to hex
+
 	char v_type = ref[index/16];
-	int place_number = index%16 + 1;
+	char place_number = ss.str()[0];
 	
 	coord[0] = v_type;
-	coord[1] = '0' + place_number;
+	coord[1] = place_number;
 	return coord;
-
 }
 
 int Board::valhalla_coord_to_index(std::string v_coord){
 	char v_type = v_coord[0];
-	int place_number = v_coord[1];
-	int index = place_number;
+	char place_number = v_coord[1];
+	int index = std::stoi(place_number + "", nullptr, 16);
 	
-	int add = ((bool)std::isupper(v_type ) ? 0 : 15);
+	int add = (bool)std::isupper(v_type) ? 0 : 15;
 	
 	index += add;
 	

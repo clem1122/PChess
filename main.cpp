@@ -8,6 +8,8 @@
 int main() {
 
 	Board b("rnbqk.nrpppp.ppp............p....b.P.........N..PPP.PPPPRNBQKB.R");
+	std::cout << b.piece_on_square("e2").type() << std::endl;
+	/*
 	Move m = b.create_move("c1d2");
 	b.withMove(m).print();
 	b.print();
@@ -18,7 +20,7 @@ int main() {
 	
 	std::cout << "Echec en " << case_verif << " ? " << est_echec_blanc <<std::endl;
 	std::cout << " 2 Echec en " << case_verif << " ? " << ischeck <<std::endl;
-	
+	*/
 
 	return 0;
 }

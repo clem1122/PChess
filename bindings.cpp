@@ -20,8 +20,8 @@ PYBIND11_MODULE(PChess, m){
 		.def(py::init<>())
 		.def(py::init<std::string>())
 		.def("FEN", &Board::FEN)
-		.def("pieces", &Board::pieces)
-		.def("valhalla_pieces", &Board::valhalla_pieces)
+		.def("pieces", &Board::pieces, py::return_value_policy::reference)
+		.def("valhalla_pieces", &Board::valhalla_pieces, py::return_value_policy::reference)
 		.def("piece_on_square", &Board::piece_on_square)
 		.def("en_passant_coord", &Board::en_passant_coord)
 		.def("valhalla_FEN", &Board::valhalla_FEN)
@@ -30,7 +30,12 @@ PYBIND11_MODULE(PChess, m){
 		.def("play_move", &Board::playMove)
 		.def("play", &Board::play)
 		.def("print", &Board::print)
-		.def("print_valhalla", &Board::valhalla_print);
+		.def("print_valhalla", &Board::valhalla_print)
+		.def("index_to_coord", &Board::indextoCoord)
+		.def("coord_to_index", &Board::coordtoIndex)
+		.def("valhalla_index_to_coord", &Board::valhalla_index_to_coord)
+		.def("valhalla_coord_to_index", &Board::valhalla_coord_to_index);
+
 	
 	py::class_<Move>(m, "Move")
 		.def(py::init<>())
