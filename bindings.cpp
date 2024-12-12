@@ -3,19 +3,19 @@
 #include "board.h"
 #include <string>
 
-
 namespace py = pybind11;
 
-PYBIND11_MODULE(PChess, m){
+PYBIND11_MODULE(PChess, m)
+{
 	m.doc() = "PChess library";
-	
+
 	py::class_<Piece>(m, "Piece")
 		.def(py::init<>())
 		.def(py::init<const char, std::string, bool>())
 		.def("type", &Piece::type)
 		.def("coord", &Piece::coord)
 		.def("isWhite", &Piece::isWhite);
-	
+
 	py::class_<Board>(m, "Board")
 		.def(py::init<>())
 		.def(py::init<std::string>())
@@ -36,7 +36,6 @@ PYBIND11_MODULE(PChess, m){
 		.def("valhalla_index_to_coord", &Board::valhalla_index_to_coord)
 		.def("valhalla_coord_to_index", &Board::valhalla_coord_to_index);
 
-	
 	py::class_<Move>(m, "Move")
 		.def(py::init<>())
 		.def(py::init<std::string, std::string, Piece, bool, bool, bool, bool>())
@@ -47,5 +46,4 @@ PYBIND11_MODULE(PChess, m){
 		.def("isPromoting", &Move::isPromotion)
 		.def("isCastling", &Move::isCastling)
 		.def("isEnPassant", &Move::isEnPassant);
-
 }
