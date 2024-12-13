@@ -1126,6 +1126,59 @@ void Board::go_to_valhalla(Piece killed_piece){
 	valhalla_FEN_[free_index] = killed_piece.type();
 }
 
+std::string Board::threatSquares(bool isWhite){
+	std::string threats(64, '.');
+	for (int i = 0; i < 64; i++)
+	{
+		Piece p = pieces_[i];
+		if (p.type() != '.' && p.type() !='k' && p.type() != 'K' && p.isWhite() == isWhite)
+		{
+			for (int j = 0; j < 64; j++)
+			{
+				Piece p2 = pieces_[j];
+				if (p2.type() != '.' && p2.type() !='k' && p2.type() != 'K' && p2.isWhite() != isWhite)
+				{
+					//std::cout << "Can " << p2.type() << " capture " << p.type() << std::endl;
+					std::string m = p2.coord() + p.coord();
+					Move move = create_move(m);
+					if (isLegal(move))
+					{
+						//std::cout << "YES" << std::endl;
+						int square = coordtoIndex(p.coord());
+						threats[square] = '1';
+					}
+				}
+			}
+		}
+	}
+	return threats;
+}
+
+std::string Board::playableSquares(bool isWhite) {
+	std::string playable(64, '.');
+
+	for (int i = 0; i < 64; i++)
+	{
+		Piece p = pieces_[i];
+		if (p.type() != '.' && p.type() !='k' && p.type() != 'K' && p.isWhite() == isWhite)
+		{
+			for (int j = 0; j < 64; j++)
+			{
+				std::string m = p.coord() + indextoCoord(j);
+				Move move = create_move(m);
+				if(isLegal(move)){
+					playable[j] = '1';
+				}
+			}
+			
+		}
+	}
+	return playable;
+}
+
+std::string Board::controlledSquares(bool isWhite) {
+	return playableSquares(!isWhite);	
+}
 
 
 void Board::print(){

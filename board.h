@@ -81,6 +81,11 @@ public:
 	void go_to_valhalla(Piece killed_piece);
 	void valhalla_print();
 
+	//Interface functions
+	std::string threatSquares(bool isWhite);
+	std::string playableSquares(bool isWhite);
+	std::string controlledSquares(bool isWhite);
+
 	void print();
 }; 
 	

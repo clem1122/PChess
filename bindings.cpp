@@ -34,7 +34,10 @@ PYBIND11_MODULE(PChess, m)
 		.def("index_to_coord", &Board::indextoCoord)
 		.def("coord_to_index", &Board::coordtoIndex)
 		.def("valhalla_index_to_coord", &Board::valhalla_index_to_coord)
-		.def("valhalla_coord_to_index", &Board::valhalla_coord_to_index);
+		.def("valhalla_coord_to_index", &Board::valhalla_coord_to_index)
+		.def("threats", &Board::threatSquares)
+		.def("playable", &Board::playableSquares)
+		.def("controlled", &Board::controlledSquares);
 
 	py::class_<Move>(m, "Move")
 		.def(py::init<>())
