@@ -988,19 +988,20 @@ return checking_pieces;
 	
 }
 
-void Board::play(std::string m){
+bool Board::play(std::string m){
 	Move move = create_move(m);
 	if (move.movingPiece().isWhite() != (specialRulesData()[0] == 'w')){
 		std::cout << "Error play : Wrong player" << std::endl;
-		return;
+		return false;
 	}
 	if(!isLegal(move)){
 		std::cout << "Error play : Illegal move" << std::endl;
-		return;
+		return false;
 	}
 	playMove(move);
 	print();
 	valhalla_print();
+	return true;
 
 
 }
