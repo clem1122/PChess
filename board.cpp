@@ -4,6 +4,7 @@
 #include <cstring>
 #include <cctype>
 #include <sstream>
+#include <cassert>
 
 // Board Constructor
 Board::Board() {
@@ -203,7 +204,7 @@ Move Board::create_move(std::string msg){
 	
 	else
 	{
-		std::cout << "Illegal Move : "<<start<<" "<<end<<" is a bad move" << std::endl;
+		//std::cout << "Illegal Move : "<<start<<" "<<end<<" is a bad move" << std::endl;
 		return Move();
 	}
 
@@ -438,7 +439,11 @@ bool Board::isLegal(const Move move) {
 	Board board_after_move = withMove(move); 
 	
 	// If at the end of the move, the king is checked, the move is mandatory illegal
+	
 	int kingIndex = board_after_move.find_king(move.movingPiece().isWhite());	
+	if (kingIndex == 99){
+		std::cout << "Error with move <" << move.start() << move.end() << ">" << std::endl;
+	}
 	std::string kingCoord = indextoCoord(kingIndex);
 	
 	//Whatever happens, if at the end of the move, player is checked, the move is illegal
@@ -1157,16 +1162,19 @@ std::string Board::threatSquares(bool isWhite){
 
 std::string Board::playableSquares(bool isWhite) {
 	std::string playable(64, '.');
-
 	for (int i = 0; i < 64; i++)
 	{
 		Piece p = pieces_[i];
+		//std::cout << p.type() <<std::endl;
 		if (p.type() != '.' && p.type() !='k' && p.type() != 'K' && p.isWhite() == isWhite)
 		{
 			for (int j = 0; j < 64; j++)
 			{
+				if (pieces_[j].type() == 'k' || pieces_[j].type() == 'K'){continue;}
+				
 				std::string m = p.coord() + indextoCoord(j);
 				Move move = create_move(m);
+				//std::cout << "mOVE<" << m << ">" << std::endl;
 				if(isLegal(move)){
 					playable[j] = '1';
 				}
