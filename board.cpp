@@ -158,6 +158,9 @@ bool Board::is_piece_on_square(int index_arrival){
 }
 
 Piece Board::piece_on_square(std::string coord){
+	if (coord[0] == 'v' || coord[0] == 'V'){
+		return valhalla_pieces_[valhalla_coord_to_index(coord)];
+	}
 	return pieces_[coordtoIndex(coord)];
 }
 
