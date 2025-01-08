@@ -9,7 +9,7 @@
 // Board Constructor
 Board::Board() {
 	std::string startFEN = "rnbqkbnrpppppppp................................PPPPPPPPRNBQKBNR";
-	std::string start_valhalla_FEN = "................................";
+	std::string start_valhalla_FEN = "..............................";
 	FEN_ = startFEN;
 	valhalla_FEN_ = start_valhalla_FEN;
 	specialRulesData_ = "wKQkq";
@@ -24,7 +24,7 @@ Board::Board() {
 Board::Board(std::string _FEN) {
 	FEN_ = _FEN;
 	pieces_ = FENtoPieces(FEN_);
-	std::string start_valhalla_FEN = "................................";
+	std::string start_valhalla_FEN = "..............................";
 	valhalla_FEN_ = start_valhalla_FEN;
 	specialRulesData_ = "wKQkq";
 	en_passant_index_= 99;
@@ -158,6 +158,9 @@ bool Board::is_piece_on_square(int index_arrival){
 }
 
 Piece Board::piece_on_square(std::string coord){
+	if (coord[0] == 'v' || coord[0] == 'V'){
+		return valhalla_pieces_[valhalla_coord_to_index(coord)];
+	}
 	return pieces_[coordtoIndex(coord)];
 }
 
@@ -1032,7 +1035,7 @@ std::cout<<std::endl;
 	std::cout<<std::endl;
 	
 	std::cout << "Black losses" << std::endl;
-	for (int j=16 ; j<32 ; j++)
+	for (size_t j=16 ; j<valhalla_FEN_.length() ; j++)
 	{
 	std::cout<<valhalla_FEN_[j];
 	}
@@ -1044,8 +1047,8 @@ std::cout<<std::endl;
 
 
 Piece* Board::valhallaFENtoPieces(std::string _FEN) {
-	Piece *p = new Piece[32]; 
-	for(int i = 0; i < 32; i++) {
+	Piece *p = new Piece[valhalla_FEN_.length()]; 
+	for(size_t i = 0; i < valhalla_FEN_.length(); i++) {
 		if(_FEN[i] != '.') {
 			std::string temp_coord = Board::indextoCoord(i);
 			p[i] = Piece(_FEN[i], temp_coord, (bool)std::isupper(_FEN[i]));
@@ -1061,9 +1064,9 @@ std::string Board::valhalla_index_to_coord(const int &index){
 	std::string ref = "Vv";
 
 	std::stringstream ss;
-    ss << std::hex << index%16 + 1; //decimal to hex
+    ss << std::hex << index%15 + 1; //decimal to hex
 
-	char v_type = ref[index/16];
+	char v_type = ref[index/15];
 	char place_number = ss.str()[0];
 	
 	coord[0] = v_type;
@@ -1073,9 +1076,10 @@ std::string Board::valhalla_index_to_coord(const int &index){
 
 int Board::valhalla_coord_to_index(std::string v_coord){
 	char v_type = v_coord[0];
-	char place_number = v_coord[1];
-	int index = std::stoi(place_number + "", nullptr, 16);
-	
+	int place_number = v_coord[1];
+	std::string place_number_str(1, place_number);
+	int index = std::stoi(place_number_str, nullptr, 16);
+	index--;
 	int add = (bool)std::isupper(v_type) ? 0 : 15;
 	
 	index += add;
@@ -1121,10 +1125,10 @@ void Board::go_to_valhalla(Piece killed_piece){
 	//Take a piece and this piece goes to valhalla
 	
 	bool is_piece_white = killed_piece.isWhite() ;
-	int start_index = (is_piece_white ? 0 : 16);
+	int start_index = (is_piece_white ? 0 : 15);
 	int free_index = start_index;
 	
-	for (int j=0 ; j<16 ; j++)
+	for (int j=0 ; j<15 ; j++)
 	{
 		if (valhalla_FEN_[j+start_index] == '.')
 		{
