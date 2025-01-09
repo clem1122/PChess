@@ -35,7 +35,7 @@ public:
 	//Utility translation functions
 	std::string indextoCoord(const int &index);
 	int coordtoIndex(std::string coord);
-	Board withMove(const Move move);
+	Board withMove(const Move move, char promotion_piece = '.');
 	
 	Piece* FENtoPieces(std::string _FEN);
 	std::string PiecestoFEN(const Piece* _pieces);
@@ -67,7 +67,7 @@ public:
 	Piece piece_on_square(std::string square_arrival);
 	
 	//Functions to play move and change rules in consequence
-	void playMove(Move move);
+	void playMove(Move move, char promotion_piece = '.');
 	void change_special_rules_after_move(Move move);
 	void change_turn();
 	void change_en_passant_square(bool has_a_pawn_moved, bool is_pawn_white, std::string end_coord);

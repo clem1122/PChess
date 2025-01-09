@@ -231,12 +231,13 @@ Move Board::create_move(std::string msg){
 }
 
 // Utilisty function to play a move
-void Board::playMove(Move move) {
+void Board::playMove(Move move, char promotion_piece) {
 
 	// Create the new board
-	Board newBoard = withMove(move);
-	
+	Board newBoard = withMove(move, promotion_piece);
+
 	std::string opponent_king_coord = indextoCoord(newBoard.find_king(not is_playing_player_white())); //Create
+	//std::cout << "Opponent king is on square " << opponent_king_coord <<std::endl;
 	
 	// Is there check or checkmate
 	if (newBoard.isCheck(not is_playing_player_white(),opponent_king_coord))
@@ -264,7 +265,7 @@ void Board::playMove(Move move) {
 }
 
 // Utility function to manage things that happened thanks to a specific move
-Board Board::withMove(const Move move) {
+Board Board::withMove(const Move move, char promotion_piece) {
 	int startIndex = Board::coordtoIndex(move.start());
 	int endIndex = Board::coordtoIndex(move.end());
 	
@@ -307,12 +308,14 @@ Board Board::withMove(const Move move) {
 		newFEN[new_tower_index] = tower_type;
 	}
 
-	// Promotion : we must replace the pawn
+	// Promotion
 	if (move.isPromotion())
-	{	
-		newFEN[endIndex] = move.movingPiece().isWhite() ? 'Q' : 'q';
+	{
+		if (promotion_piece != '.')
+		{
+			newFEN[endIndex] = promotion_piece;
+		}
 	}
-	
 	
 	// Create new board
 	Board *newBoard = new Board(newFEN);
@@ -829,6 +832,7 @@ bool Board::isCheck(const bool isKingWhite, std::string square_to_verify) {
 		
 		if (list_checking_piece[0].type() != '.')
 		{
+			std::cout << "King checked by " << list_checking_piece[0].type() << std::endl;
 			delete[] list_checking_piece; //delete inside if
 			return true;
 		}
@@ -1013,7 +1017,41 @@ return checking_pieces;
 }
 
 bool Board::play(std::string m){
-	Move move = create_move(m);
+	Move move;
+	char promotion_piece = '.';
+
+	std::string start = m.substr(0, 2) ;
+	std::string end = m.substr(2, 2);	
+
+	if (!isValidCoord(start, end)) 
+	{
+		std::cout << "Error play : " << start << end << " are not valid coordinates" << std::endl;
+		return false;
+	}
+
+	if (m.length() == 5) 
+	{
+		promotion_piece = m[4];
+		int start_index = coordtoIndex(start);
+		if (std::string("pPbBnNrRqQ").find(promotion_piece) == std::string::npos || isupper(promotion_piece) != isupper(FEN_[start_index]))
+		{
+			std::cout << "Error play : " << promotion_piece << " is not a correct promotion : indicate the piece after coordinates (ex : b7b8Q)" << std::endl;
+			return false;
+		}
+
+		std::string reduced_m = m.substr(0,4);
+		move = create_move(reduced_m);
+	}
+	else 
+	{
+		move = create_move(m);
+		if (move.isPromotion() && promotion_piece == '.')
+		{
+			std::cout << "Error play : " << promotion_piece << " is not a correct promotion : indicate the piece after coordinates (ex : b7b8Q)" << std::endl;
+			return false;
+		}
+	}
+
 	if (move.movingPiece().isWhite() != (specialRulesData()[0] == 'w')){
 		std::cout << "Error play : Wrong player" << std::endl;
 		return false;
@@ -1022,12 +1060,16 @@ bool Board::play(std::string m){
 		std::cout << "Error play : Illegal move" << std::endl;
 		return false;
 	}
-	playMove(move);
+
+	if (move.isPromotion())
+	{
+		playMove(move, promotion_piece);
+	}
+
+	else {playMove(move);}
 	print();
 	valhalla_print();
 	return true;
-
-
 }
 
 
