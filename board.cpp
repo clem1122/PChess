@@ -173,6 +173,11 @@ bool Board::is_white_on_square(int index_arrival){
 	return false;
 }
 
+// Utility function to arbitrary change the board
+
+void Board::modify_piece(int index, char piece_type){
+	FEN_[index] = piece_type;
+}
 // Utility function around move
 std::string Board::create_msg(std::string departure_coord, std::string arrival_coord){
 
