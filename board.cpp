@@ -30,6 +30,7 @@ Board::Board(std::string _FEN) {
 	specialRulesData_ = "wKQkq";
 	en_passant_index_= 99;
 	valhalla_pieces_ = valhallaFENtoPieces(valhalla_FEN_);
+	end_game_ = false;
 }
 
 // Board Destructor
