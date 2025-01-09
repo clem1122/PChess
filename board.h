@@ -39,7 +39,7 @@ public:
 	
 	Piece* FENtoPieces(std::string _FEN);
 	std::string PiecestoFEN(const Piece* _pieces);
-	void modify_piece(int index, char piece_type);
+	void modify_piece(std::string coord, char piece_type);
 	
 	//Functions to create the object move
 	Move create_move(std::string msg);
