@@ -13,6 +13,7 @@ private:
 	int en_passant_index_;
 	Piece* pieces_;
 	Piece* valhalla_pieces_;
+	bool end_game_;
 
 public:
 
@@ -31,6 +32,7 @@ public:
 	Piece* pieces() {return pieces_;};
 	Piece* valhalla_pieces() {return valhalla_pieces_;};
 	bool is_playing_player_white() {return specialRulesData_[0] == 'w' ? true : false;};
+	bool end_game() {return end_game_;};
 	
 	//Utility translation functions
 	std::string indextoCoord(const int &index);

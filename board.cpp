@@ -16,6 +16,7 @@ Board::Board() {
 	en_passant_index_= 99;
 	pieces_ = FENtoPieces(FEN_);
 	valhalla_pieces_ = valhallaFENtoPieces(valhalla_FEN_);
+	end_game_ = false;
 	
 }
 
@@ -247,6 +248,7 @@ void Board::playMove(Move move, char promotion_piece) {
 		if (newBoard.isCheckmate(not is_playing_player_white()))
 		{
 			std::cout<<"Echec et mat !"<<std::endl;
+			end_game_ = true;
 		}
 	}
 	
@@ -1035,7 +1037,7 @@ bool Board::play(std::string m){
 		int start_index = coordtoIndex(start);
 		if (std::string("pPbBnNrRqQ").find(promotion_piece) == std::string::npos || isupper(promotion_piece) != isupper(FEN_[start_index]))
 		{
-			std::cout << "Error play : " << promotion_piece << " is not a correct promotion : indicate the piece after coordinates (ex : b7b8Q)" << std::endl;
+			std::cout << "Error play : " << promotion_piece << " is not a correct promotion" << std::endl;
 			return false;
 		}
 
