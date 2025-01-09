@@ -5,7 +5,7 @@ SERVER = server.o
 
 all: client server main
 
-server.o : server.cpp
+server.o : server.cpp board.h
 	c++ -c server.cpp -o server.o $(FLAGS)
 
 client.o : client.cpp
