@@ -1179,7 +1179,7 @@ std::string Board::playableSquares(bool isWhite) {
 		{
 			for (int j = 0; j < 64; j++)
 			{
-				if (pieces_[j].type() == 'k' || pieces_[j].type() == 'K'){continue;}
+				if (pieces_[j].type() == 'k' || pieces_[j].type() == 'K' || coordtoIndex(p.coord()) == j){continue;}
 				
 				std::string m = p.coord() + indextoCoord(j);
 				Move move = create_move(m);
