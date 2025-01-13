@@ -5,6 +5,8 @@
 #include <cctype>
 #include <sstream>
 #include <cassert>
+#include <cmath>
+
 
 // Board Constructor
 Board::Board() {
@@ -1277,6 +1279,34 @@ std::string to_base(int number,int base) {
     return result;
 }
 
+int from_base(const std::string& number, int base) {
+    int decimal_value = 0;
+    int power = 0;
+
+    // Parcours du nombre de droite à gauche (du chiffre de poids faible au plus élevé)
+    for (int i = number.length() - 1; i >= 0; --i) {
+        char c = number[i];
+		int value = 0;
+        if (c >= '0' && c <= '9') {
+        	value = c - '0';  // Pour les chiffres
+    	} else if (c >= 'A' && c <= 'Z') {
+        	value =  c - 'A' + 10;  // Pour les lettres A-Z
+    	} else if (c >= 'a' && c <= 'z') {
+        	value = c - 'a' + 10;  // Pour les lettres a-z (si nécessaire)
+    	}
+        
+        if (value < 0 || value >= base) {
+            std::cerr << "Invalid character in number: " << c << std::endl;
+            return -1; // Erreur si un caractère ne correspond pas à la base
+        }
+
+        decimal_value += value * std::pow(base, power);
+        power++;
+    }
+
+    return decimal_value;
+}
+
 void Board::print(){
 	std::cout << "------------------" << std::endl;
 	for (int i = 0; i<64;i++){
@@ -1287,8 +1317,3 @@ void Board::print(){
 	}
 	std::cout << "------------------" << std::endl;
 }
-
-
-
-
-

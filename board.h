@@ -39,6 +39,8 @@ public:
 	int coordtoIndex(std::string coord);
 	Board withMove(const Move move, char promotion_piece = '.');
 	std::string to_base(int number, int base);
+	int from_base(const std::string& number, int base);
+
 	Piece* FENtoPieces(std::string _FEN);
 	std::string PiecestoFEN(const Piece* _pieces);
 	void modify_piece(std::string coord, char piece_type);
