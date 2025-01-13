@@ -17,7 +17,5 @@ public:
 	bool isWhite()const{return isWhite_;}
 	
 	~Piece();
-	
-
 };
 

@@ -1,5 +1,5 @@
 OBJS = main.o game.o move.o piece.o board.o
-FLAGS = -O -Wall -Werror -Wshadow
+FLAGS = -O -Wall -Werror -Wshadow #-g -fsanitize=address
 CLIENT = client.o
 SERVER = server.o
 
@@ -30,12 +30,10 @@ main : $(OBJS)
 	c++ -o main $(OBJS) $(FLAGS)
 	
 server: $(SERVER) game.o board.o piece.o move.o
-	c++ -o server $(SERVER) game.o board.o move.o piece.o -lpthread
+	c++ -o server $(SERVER) game.o board.o move.o piece.o -lpthread $(FLAGS)
 	
 client: $(CLIENT)
-	c++ -o client $(CLIENT) -lpthread
-	
-
+	c++ -o client $(CLIENT) -lpthread $(FLAGS)
 	
 clear: 
 	rm -f $(OBJS) $(CLIENT) $(SERVER) main server client

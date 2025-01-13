@@ -7,21 +7,9 @@
 
 int main() {
 
-	Board b("rnbqk.nrpppp.ppp............p....b.P.........N..PPP.PPPPRNBQKB.R");
-	std::cout << b.piece_on_square("e2").type() << std::endl;
-	/*
-	Move m = b.create_move("c1d2");
-	b.withMove(m).print();
+	Board b("............Q..........k...........P...P..P.P...PP..P.P.RNB.KB.R");
 	b.print();
-	const char* case_verif = "e1";
-	std::cout << "case vérifiée " <<case_verif << std::endl;
-	bool est_echec_blanc = b.isCheck(true,case_verif);
-	bool ischeck = b.withMove(m).isCheck(true, case_verif);
-	
-	std::cout << "Echec en " << case_verif << " ? " << est_echec_blanc <<std::endl;
-	std::cout << " 2 Echec en " << case_verif << " ? " << ischeck <<std::endl;
-	*/
-
+	b.play("e3e4");
 	return 0;
 }
 
