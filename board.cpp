@@ -719,7 +719,7 @@ bool Board::is_there_obstacle_on_way(const Move move){
 	//Return true if there is a piece able to block the move of the piece on its way.
 	//This function does NOT check the case of a piece ON the arrival square, another function is in charge of this
 
-
+	//std::cout << "+1" << std::endl;
 	int* squares_visited = trajectory(move); //create
 	int i = 0;
 
@@ -729,12 +729,13 @@ bool Board::is_there_obstacle_on_way(const Move move){
 		if (is_piece_on_square(squares_visited[i++]))
 		{
 
+			//std::cout << "-1" << std::endl;
 			delete[] squares_visited; //delete inside if 
 			return true;
 		}
 	}
 	
-
+	//std::cout << "-1*" << std::endl;
 	delete[] squares_visited; //delete outside if 
 
 	return false;
@@ -832,14 +833,18 @@ bool Board::isCheck(const bool isKingWhite, std::string square_to_verify) {
 		
 		
 		Piece* list_checking_piece = find_checking_pieces(isKingWhite, square_to_verify); //create
+		//std::cout << "+2" << std::endl;
+
 		
 		if (list_checking_piece[0].type() != '.')
 		{
 			std::cout << "King checked by " << list_checking_piece[0].type() << std::endl;
+			//std::cout << "-2" << std::endl;
 			delete[] list_checking_piece; //delete inside if
 			return true;
 		}
 	
+	//std::cout << "-2*" << std::endl;
 	delete[] list_checking_piece; //delete outside if
 	
 	return false;
@@ -849,6 +854,7 @@ bool Board::isCheck(const bool isKingWhite, std::string square_to_verify) {
 bool Board::isCheckmate(const bool isWhite){
 	int king_index = find_king(isWhite);
 	Piece king = pieces_[king_index];
+	//std::cout << "+3" << std::endl;
 	Piece* checking_piece_list = find_checking_pieces(isWhite, king.coord()); //create
 	
 /*
@@ -890,12 +896,14 @@ NOTE : If there is more than 1 checking piece, moving the king is mandatory to a
 	//If there is more than 1 checking piece ? not being able to move the king means checkmate
 	if (checking_piece_list[1].type() != '.')
 	{
+		//std::cout << "-3" << std::endl;
 		delete[] checking_piece_list; //delete inside if
 		std::cout<<"Echec à la découverte"<<std::endl;
 		return true;
 	}
 	
 	Piece checking_piece = checking_piece_list[0];
+	//std::cout << "-3*" << std::endl;
 	delete[] checking_piece_list; //delete outside if;
 	
 // 2-Can an ally capture the checking piece ?
@@ -929,7 +937,7 @@ NOTE : If there is more than 1 checking piece, moving the king is mandatory to a
 	std::string fictive_checking_msg = create_msg(checking_piece.coord(),king.coord()); //create  
 	Move checking_move = create_move(fictive_checking_msg);
 	
-	
+	//std::cout << "+4" << std::endl;
 	int* attacking_trajectory = trajectory(checking_move); //create
 	
 	for (int j= 0 ; j<8 ; j++)
@@ -951,6 +959,7 @@ NOTE : If there is more than 1 checking piece, moving the king is mandatory to a
 					
 					if (isLegal(fictive_blocking_move))
 					{
+						//std::cout << "-4" << std::endl;
 						delete[] attacking_trajectory; //delete inside if
 						return false;
 					}	
@@ -962,7 +971,7 @@ NOTE : If there is more than 1 checking piece, moving the king is mandatory to a
 			
 		}
 	}
-	
+	//std::cout << "-4*" << std::endl;
 	delete[] attacking_trajectory; //delete outside if
 
 
@@ -991,23 +1000,21 @@ int Board::find_king(const bool isKingWhite){  // Return the index of the white 
 
 Piece* Board::find_checking_pieces(const bool isKingWhite, std::string square_to_verify){
 
-	Piece* checking_pieces = new Piece[2];
+	Piece* checking_pieces = new Piece[16];
 	
 	int j = 0;
 	for(int i=0; i<64; i++) 
 	{
-
     		Piece piece = pieces_[i];
     		if (piece.isWhite() != isKingWhite && piece.type()!='.')
     		{
-    			
-        		
         		std::string fictive_msg = create_msg(piece.coord(),square_to_verify); //create
         		Move attacking_move = create_move(fictive_msg);
         		attacking_move.set_isCapture(true);
 
         		if (is_piece_correctly_moving(attacking_move) && not is_there_obstacle_on_way(attacking_move)) 
         		{
+					std::cout << "suspect : " << j  << " type : " << piece.type() << std::endl;
         			checking_pieces[j] = piece;
             		j++;
        			}	
@@ -1254,6 +1261,21 @@ std::string Board::controlledSquares(bool isWhite) {
 	return playableSquares(!isWhite);	
 }
 
+std::string to_base(int number,int base) {
+    if (base < 2 || base > 36) {
+        throw std::invalid_argument("Base must be in the range [2, 36]");
+    }
+
+    const char* digits = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    std::string result;
+
+    do {
+        result = digits[number % base] + result;
+        number /= base;
+    } while (number > 0);
+
+    return result;
+}
 
 void Board::print(){
 	std::cout << "------------------" << std::endl;
