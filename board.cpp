@@ -1263,7 +1263,7 @@ std::string Board::controlledSquares(bool isWhite) {
 	return playableSquares(!isWhite);	
 }
 
-std::string to_base(int number,int base) {
+std::string Board::to_base(int number,int base) {
     if (base < 2 || base > 36) {
         throw std::invalid_argument("Base must be in the range [2, 36]");
     }
@@ -1279,7 +1279,7 @@ std::string to_base(int number,int base) {
     return result;
 }
 
-int from_base(const std::string& number, int base) {
+int Board::from_base(const std::string& number, int base) {
     int decimal_value = 0;
     int power = 0;
 
