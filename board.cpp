@@ -1104,14 +1104,14 @@ std::cout<<std::endl;
 	std::cout << std::endl;
 	
 	std::cout << "White losses" << std::endl;
-	for (int i=0 ; i<15 ; i++)
+	for (int i=0 ; i<19 ; i++)
 	{
 	std::cout<<valhalla_FEN_[i];
 	}
 	std::cout<<std::endl;
 	
 	std::cout << "Black losses" << std::endl;
-	for (size_t j=15 ; j<valhalla_FEN_.length() ; j++)
+	for (size_t j=19 ; j<valhalla_FEN_.length() ; j++)
 	{
 	std::cout<<valhalla_FEN_[j];
 	}
