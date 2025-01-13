@@ -20,6 +20,7 @@ public:
 	
 	Board();
 	Board(std::string FEN);
+	Board(std::string FEN, std::string Valhalla_FEN);
 	~Board();
 	
 	//Functions to get variables

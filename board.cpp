@@ -11,7 +11,7 @@
 // Board Constructor
 Board::Board() {
 	std::string startFEN = "rnbqkbnrpppppppp................................PPPPPPPPRNBQKBNR";
-	std::string start_valhalla_FEN = "..............................";
+	std::string start_valhalla_FEN = "QRBN...............qrbn...............";
 	FEN_ = startFEN;
 	valhalla_FEN_ = start_valhalla_FEN;
 	specialRulesData_ = "wKQkq";
@@ -27,7 +27,18 @@ Board::Board() {
 Board::Board(std::string _FEN) {
 	FEN_ = _FEN;
 	pieces_ = FENtoPieces(FEN_);
-	std::string start_valhalla_FEN = "..............................";
+	std::string start_valhalla_FEN = "QRBN...............qrbn...............";
+	valhalla_FEN_ = start_valhalla_FEN;
+	specialRulesData_ = "wKQkq";
+	en_passant_index_= 99;
+	valhalla_pieces_ = valhallaFENtoPieces(valhalla_FEN_);
+	end_game_ = false;
+}
+
+Board::Board(std::string _FEN, std::string _Valhalla_FEN) {
+	FEN_ = _FEN;
+	pieces_ = FENtoPieces(FEN_);
+	std::string start_valhalla_FEN = _Valhalla_FEN;
 	valhalla_FEN_ = start_valhalla_FEN;
 	specialRulesData_ = "wKQkq";
 	en_passant_index_= 99;
@@ -1128,11 +1139,8 @@ std::string Board::valhalla_index_to_coord(const int &index){
 	std::string coord(2, ' ');
 	std::string ref = "Vv";
 
-	std::stringstream ss;
-    ss << std::hex << index%15 + 1; //decimal to hex
-
-	char v_type = ref[index/15];
-	char place_number = ss.str()[0];
+	char v_type = ref[index/19];
+	char place_number = to_base(index - 19*(index/19) + 1 ,20)[0];
 	
 	coord[0] = v_type;
 	coord[1] = place_number;
@@ -1141,11 +1149,9 @@ std::string Board::valhalla_index_to_coord(const int &index){
 
 int Board::valhalla_coord_to_index(std::string v_coord){
 	char v_type = v_coord[0];
-	int place_number = v_coord[1];
-	std::string place_number_str(1, place_number);
-	int index = std::stoi(place_number_str, nullptr, 16);
+	int index = from_base(std::string(1,v_coord[1]), 20);
 	index--;
-	int add = (bool)std::isupper(v_type) ? 0 : 15;
+	int add = (bool)std::isupper(v_type) ? 0 : 19;
 	
 	index += add;
 	
