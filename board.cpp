@@ -1196,10 +1196,10 @@ void Board::go_to_valhalla(Piece killed_piece){
 	//Take a piece and this piece goes to valhalla
 	
 	bool is_piece_white = killed_piece.isWhite() ;
-	int start_index = (is_piece_white ? 0 : 15);
+	int start_index = (is_piece_white ? 0 : 19);
 	int free_index = start_index;
 	
-	for (int j=0 ; j<15 ; j++)
+	for (int j=0 ; j<19 ; j++)
 	{
 		if (valhalla_FEN_[j+start_index] == '.')
 		{
