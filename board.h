@@ -66,6 +66,7 @@ public:
 	bool is_en_passant_valid(const Move move);
 	bool isCheck(const bool isWhite, std::string square_to_verify);
 	bool isCheckmate(bool isWhite);
+	bool isPat(bool isWhite);
 	int  find_king(const bool isKingWhite);
 	int* trajectory(const Move move);
 	Piece* find_checking_pieces(const bool isKingWhite, std::string square_to_verify);

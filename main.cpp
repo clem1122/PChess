@@ -7,9 +7,9 @@
 
 int main() {
 
-	Board b("............Q..........k...........P...P..P.P...PP..P.P.RNB.KB.R");
+	Board b("..............Q..p.......K......p..p....P..P...................k");
 	b.print();
-	b.play("e3e4");
+	b.play("g7g3");
 	return 0;
 }
 

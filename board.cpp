@@ -209,7 +209,7 @@ std::string Board::create_msg(std::string departure_coord, std::string arrival_c
 
 	std::string fictive_msg = departure_coord + arrival_coord;
 	if(fictive_msg.length() != 4) {
-		std::cout << "Error create_msg : msg:" << fictive_msg << ">" <<std::endl;
+		std::cout << "Error create_msg : msg:<" << fictive_msg << ">" <<std::endl;
 	}
 	return fictive_msg;
 }
@@ -264,6 +264,11 @@ void Board::playMove(Move move, char promotion_piece) {
 			std::cout<<"Echec et mat !"<<std::endl;
 			end_game_ = true;
 		}
+	}
+
+	if(newBoard.isPat(not is_playing_player_white())){
+		std::cout << "Pat !" << std::endl;
+		end_game_ = true;
 	}
 	
 	//Send pieces to 
@@ -851,7 +856,7 @@ bool Board::isCheck(const bool isKingWhite, std::string square_to_verify) {
 		
 		if (list_checking_piece[0].type() != '.')
 		{
-			std::cout << "King checked by " << list_checking_piece[0].type() << std::endl;
+			//std::cout << "King checked by " << list_checking_piece[0].type() << std::endl;
 			//std::cout << "-2" << std::endl;
 			delete[] list_checking_piece; //delete inside if
 			return true;
@@ -972,30 +977,46 @@ NOTE : If there is more than 1 checking piece, moving the king is mandatory to a
 					
 					if (isLegal(fictive_blocking_move))
 					{
-						//std::cout << "-4" << std::endl;
 						delete[] attacking_trajectory; //delete inside if
 						return false;
 					}	
 				}
-				
 			}
-			
-			
-			
 		}
 	}
-	//std::cout << "-4*" << std::endl;
 	delete[] attacking_trajectory; //delete outside if
-
-
-// Finally, if there is no working option
+	// Finally, if there is no working option
 
 	return true;
 }
 
+bool Board::isPat(bool isWhite){
+	
+	int king_index = find_king(isWhite);	
+	if(isCheck(isWhite, indextoCoord(king_index))){return false;}
+
+	for (size_t i = 0; i < 64; i++)
+	{
+		Piece piece = pieces_[i];
+		if (piece.type() != '.' && piece.isWhite() == isWhite) {
+			for (size_t j = 0; j < 64; j++)
+			{
+				if(indextoCoord(j) == piece.coord() 
+				   || piece_on_square(indextoCoord(j)).type() == 'k' 
+				   || piece_on_square(indextoCoord(j)).type() == 'K') {continue;}
+
+				//std::cout << "start : " << piece.coord() << " end : " << indextoCoord(j) << std::endl;
+				Move move = create_move(create_msg(piece.coord(), indextoCoord(j)));
+				if(isLegal(move)){return false;}
+			}
+		}
+	}
+	return true;	
+}
+
 int Board::find_king(const bool isKingWhite){  // Return the index of the white or black king
 
-	for (int i = 0 ; i< 64 ; i++)
+	for (int i = 0 ; i < 64 ; i++)
 	{
 		Piece verified_piece = pieces_[i];
 		if (verified_piece.type() == 'k' || verified_piece.type() == 'K')
@@ -1027,7 +1048,7 @@ Piece* Board::find_checking_pieces(const bool isKingWhite, std::string square_to
 
         		if (is_piece_correctly_moving(attacking_move) && not is_there_obstacle_on_way(attacking_move)) 
         		{
-					std::cout << "suspect : " << j  << " type : " << piece.type() << std::endl;
+					//std::cout << "suspect : " << j  << " type : " << piece.type() << std::endl;
         			checking_pieces[j] = piece;
             		j++;
        			}	
