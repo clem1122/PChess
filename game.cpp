@@ -3,7 +3,7 @@
 #include <iostream>
 
 Game::Game() {
-	board = Board();
+	board_ = Board();
 	socketJ1_ = 0;
 	socketJ2_ = 0;
 	playCount_ = 0;
@@ -11,7 +11,7 @@ Game::Game() {
 }
 
 Game::Game(std::string FEN) {
-	board = Board(FEN);
+	board_ = Board(FEN);
 	socketJ1_ = 0;
 	socketJ2_ = 0;
 	playCount_ = 0;
@@ -23,21 +23,24 @@ Game::~Game() {
 
 }
 
-void Game::play(std::string msg) {
-	board.play(msg);
-	addToHistory(board.FEN(), board.specialRulesData());
+bool Game::play(std::string msg) {
+	if (board_.play(msg)) {
+		addToHistory(board_.FEN(), board_.specialRulesData());
 
-	if (board.end_game() != 'o')
-	{
-		set_isOver(true);
-		set_end_result(board.end_game());
-	}
+		if (board_.end_game() != 'o')
+		{
+			set_isOver(true);
+			set_end_result(board_.end_game());
+		}
 
-	if (is_game_null(board.FEN(), board.specialRulesData()))
-	{
-		set_isOver(true);
-		set_end_result('n');
+		if (is_game_null(board_.FEN(), board_.specialRulesData()))
+		{
+			set_isOver(true);
+			set_end_result('n');
+		}
+		return true;
 	}
+	return false;
 }
 
 void Game::addToHistory(std::string FEN, std::string specialRules) {

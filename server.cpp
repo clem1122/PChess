@@ -100,12 +100,12 @@ void* CommunicationRoutine(void* _) {
 			
 			do {
 				msg = receive(playerSocket);
-				move = game.board.create_move(std::string(msg));									
-				isMoveValid = game.board.isLegal(move) && 
+				move = game.board().create_move(std::string(msg));									
+				isMoveValid = game.board().isLegal(move) && 
 				(move.movingPiece().isWhite() != (playerSocket == game.socketJ2())); // soit isWhite et J1 soit !isWhite et J2 
 
 				if(not isMoveValid) {
-					if(!game.board.isLegal(move)) {
+					if(!game.board().isLegal(move)) {
 						std::cout << "Unvalid piece movement - Illegal :" << msg << std::endl;
 					} else {
 						std::cout << "Unvalid piece movement - Wrong color : " << msg << std::endl;
@@ -116,11 +116,11 @@ void* CommunicationRoutine(void* _) {
 			} while(!isMoveValid);
 			std::cout <<"Move : " << msg << std::endl;
 			//std::cout <<"Move.isCastling " << move.isCastling;
-			game.board.playMove(move);
+			game.board().playMove(move);
 			std::cout << "Plateau actuel : " << std::endl;
-			game.board.print();
-			game.board.valhalla_print();
-			std::string FEN = game.board.FEN();
+			game.board().print();
+			game.board().valhalla_print();
+			std::string FEN = game.board().FEN();
 			char* temp_msg = new char[FEN.length() + 1];
 			std::strcpy(temp_msg, FEN.c_str());
 			std::cout << temp_msg << std::endl;
