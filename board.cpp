@@ -18,7 +18,7 @@ Board::Board() {
 	en_passant_index_= 99;
 	pieces_ = FENtoPieces(FEN_);
 	valhalla_pieces_ = valhallaFENtoPieces(valhalla_FEN_);
-	end_game_ = false;
+	end_game_ = 'o';
 	
 }
 
@@ -32,7 +32,7 @@ Board::Board(std::string _FEN) {
 	specialRulesData_ = "wKQkq";
 	en_passant_index_= 99;
 	valhalla_pieces_ = valhallaFENtoPieces(valhalla_FEN_);
-	end_game_ = false;
+	end_game_ = 'o';
 }
 
 Board::Board(std::string _FEN, std::string _Valhalla_FEN) {
@@ -43,7 +43,7 @@ Board::Board(std::string _FEN, std::string _Valhalla_FEN) {
 	specialRulesData_ = "wKQkq";
 	en_passant_index_= 99;
 	valhalla_pieces_ = valhallaFENtoPieces(valhalla_FEN_);
-	end_game_ = false;
+	end_game_ = 'o';
 }
 
 // Board Destructor
@@ -262,13 +262,13 @@ void Board::playMove(Move move, char promotion_piece) {
 		if (newBoard.isCheckmate(not is_playing_player_white()))
 		{
 			std::cout<<"Echec et mat !"<<std::endl;
-			end_game_ = true;
+			end_game_ = is_playing_player_white() ? 'b' : 'w';
 		}
 	}
 
 	if(newBoard.isPat(not is_playing_player_white())){
 		std::cout << "Pat !" << std::endl;
-		end_game_ = true;
+		end_game_ = 'p';
 	}
 	
 	//Send pieces to 

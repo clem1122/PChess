@@ -12,6 +12,7 @@ private :
 	char* nameJ1_;
 	char* nameJ2_;
 	bool isOver_;
+	char end_result_;
 	std::array<std::string, 200> history_;
 	int playCount_;
 	
@@ -30,6 +31,7 @@ public:
 	void set_nameJ1(char* _nameJ1) {nameJ1_ = _nameJ1;};
 	void set_nameJ2(char* _nameJ2) {nameJ2_ = _nameJ2;};
 	void set_isOver(bool _isOver) {isOver_ = _isOver;};
+	void set_end_result(char _end_result) {end_result_ = _end_result;};
 	void addToHistory(std::string FEN, std::string specialRules);
 	void addPlayCount(){playCount_++;};
 	
@@ -40,11 +42,15 @@ public:
 	char* nameJ1() {return nameJ1_;};
 	char* nameJ2() {return nameJ2_;};
 	bool isOver() {return isOver_;};
+	char end_result() {return end_result_;};
 	std::array<std::string, 200> history(){ return history_;};
 	int playCount(){return playCount_;};
 
 	// print
 	void printHistory();
+
+	// Manage end game
+	bool Game::is_game_null(std::string FEN, std::string specialRules);
 
 };
 
