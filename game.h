@@ -1,5 +1,7 @@
 #pragma once
 #include "board.h"
+#include <array>
+
 
 class Game{
 
@@ -10,12 +12,16 @@ private :
 	char* nameJ1_;
 	char* nameJ2_;
 	bool isOver_;
+	std::array<std::string, 200> history_;
+	int playCount_;
 	
 public:
 
 	Board board;
 	Game();
+	Game(std::string FEN);
 	~Game();
+	void play(std::string msg);
 	
 	// Functions to set variables
 	
@@ -24,6 +30,8 @@ public:
 	void set_nameJ1(char* _nameJ1) {nameJ1_ = _nameJ1;};
 	void set_nameJ2(char* _nameJ2) {nameJ2_ = _nameJ2;};
 	void set_isOver(bool _isOver) {isOver_ = _isOver;};
+	void addToHistory(std::string FEN, std::string specialRules);
+	void addPlayCount(){playCount_++;};
 	
 	// Functions to get variables
 	
@@ -32,5 +40,11 @@ public:
 	char* nameJ1() {return nameJ1_;};
 	char* nameJ2() {return nameJ2_;};
 	bool isOver() {return isOver_;};
+	std::array<std::string, 200> history(){ return history_;};
+	int playCount(){return playCount_;};
+
+	// print
+	void printHistory();
+
 };
 
