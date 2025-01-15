@@ -69,6 +69,13 @@ void Game::printHistory(){
 	}
 }
 
+void Game::print(){
+	std::string player = board_.is_playing_player_white() ? "blancs" : "noirs";
+	std::cout<< "Coup " << playCount_<< " : Trait aux " << player << std::endl;
+	board_.print();
+	board_.valhalla_print();
+}
+
 bool Game::is_game_null(std::string FEN, std::string specialRules){
 
 	int identical_count = 0;
@@ -76,9 +83,13 @@ bool Game::is_game_null(std::string FEN, std::string specialRules){
 
 	for (int i = 0 ; i< playCount_ ; i++)
 	{
-		if (actual_state.compare(history_[i]))
+		std::cout << "actual : " << actual_state<< std::endl;
+		std::cout << "compare to FEN " << i << ": " << history_[i]<< std::endl;
+		if (actual_state.compare(history_[i]) == 0)
 		{
+			
 			identical_count++;
+			std::cout<<"Identiques, identical_count = "<< identical_count<<std::endl;
 		}
 
 		if (identical_count == 3) 

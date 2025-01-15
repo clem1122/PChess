@@ -267,7 +267,7 @@ void Board::playMove(Move move, char promotion_piece) {
 	}
 
 	if(newBoard.isPat(not is_playing_player_white())){
-		std::cout << "Pat !" << std::endl;
+		//std::cout << "Pat !" << std::endl;
 		end_game_ = 'p';
 	}
 	

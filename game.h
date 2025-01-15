@@ -49,6 +49,7 @@ public:
 
 	// print
 	void printHistory();
+	void print();
 
 	// Manage end game
 	bool is_game_null(std::string FEN, std::string specialRules);
