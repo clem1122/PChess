@@ -21,7 +21,7 @@ public:
 	Board();
 	Board(std::string FEN);
 	Board(std::string FEN, std::string Valhalla_FEN);
-	Board(std::string FEN, std::string Valhalla_FEN, int en_passant_index);
+	Board(std::string FEN, int en_passant_index);
 	~Board();
 	
 	//Functions to get variables

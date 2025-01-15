@@ -46,16 +46,17 @@ Board::Board(std::string _FEN, std::string _Valhalla_FEN) {
 	end_game_ = 'o';
 }
 
-Board::Board(std::string _FEN, std::string _Valhalla_FEN, int en_passant_index) {
+Board::Board(std::string _FEN, int en_passant_index) {
 	FEN_ = _FEN;
 	pieces_ = FENtoPieces(FEN_);
-	std::string start_valhalla_FEN = _Valhalla_FEN;
+	std::string start_valhalla_FEN = "QRBN...............qrbn...............";
 	valhalla_FEN_ = start_valhalla_FEN;
 	specialRulesData_ = "wKQkq";
 	en_passant_index_= en_passant_index;
 	valhalla_pieces_ = valhallaFENtoPieces(valhalla_FEN_);
 	end_game_ = 'o';
 }
+
 
 // Board Destructor
 Board::~Board() {
