@@ -15,7 +15,8 @@ PYBIND11_MODULE(PChess, m)
 		.def(py::init<std::string>())
 		.def("board", &Game::board)
 		.def("add_to_history", &Game::addToHistory)
-		.def("print_history", &Game::printHistory);
+		.def("print_history", &Game::printHistory)
+		.def("play", &Game::play);
 
 	py::class_<Piece>(m, "Piece")
 		.def(py::init<>())
