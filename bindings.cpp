@@ -17,6 +17,9 @@ PYBIND11_MODULE(PChess, m)
 		.def("add_to_history", &Game::addToHistory)
 		.def("print_history", &Game::printHistory)
 		.def("play", &Game::play);
+		.def("isOver", &Game::isOver, py::return_value_policy::reference)
+		.def("end_result", &Game::end_result, py::return_value_policy::reference)
+		.def("print_history", &Game::printHistory);
 
 	py::class_<Piece>(m, "Piece")
 		.def(py::init<>())

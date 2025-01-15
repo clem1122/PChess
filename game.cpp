@@ -7,6 +7,7 @@ Game::Game() {
 	socketJ1_ = 0;
 	socketJ2_ = 0;
 	playCount_ = 0;
+	end_result_ = 'o';
 }
 
 Game::Game(std::string FEN) {
@@ -14,6 +15,7 @@ Game::Game(std::string FEN) {
 	socketJ1_ = 0;
 	socketJ2_ = 0;
 	playCount_ = 0;
+	end_result_ = 'o';
 
 }
 
