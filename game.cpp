@@ -27,6 +27,25 @@ bool Game::play(std::string msg) {
 		return true;
 	}
 	return false;
+
+bool Game::play(std::string msg) {
+	if (board.play(msg)) {
+		addToHistory(board.FEN(), board.specialRulesData());
+
+		if (board.end_game() != 'o')
+		{
+			set_isOver(true);
+			set_end_result(board.end_game());
+		}
+
+		if (is_game_null(board.FEN(), board.specialRulesData()))
+		{
+			set_isOver(true);
+			set_end_result('n');
+		}
+		return true
+	}
+	return false
 }
 
 void Game::addToHistory(std::string FEN, std::string specialRules) {
@@ -39,5 +58,26 @@ void Game::printHistory(){
 	{
 		std::cout << "Coup " << i << " : " << history_[i] << std::endl;
 	}
-	
 }
+
+bool Game::is_game_null(std::string FEN, std::string specialRules){
+
+	int identical_count = 0;
+	std::string actual_state = FEN + " " + specialRules;
+
+	for (int i = 0 ; i< playCount_ ; i++)
+	{
+		if (actual_state.compare(history_[i]))
+		{
+			identical_count++;
+		}
+
+		if (identical_count == 3) 
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+	
