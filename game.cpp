@@ -8,6 +8,7 @@ Game::Game() {
 	socketJ2_ = 0;
 	playCount_ = 0;
 	end_result_ = 'o';
+	isOver_ = false;
 }
 
 Game::Game(std::string FEN) {
@@ -16,6 +17,7 @@ Game::Game(std::string FEN) {
 	socketJ2_ = 0;
 	playCount_ = 0;
 	end_result_ = 'o';
+	isOver_ = false;
 
 }
 
@@ -31,12 +33,24 @@ bool Game::play(std::string msg) {
 		{
 			isOver_ = true;
 			end_result_ = board_.end_game();
+
+			if (board_.end_game() == 'p') 
+			{
+				std::cout<< "Pat !"<<std::endl;
+			}
+			else
+			{
+				std::string victory_msg = board_.is_playing_player_white() ? "noirs !" : "blancs !";
+				std::cout<<"Echec et mat ! Victoire des "<< victory_msg << std::endl;
+			}
 		}
 
 		if (is_game_null(board_.FEN(), board_.specialRulesData()))
 		{
 			isOver_ = true;
 			end_result_ = 'n';
+
+			std::cout<<"Match nul !"<<std::endl;
 		}
 		return true;
 	}

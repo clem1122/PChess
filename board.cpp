@@ -261,7 +261,7 @@ void Board::playMove(Move move, char promotion_piece) {
 		
 		if (newBoard.isCheckmate(not is_playing_player_white()))
 		{
-			std::cout<<"Echec et mat !"<<std::endl;
+			//std::cout<<"Echec et mat !"<<std::endl;
 			end_game_ = is_playing_player_white() ? 'b' : 'w';
 		}
 	}
