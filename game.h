@@ -50,7 +50,7 @@ public:
 	void printHistory();
 
 	// Manage end game
-	bool Game::is_game_null(std::string FEN, std::string specialRules);
+	bool is_game_null(std::string FEN, std::string specialRules);
 
 };
 

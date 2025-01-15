@@ -31,7 +31,7 @@ void Game::play(std::string msg) {
 		set_end_result(board.end_game());
 	}
 
-	if (is_game_null)
+	if (is_game_null(board.FEN(), board.specialRulesData()))
 	{
 		set_isOver(true);
 		set_end_result('n');
