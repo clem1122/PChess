@@ -88,7 +88,7 @@ bool Game::is_game_null(std::string FEN, std::string specialRules){
 		if (actual_state.compare(history_[i]) == 0)
 		{
 			identical_count++;
-			std::cout<<"Identiques à  "<< history_[i] << "( identical_count = "<<identical_count<<" )" <<std::endl;
+			//std::cout<<"Identiques à  "<< history_[i] << "( identical_count = "<<identical_count<<" )" <<std::endl;
 		}
 
 		if (identical_count == 3) 
