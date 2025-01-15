@@ -1087,14 +1087,13 @@ bool Board::play(std::string m){
 
 	if (m.length() == 5) 
 	{
-		promotion_piece = m[4];
-		int start_index = coordtoIndex(start);
-		if (std::string("pPbBnNrRqQ").find(promotion_piece) == std::string::npos || isupper(promotion_piece) != isupper(FEN_[start_index]))
+		if (std::string("pbnrq").find(m[4]) == std::string::npos)
 		{
-			std::cout << "Error play : " << promotion_piece << " is not a correct promotion" << std::endl;
+			std::cout << "Error play : " << promotion_piece << " is not a correct promotion (alway use the lower case)" << std::endl;
 			return false;
 		}
 
+		promotion_piece = (end[1] == '8') ? toupper(m[4]) : tolower(m[4]);
 		std::string reduced_m = m.substr(0,4);
 		move = create_move(reduced_m);
 	}
