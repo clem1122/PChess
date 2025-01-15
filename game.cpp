@@ -22,30 +22,23 @@ Game::~Game() {
 }
 
 bool Game::play(std::string msg) {
-	if (board_.play(msg)){
+	if (board_.play(msg)) {
 		addToHistory(board_.FEN(), board_.specialRulesData());
-		return true;
-	}
-	return false;
 
-bool Game::play(std::string msg) {
-	if (board.play(msg)) {
-		addToHistory(board.FEN(), board.specialRulesData());
-
-		if (board.end_game() != 'o')
+		if (board_.end_game() != 'o')
 		{
 			set_isOver(true);
-			set_end_result(board.end_game());
+			set_end_result(board_.end_game());
 		}
 
-		if (is_game_null(board.FEN(), board.specialRulesData()))
+		if (is_game_null(board_.FEN(), board_.specialRulesData()))
 		{
 			set_isOver(true);
 			set_end_result('n');
 		}
-		return true
+		return true;
 	}
-	return false
+	return false;
 }
 
 void Game::addToHistory(std::string FEN, std::string specialRules) {
