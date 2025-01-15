@@ -80,10 +80,10 @@ bool Game::is_game_null(std::string FEN, std::string specialRules){
 
 	int identical_count = 0;
 	std::string actual_state = FEN + " " + specialRules;
-
+	//std::cout << "actual : " << actual_state<< std::endl;
 	for (int i = 0 ; i< playCount_ ; i++)
 	{
-		std::cout << "actual : " << actual_state<< std::endl;
+		
 		//std::cout << "compare to FEN " << i << ": " << history_[i]<< std::endl;
 		if (actual_state.compare(history_[i]) == 0)
 		{
