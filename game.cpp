@@ -3,14 +3,14 @@
 #include <iostream>
 
 Game::Game() {
-	board = Board();
+	board_ = Board();
 	socketJ1_ = 0;
 	socketJ2_ = 0;
 	playCount_ = 0;
 }
 
 Game::Game(std::string FEN) {
-	board = Board(FEN);
+	board_ = Board(FEN);
 	socketJ1_ = 0;
 	socketJ2_ = 0;
 	playCount_ = 0;
@@ -21,9 +21,12 @@ Game::~Game() {
 
 }
 
-void Game::play(std::string msg) {
-	board.play(msg);
-	addToHistory(board.FEN(), board.specialRulesData());
+bool Game::play(std::string msg) {
+	if (board_.play(msg)){
+		addToHistory(board_.FEN(), board_.specialRulesData());
+		return true;
+	}
+	return false;
 }
 
 void Game::addToHistory(std::string FEN, std::string specialRules) {

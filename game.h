@@ -14,14 +14,14 @@ private :
 	bool isOver_;
 	std::array<std::string, 200> history_;
 	int playCount_;
+	Board board_;
 	
 public:
 
-	Board board;
 	Game();
 	Game(std::string FEN);
 	~Game();
-	void play(std::string msg);
+	bool play(std::string msg);
 	
 	// Functions to set variables
 	
@@ -42,6 +42,7 @@ public:
 	bool isOver() {return isOver_;};
 	std::array<std::string, 200> history(){ return history_;};
 	int playCount(){return playCount_;};
+	Board board(){return board_;}
 
 	// print
 	void printHistory();
