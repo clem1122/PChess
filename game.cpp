@@ -29,14 +29,14 @@ bool Game::play(std::string msg) {
 
 		if (board_.end_game() != 'o')
 		{
-			set_isOver(true);
-			set_end_result(board_.end_game());
+			isOver_ = true;
+			end_result_ = board_.end_game();
 		}
 
 		if (is_game_null(board_.FEN(), board_.specialRulesData()))
 		{
-			set_isOver(true);
-			set_end_result('n');
+			isOver_ = true;
+			end_result_ = 'n';
 		}
 		return true;
 	}
