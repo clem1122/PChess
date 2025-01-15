@@ -5,7 +5,7 @@ from pybind11.setup_helpers import Pybind11Extension, build_ext
 ext_modules = [
     Pybind11Extension(
         "PChess",
-        ["bindings.cpp", "piece.cpp", "board.cpp", "move.cpp"],  # Fichiers sources
+        ["bindings.cpp", "piece.cpp", "board.cpp", "move.cpp", "game.cpp"],  # Fichiers sources
         extra_compile_args=['-g'],  # Add debugging symbols during compilation
         extra_link_args=['-g'],  # Add debugging symbols during linking
     ),
