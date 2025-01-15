@@ -1,6 +1,7 @@
 #include <pybind11/pybind11.h>
 #include "piece.h"
 #include "board.h"
+#include "game.h"
 #include <string>
 
 namespace py = pybind11;
@@ -8,6 +9,12 @@ namespace py = pybind11;
 PYBIND11_MODULE(PChess, m)
 {
 	m.doc() = "PChess library";
+
+	py::class_<Game>(m, "Game")
+		.def(py::init<>())
+		.def(py::init<std::string>())
+		.def("add_to_history", &Game::addToHistory)
+		.def("print_history", &Game::printHistory);
 
 	py::class_<Piece>(m, "Piece")
 		.def(py::init<>())
