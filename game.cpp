@@ -3,7 +3,7 @@
 #include <iostream>
 
 Game::Game() {
-	board_ = Board();
+	board = Board();
 	socketJ1_ = 0;
 	socketJ2_ = 0;
 	playCount_ = 0;
@@ -12,7 +12,7 @@ Game::Game() {
 }
 
 Game::Game(std::string FEN) {
-	board_ = Board(FEN);
+	board = Board(FEN);
 	socketJ1_ = 0;
 	socketJ2_ = 0;
 	playCount_ = 0;
@@ -26,26 +26,26 @@ Game::~Game() {
 }
 
 bool Game::play(std::string msg) {
-	if (board_.play(msg)) {
-		addToHistory(board_.FEN(), board_.specialRulesData());
+	if (board.play(msg)) {
+		addToHistory(board.FEN(), board.specialRulesData());
 
-		if (board_.end_game() != 'o')
+		if (board.end_game() != 'o')
 		{
 			isOver_ = true;
-			end_result_ = board_.end_game();
+			end_result_ = board.end_game();
 
-			if (board_.end_game() == 'p') 
+			if (board.end_game() == 'p') 
 			{
 				std::cout<< "Pat !"<<std::endl;
 			}
 			else
 			{
-				std::string victory_msg = board_.is_playing_player_white() ? "noirs !" : "blancs !";
+				std::string victory_msg = board.is_playing_player_white() ? "noirs !" : "blancs !";
 				std::cout<<"Echec et mat ! Victoire des "<< victory_msg << std::endl;
 			}
 		}
 
-		if (is_game_null(board_.FEN(), board_.specialRulesData()))
+		if (is_game_null(board.FEN(), board.specialRulesData()))
 		{
 			isOver_ = true;
 			end_result_ = 'n';
@@ -70,10 +70,10 @@ void Game::printHistory(){
 }
 
 void Game::print(){
-	std::string player = board_.is_playing_player_white() ? "blancs" : "noirs";
+	std::string player = board.is_playing_player_white() ? "blancs" : "noirs";
 	std::cout<< "Coup " << playCount_<< " : Trait aux " << player << std::endl;
-	board_.print();
-	board_.valhalla_print();
+	board.print();
+	board.valhalla_print();
 }
 
 bool Game::is_game_null(std::string FEN, std::string specialRules){

@@ -15,10 +15,10 @@ private :
 	char end_result_;
 	std::array<std::string, 200> history_;
 	int playCount_;
-	Board board_;
+	
 	
 public:
-
+	Board board;
 	Game();
 	Game(std::string FEN);
 	~Game();
@@ -45,8 +45,6 @@ public:
 	char end_result() {return end_result_;};
 	std::array<std::string, 200> history(){ return history_;};
 	int playCount(){return playCount_;};
-	Board board(){return board_;}
-
 	// print
 	void printHistory();
 	void print();
