@@ -20,7 +20,8 @@ PYBIND11_MODULE(PChess, m)
 		.def("isOver", &Game::isOver, py::return_value_policy::reference)
 		.def("end_result", &Game::end_result, py::return_value_policy::reference)
 		.def("print", &Game::print)
-		.def("print_history", &Game::printHistory);
+		.def("print_history", &Game::printHistory)
+		.def("play_count", &Game::playCount);
 
 	py::class_<Piece>(m, "Piece")
 		.def(py::init<>())
