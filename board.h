@@ -94,7 +94,7 @@ public:
 	std::string threatSquares(bool isWhite);
 	std::string playableSquares(bool isWhite);
 	std::string controlledSquares(bool isWhite);
-
+	std::string protectedPieces(bool isWhite);
 	void print();
 }; 
 	

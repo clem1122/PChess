@@ -13,7 +13,7 @@ ext_modules = [
 
 setup(
     name="PChess",
-    version="0.1",
+    version="1.0",
     ext_modules=ext_modules,
     cmdclass={"build_ext": build_ext},
 )

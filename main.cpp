@@ -7,10 +7,14 @@
 
 int main() {
 
-	Game game("..............Q..p.......K......p..p....P..P...................k");
-	//	Board b("..............Q..p.......K......p..p....P..P...................k");
-	game.play("g7g3");
-	game.printHistory();
+
+	//Game game("rnbqkbnrpppppppp................................PPPPPPPPRNpQKBNR");
+	//std::cout << game.board.threatSquares(false) << std::endl;	
+	Game game;
+	std::cout << game.board.protectedPieces(true) << std::endl; 
+	game.play("b1a4");
+	game.play("b1c3");
+
 	return 0;
 }
 

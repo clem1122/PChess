@@ -54,6 +54,7 @@ PYBIND11_MODULE(PChess, m)
 		.def("threats", &Board::threatSquares)
 		.def("playable", &Board::playableSquares)
 		.def("controlled", &Board::controlledSquares)
+		.def("protected", &Board::protectedPieces)
 		.def("to_base", &Board::to_base)
 		.def("from_base", &Board::from_base);
 

@@ -446,7 +446,7 @@ bool Board::is_piece_castling(std::string start, std::string end, Piece piece){
     {
         if ((start == "e1" && end == "c1") || (start == "e1" && end == "g1"))
         {
-            std::cout << "Roque valide" << std::endl;
+            //std::cout << "Roque valide" << std::endl;
             return true;
         }
     }
@@ -628,14 +628,11 @@ bool Board::is_piece_correctly_moving(const Move move){
 	}
 	
 	if (move.movingPiece().type()=='n' || move.movingPiece().type()=='N'){
-		//Knight can only move on 8 squares easily seen with the FEN
 		
-		int startIndex = Board::coordtoIndex(move.start());
-		int endIndex = Board::coordtoIndex(move.end());
-		
-		int FEN_gap=std::abs(startIndex-endIndex);
-		
-		if (FEN_gap==6 || FEN_gap==10 || FEN_gap==15 || FEN_gap==17){
+		int gap_row = std::abs(arrival_row-departure_row);
+		int gap_column = std::abs(arrival_column - departure_column);
+
+		if ((gap_row == 2 && gap_column == 1) || (gap_row == 1 && gap_column == 2)){
 			return true;
 		}
 	
@@ -1254,10 +1251,11 @@ std::string Board::threatSquares(bool isWhite){
 			for (int j = 0; j < 64; j++)
 			{
 				Piece p2 = pieces_[j];
-				if (p2.type() != '.' && p2.type() !='k' && p2.type() != 'K' && p2.isWhite() != isWhite)
+				if (p2.type() != '.' && p2.isWhite() != isWhite)
 				{
 					//std::cout << "Can " << p2.type() << " capture " << p.type() << std::endl;
 					std::string m = p2.coord() + p.coord();
+					//std::cout << "Is " << m << "legal ?" << std::endl;; 
 					Move move = create_move(m);
 					if (isLegal(move))
 					{
@@ -1299,6 +1297,29 @@ std::string Board::playableSquares(bool isWhite) {
 
 std::string Board::controlledSquares(bool isWhite) {
 	return playableSquares(!isWhite);	
+}
+
+std::string Board::protectedPieces(bool isWhite) {
+	std::string protectedPieces(64, '.');
+	for (int i = 0; i < 64; i++)
+	{
+		Piece p = pieces_[i];
+		if (p.type() != '.' && p.type() !='k' && p.type() != 'K' && p.isWhite() == isWhite)
+		{
+			std::string FENwithEnemy = FEN_;
+			FENwithEnemy[i] = isWhite ? 'p' : 'P';
+			Board boardWithEnemyPiece = Board(FENwithEnemy);
+			//boardWithEnemyPiece.print();
+			//std::cout << boardWithEnemyPiece.FEN() <<std::endl;
+			//std::cout << boardWithEnemyPiece.threatSquares(!isWhite) << std::endl;
+			if (boardWithEnemyPiece.threatSquares(!isWhite)[i] == '1') {
+				protectedPieces[i] = '1'; 
+
+			}
+
+		}
+	}
+	return protectedPieces;
 }
 
 std::string Board::to_base(int number,int base) {
