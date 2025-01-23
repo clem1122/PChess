@@ -4,7 +4,10 @@
 
 
 Move::Move(){
-
+	isCapture_ = false;
+	isPromotion_ = false;
+	isCastling_ = false;
+	isEnPassant_ = false;
 }
 
 Move::Move(std::string _start, std::string _end, Piece _movingPiece, bool _isCapture, bool _isPromotion, bool _isCastling, bool _isEnPassant){
