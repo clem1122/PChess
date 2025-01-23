@@ -1073,8 +1073,8 @@ bool Board::play(std::string m){
 	Move move;
 	char promotion_piece = '.';
 
-	if (m.length() != 4) {
-		std::cout << "Not a length of 4 characters" << std::endl;
+	if (m.length() != 4 && m.length() !=5) {
+		std::cout << "Not a length of 4 or 5 characters" << std::endl;
         return false;
     }
 
