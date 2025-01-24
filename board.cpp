@@ -1300,7 +1300,26 @@ std::string Board::playableSquares(bool isWhite) {
 }
 
 std::string Board::controlledSquares(bool isWhite) {
-	return playableSquares(!isWhite);	
+	// Donne les cases contrôlées par l'adversaire
+	std::string controlledSquares(64, '.');
+	for (int i = 0; i < 64; i++) //on itère sur toutes les cases du plateau
+	{
+		if (FEN_[i] != 'k' && FEN_[i] != 'K')
+		{
+			std::string FEN_with_ennemy = FEN_;
+			FEN_with_ennemy[i] = isWhite ? 'P' : 'p' ; // On remplace une case par un ennemi virtuel
+			Board board_with_enemy = Board(FEN_with_ennemy);
+
+			if (board_with_enemy.threatSquares(isWhite)[i] == '1') 
+			{
+				controlledSquares[i] = '1'; 
+
+			}
+
+		}
+
+	}
+	return controlledSquares;	
 }
 
 std::string Board::protectedPieces(bool isWhite) {
