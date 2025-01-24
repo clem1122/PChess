@@ -57,7 +57,11 @@ PYBIND11_MODULE(PChess, m)
 		.def("controlled", &Board::controlledSquares)
 		.def("protected", &Board::protectedPieces)
 		.def("to_base", &Board::to_base)
-		.def("from_base", &Board::from_base);
+		.def("from_base", &Board::from_base)
+		.def("is_check", &Board::isCheck)
+		.def("is_checkmate", &Board::isCheckmate)
+		.def("find_king", &Board::find_king);
+
 
 	py::class_<Move>(m, "Move")
 		.def(py::init<>())
