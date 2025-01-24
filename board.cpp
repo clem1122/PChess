@@ -880,6 +880,7 @@ bool Board::isCheck(const bool isKingWhite, std::string square_to_verify) {
 
 bool Board::isCheckmate(const bool isWhite){
 	int king_index = find_king(isWhite);
+	if (!isCheck(isWhite, indextoCoord(king_index))){ return false;}
 	Piece king = pieces_[king_index];
 	//std::cout << "+3" << std::endl;
 	Piece* checking_piece_list = find_checking_pieces(isWhite, king.coord()); //create
@@ -906,8 +907,6 @@ NOTE : If there is more than 1 checking piece, moving the king is mandatory to a
 			{
 				std::string fictive_escaping_msg = create_msg(king.coord(),king_new_coord); //create
 				Move move_king_escaping = create_move(fictive_escaping_msg);
-				
-				
 				
 				if (isLegal(move_king_escaping))
 				{
