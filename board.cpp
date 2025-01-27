@@ -1322,6 +1322,26 @@ std::string Board::controlledSquares(bool isWhite) {
 	return controlledSquares;	
 }
 
+std::string Board::checkingPieces(bool isWhite) {
+	std::string checkingPieces(64, '.');
+	int king_square = find_king(isWhite);
+	checkingPieces[king_square] = '1';
+	std::string king_coord = indextoCoord(king_square);
+	Piece* list_checking_piece = find_checking_pieces(isWhite, king_coord);
+
+
+	int i = 0;
+	while (list_checking_piece[i].type() != '.')
+		{
+			int index = coordtoIndex(list_checking_piece[i].coord());
+			checkingPieces[index] = '1';
+			i++;
+		}
+
+	return checkingPieces;
+
+}
+
 std::string Board::protectedPieces(bool isWhite) {
 	std::string protectedPieces(64, '.');
 	for (int i = 0; i < 64; i++)

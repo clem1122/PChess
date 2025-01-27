@@ -95,6 +95,7 @@ public:
 	std::string playableSquares(bool isWhite);
 	std::string controlledSquares(bool isWhite);
 	std::string protectedPieces(bool isWhite);
+	std::string checkingPieces(bool isWhite);
 	void print();
 }; 
 	
