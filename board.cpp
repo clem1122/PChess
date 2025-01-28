@@ -214,6 +214,9 @@ void Board::modify_piece(std::string coord, char piece_type){
 		int index = coordtoIndex(coord);
 		FEN_[index] = piece_type;
 	}
+
+	valhalla_pieces_ = valhallaFENtoPieces(valhalla_FEN_);
+	pieces_ = FENtoPieces(FEN_);
 	
 }
 // Utility function around move
