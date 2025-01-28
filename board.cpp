@@ -1283,7 +1283,7 @@ std::string Board::playableSquares(bool isWhite) {
 	{
 		Piece p = pieces_[i];
 		//std::cout << p.type() <<std::endl;
-		if (p.type() != '.' && p.type() !='k' && p.type() != 'K' && p.isWhite() == isWhite)
+		if (p.type() != '.' && p.isWhite() == isWhite)
 		{
 			for (int j = 0; j < 64; j++)
 			{
