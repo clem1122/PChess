@@ -21,6 +21,7 @@ public:
 	Board board;
 	Game();
 	Game(std::string FEN);
+	Game(std::string FEN, std::string valhalla_FEN);
 	~Game();
 	bool play(std::string msg);
 	

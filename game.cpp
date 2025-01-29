@@ -21,6 +21,16 @@ Game::Game(std::string FEN) {
 
 }
 
+Game::Game(std::string FEN, std::string valhalla_FEN) {
+	board = Board(FEN,valhalla_FEN);
+	socketJ1_ = 0;
+	socketJ2_ = 0;
+	playCount_ = 0;
+	end_result_ = 'o';
+	isOver_ = false;
+
+}
+
 Game::~Game() {
 
 }
